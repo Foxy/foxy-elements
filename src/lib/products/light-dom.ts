@@ -38,7 +38,7 @@ foxy-product-tile .foxy-product-tile {
   padding: ${t.space.md}; border: var(--border-default, ${t.border.default});
   border-radius: var(--border-radius-md, ${t.borderRadius.md}); background: var(--background-surface, ${t.background.surface});
 }
-foxy-product-tile .foxy-product-tile-media { position: relative; display: block; aspect-ratio: 1; overflow: hidden; border-radius: var(--border-radius-sm, ${t.borderRadius.sm}); background: var(--background-page, ${t.background.page}); }
+foxy-product-tile .foxy-product-tile-media { position: relative; display: block; color: inherit; text-decoration: none; aspect-ratio: 1; overflow: hidden; border-radius: var(--border-radius-sm, ${t.borderRadius.sm}); background: var(--background-page, ${t.background.page}); }
 foxy-product-tile .foxy-product-tile-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 foxy-product-tile .foxy-product-tile-name { margin: 0; font: ${t.font.bodyEmphasis}; }
 foxy-product-tile .foxy-product-tile-name a { color: inherit; text-decoration: none; }

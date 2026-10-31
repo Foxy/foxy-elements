@@ -34,6 +34,7 @@ export class ProductLinkElement extends HTMLElement {
   #loadedKey = "";
   #fallback: Node[] | null = null;
   #unwatch: (() => void) | null = null;
+  #renderedCurrency: string | null = null;
   #started = false;
 
   static get observedAttributes(): string[] {
@@ -112,7 +113,11 @@ export class ProductLinkElement extends HTMLElement {
       // renders, and comes back if it can't.
       this.#fallback ??= [...this.childNodes];
       this.#started = true;
-      this.#unwatch = watchFoxy2Session(() => this.#render());
+      // Re-rendering replaces the link, and with it the shopper's focus, so
+      // only a change of currency does.
+      this.#unwatch = watchFoxy2Session(() => {
+        if (resolveCurrency(this) !== this.#renderedCurrency) this.#render();
+      });
       this.#load();
     });
   }
@@ -176,6 +181,7 @@ export class ProductLinkElement extends HTMLElement {
 
     const locale = resolveLocale(this);
     const currency = resolveCurrency(this);
+    this.#renderedCurrency = currency;
     const link = document.createElement("a");
     link.className = "foxy-product-button";
     link.rel = "nofollow";

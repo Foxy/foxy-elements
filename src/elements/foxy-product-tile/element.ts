@@ -26,6 +26,7 @@ export class ProductTileElement extends HTMLElement {
   #fallback: Node[] | null = null;
   #started = false;
   #unwatch: (() => void) | null = null;
+  #renderedCurrency: string | null = null;
 
   static get observedAttributes(): string[] {
     return OBSERVED;
@@ -99,7 +100,11 @@ export class ProductTileElement extends HTMLElement {
       if (!this.isConnected || this.#started) return;
       this.#fallback ??= [...this.childNodes];
       this.#started = true;
-      this.#unwatch = watchFoxy2Session(() => this.#render());
+      // Re-rendering replaces the link, and with it the shopper's focus, so
+      // only a change of currency does.
+      this.#unwatch = watchFoxy2Session(() => {
+        if (resolveCurrency(this) !== this.#renderedCurrency) this.#render();
+      });
       this.#load();
     });
   }
@@ -174,6 +179,7 @@ export class ProductTileElement extends HTMLElement {
 
     const locale = resolveLocale(this);
     const currency = resolveCurrency(this);
+    this.#renderedCurrency = currency;
     const name = productName(product, locale);
     const pageHref = this.#pageHref(product);
     const pageUrl = pageHref ? new URL(pageHref, document.baseURI).href : null;

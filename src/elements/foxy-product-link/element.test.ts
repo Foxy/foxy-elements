@@ -130,3 +130,28 @@ describe("foxy-product-link", () => {
     expect(element.hasAttribute("show-price")).toBe(true);
   });
 });
+
+describe("foxy-product-link after a 2.0 add", () => {
+  it("keeps the shopper's focus, re-rendering only for a new currency", async () => {
+    const handlers: Record<string, () => void> = {};
+    window.FC = {
+      json: { locale_info: { int_curr_symbol: "USD " } },
+      client: { on: (event: string, handler: () => void) => (handlers[event] = handler) },
+    };
+    stub = stubCatalog();
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" show-price></foxy-product-link>`);
+    await vi.waitFor(() => expect(handlers["cart-submit.done"]).toBeDefined());
+    await settle();
+    const before = link(element)!;
+    before.focus();
+
+    handlers["cart-submit.done"]();
+    expect(link(element)).toBe(before);
+    expect(document.activeElement).toBe(before);
+
+    window.FC.json!.locale_info!.int_curr_symbol = "EUR ";
+    handlers["cart-submit.done"]();
+    expect(element.querySelector(".foxy-product-price")?.textContent).toBe("€15.20");
+    delete window.FC;
+  });
+});

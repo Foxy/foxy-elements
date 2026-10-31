@@ -65,14 +65,3 @@ export const VariantsWithoutOptions: Story = {
     await waitFor(() => expect(sent(canvasElement)).toEqual(["sku=SOCK-WOOL-S"]));
   },
 };
-
-export const Themed: Story = {
-  render: () =>
-    render({
-      sku: "TEE-ORG",
-      "show-quantity": true,
-      "theme-background-button-primary": "#0b5d3b",
-      "theme-color-primary": "#0b5d3b",
-      "theme-border-radius-sm": "999px",
-    }),
-};

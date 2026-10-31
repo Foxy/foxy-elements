@@ -128,6 +128,11 @@ describe("foxy-product-form", () => {
     expect(shadow(element).querySelector("[part=price]")!.textContent).toBe("$18.00");
   });
 
+  it("takes theme attributes", async () => {
+    const element = await mount(`sku="MUG-ENM-WHT" theme-background-button-primary="rgb(11, 93, 59)"`);
+    expect(getComputedStyle(submitButton(element)).backgroundColor).toBe("rgb(11, 93, 59)");
+  });
+
   it("adds a quantity when asked", async () => {
     const element = await mount(`sku="MUG-ENM-WHT" show-quantity`);
     const increase = [...shadow(element).querySelectorAll("button")].find((b) =>
