@@ -194,7 +194,7 @@ export const links: Links = {
     'fx:customer_portal_settings': { href: `./customer_portal_settings/${cps_id}` },
     'fx:process_subscription_webhook': { href: 'https://demo.api/virtual/empty?status=200' },
     'fx:products': { href: `./products?store_id=${id}` },
-    'fx:product_categories': { href: `./product_categories?store_id=${id}` },
+    'fx:product_collections': { href: `./product_collections?store_id=${id}` },
   }),
 
   items: ({
@@ -617,25 +617,25 @@ export const links: Links = {
     'fx:download_url': { href: 'about:blank' },
   }),
 
-  products: ({ id, store_id, inherit_from_id, category_id }) => ({
+  products: ({ id, store_id, inherit_from_id, collection_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:product_variants': { href: `./products?inherit_from_id=${id}&product_type=variant` },
     'fx:product_stock_rules': { href: `./product_stock_rules?source_product_id=${id}` },
     'fx:product_tags': { href: `./product_tags?product_id=${id}` },
-    'fx:product_events': { href: `./product_events?product_id=${id}` },
-    ...(category_id != null
-      ? { 'fx:product_category': { href: `./product_categories/${category_id}` } }
+    'fx:product_logs': { href: `./product_logs?product_id=${id}` },
+    ...(collection_id != null
+      ? { 'fx:product_collection': { href: `./product_collections/${collection_id}` } }
       : {}),
     ...(inherit_from_id != null
       ? { 'fx:parent_product': { href: `./products/${inherit_from_id}` } }
       : {}),
   }),
 
-  product_categories: ({ id, store_id, parent_id }) => ({
+  product_collections: ({ id, store_id, parent_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
-    'fx:products': { href: `./products?store_id=${store_id}&category_id=${id}` },
+    'fx:products': { href: `./products?store_id=${store_id}&collection_id=${id}` },
     ...(parent_id != null
-      ? { 'fx:parent_category': { href: `./product_categories/${parent_id}` } }
+      ? { 'fx:parent_collection': { href: `./product_collections/${parent_id}` } }
       : {}),
   }),
 
@@ -650,7 +650,7 @@ export const links: Links = {
     'fx:target_product': { href: `./products/${target_product_id}` },
   }),
 
-  product_events: ({ store_id, product_id }) => ({
+  product_logs: ({ store_id, product_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:product': { href: `./products/${product_id}` },
   }),

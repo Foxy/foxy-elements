@@ -6,17 +6,17 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { html } from 'lit-html';
 
-const NS = 'product-category-card';
+const NS = 'product-collection-card';
 const Base = ConfigurableMixin(TranslatableMixin(TwoLineCard, NS));
 
 /**
- * Card element for a product category (`fx:product_category`). Two-line
+ * Card element for a product collection (`fx:product_collection`). Two-line
  * layout matching ItemCategoryCard's visual style: name on top, slug below.
  *
- * @element foxy-product-category-card
+ * @element foxy-product-collection-card
  * @since 1.54.0
  */
-export class ProductCategoryCard extends Base<Data> {
+export class ProductCollectionCard extends Base<Data> {
   renderBody(): TemplateResult {
     return super.renderBody({
       title: data => html`${data.name}`,

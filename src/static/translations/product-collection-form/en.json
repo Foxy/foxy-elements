@@ -1,7 +1,7 @@
 {
   "header": {
-    "title_existing": "Category",
-    "title_new": "New category",
+    "title_existing": "Collection",
+    "title_new": "New collection",
     "subtitle": "",
     "copy-id": {
       "failed_to_copy": "Failed to copy",
@@ -34,9 +34,9 @@
       "v8n_invalid": "Use lowercase letters, numbers, and hyphens only."
     },
     "parent": {
-      "label": "Parent category",
+      "label": "Parent collection",
       "placeholder": "Choose a parent (optional)",
-      "helper_text": "Leave blank for a root category."
+      "helper_text": "Leave blank for a root collection."
     },
     "sort-order": {
       "label": "Sort order",
@@ -55,7 +55,7 @@
   "delete": {
     "delete": "Delete",
     "cancel": "Cancel",
-    "delete_prompt": "Delete this category? Categories with children or assigned products cannot be deleted."
+    "delete_prompt": "Delete this collection? Collections with children or assigned products cannot be deleted."
   },
   "submit": {
     "caption": "Save changes"

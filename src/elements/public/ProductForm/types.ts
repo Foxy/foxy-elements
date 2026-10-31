@@ -45,7 +45,7 @@ export interface ProductDefinition {
   brand?: string;
   gtin?: string;
   mpn?: string;
-  attributes?: Record<string, string | number | boolean>;
+  properties?: Record<string, string | number | boolean>;
   options?: ProductDefinitionOption[];
   meta_title?: string;
   meta_description?: string;
@@ -81,8 +81,8 @@ export interface Product extends Graph {
     'fx:product_variants': Products;
     'fx:product_stock_rules': ProductStockRules;
     'fx:product_tags': ProductTags;
-    'fx:product_events': ProductEvents;
-    'fx:product_category': import('../ProductCategoryForm/types').ProductCategory;
+    'fx:product_logs': ProductLogs;
+    'fx:product_collection': import('../ProductCollectionForm/types').ProductCollection;
     'fx:parent_product': Product;
     /** Present only when accessed via the admin Lambda. */
     'fx:create_upload_url'?: any;
@@ -103,8 +103,8 @@ export interface Product extends Graph {
     stock_level_initial: number | null;
     /** Number of active variants under this product (denormalized, read-only). */
     variant_count: number;
-    /** ID into `product_categories` (this is the Foxy Products taxonomy, NOT item_categories). */
-    category_id: number | null;
+    /** ID into `product_collections` (this is the Foxy Products taxonomy, NOT item_categories). */
+    collection_id: number | null;
     /** Soft-delete timestamp. `null` means active. */
     deleted_at: string | null;
     date_created: string | null;
@@ -148,11 +148,11 @@ export interface ProductStockRule extends Graph {
 // Imports forward-declared above
 // =============================================================================
 //
-// We import ProductCategory only as a type reference inside the Product `_links`
-// to avoid pulling the runtime definition. Same for ProductEvents and ProductTags
+// We import ProductCollection only as a type reference inside the Product `_links`
+// to avoid pulling the runtime definition. Same for ProductLogs and ProductTags
 // — they live in their own siblings' types.ts.
 
 import type { ProductTags } from '../ProductTagForm/types';
-import type { ProductEvents } from '../ProductEventCard/types';
+import type { ProductLogs } from '../ProductLogCard/types';
 
 export type Data = Resource<Product>;

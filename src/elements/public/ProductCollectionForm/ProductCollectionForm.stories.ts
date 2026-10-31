@@ -5,10 +5,10 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/product_categories/1',
-  parent: 'https://demo.api/hapi/product_categories',
+  href: 'https://demo.api/hapi/product_collections/1',
+  parent: 'https://demo.api/hapi/product_collections',
   nucleon: true,
-  localName: 'foxy-product-category-form',
+  localName: 'foxy-product-collection-form',
   translatable: true,
   configurable: {
     sections: ['timestamps', 'header', 'general'],

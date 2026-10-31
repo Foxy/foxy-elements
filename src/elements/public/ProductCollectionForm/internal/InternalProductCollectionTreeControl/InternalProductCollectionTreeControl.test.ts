@@ -1,51 +1,51 @@
 import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { InternalProductCategoryTreeControl } from './InternalProductCategoryTreeControl';
+import { InternalProductCollectionTreeControl } from './InternalProductCollectionTreeControl';
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { createRouter } from '../../../../../server/index';
 import { getByTestId } from '../../../../../testgen/getByTestId';
 
-describe('InternalProductCategoryTreeControl', () => {
-  it('imports and registers itself as foxy-internal-product-category-tree-control', () => {
-    expect(customElements.get('foxy-internal-product-category-tree-control')).to.equal(
-      InternalProductCategoryTreeControl
+describe('InternalProductCollectionTreeControl', () => {
+  it('imports and registers itself as foxy-internal-product-collection-tree-control', () => {
+    expect(customElements.get('foxy-internal-product-collection-tree-control')).to.equal(
+      InternalProductCollectionTreeControl
     );
   });
 
   it('extends InternalControl', () => {
-    expect(new InternalProductCategoryTreeControl()).to.be.instanceOf(InternalControl);
+    expect(new InternalProductCollectionTreeControl()).to.be.instanceOf(InternalControl);
   });
 
-  it('renders an empty placeholder when there are no categories', async () => {
-    const element = await fixture<InternalProductCategoryTreeControl>(html`
-      <foxy-internal-product-category-tree-control></foxy-internal-product-category-tree-control>
+  it('renders an empty placeholder when there are no collections', async () => {
+    const element = await fixture<InternalProductCollectionTreeControl>(html`
+      <foxy-internal-product-collection-tree-control></foxy-internal-product-collection-tree-control>
     `);
     // No `first` URL set; the loader has no data; the tree should be empty.
     expect(await getByTestId(element, 'tree')).to.exist;
     expect(await getByTestId(element, 'empty')).to.exist;
   });
 
-  it('renders the root-level "Add Category" affordance even when empty', async () => {
-    const element = await fixture<InternalProductCategoryTreeControl>(html`
-      <foxy-internal-product-category-tree-control></foxy-internal-product-category-tree-control>
+  it('renders the root-level "Add Collection" affordance even when empty', async () => {
+    const element = await fixture<InternalProductCollectionTreeControl>(html`
+      <foxy-internal-product-collection-tree-control></foxy-internal-product-collection-tree-control>
     `);
     expect(await getByTestId(element, 'add-root')).to.exist;
   });
 
   it('builds a nested tree from the fetched collection', async () => {
     const router = createRouter();
-    const element = await fixture<InternalProductCategoryTreeControl>(html`
-      <foxy-internal-product-category-tree-control
-        first="https://demo.api/hapi/product_categories"
+    const element = await fixture<InternalProductCollectionTreeControl>(html`
+      <foxy-internal-product-collection-tree-control
+        first="https://demo.api/hapi/product_collections"
         @fetch=${(e: Event) => router.handleEvent(e as any)}
       >
-      </foxy-internal-product-category-tree-control>
+      </foxy-internal-product-collection-tree-control>
     `);
     await waitUntil(() => element.renderRoot.querySelectorAll('[data-testid="node"]').length > 0);
 
     const nodes = Array.from(element.renderRoot.querySelectorAll('[data-testid="node"]'));
-    // 4 seeded categories total (All Products / Apparel / Shirts / Accessories).
+    // 4 seeded collections total (All Products / Apparel / Shirts / Accessories).
     expect(nodes.length).to.equal(4);
 
     // Root nodes (children of the top-level <ul>) should be just one in the
@@ -57,28 +57,28 @@ describe('InternalProductCategoryTreeControl', () => {
   });
 
   describe('action events', () => {
-    it('dispatches productcategory:create with parent_id=null on root add', async () => {
-      const element = await fixture<InternalProductCategoryTreeControl>(html`
-        <foxy-internal-product-category-tree-control></foxy-internal-product-category-tree-control>
+    it('dispatches productcollection:create with parent_id=null on root add', async () => {
+      const element = await fixture<InternalProductCollectionTreeControl>(html`
+        <foxy-internal-product-collection-tree-control></foxy-internal-product-collection-tree-control>
       `);
       const button = (await getByTestId(element, 'add-root')) as HTMLButtonElement;
 
       let detail: any = null;
-      element.addEventListener('productcategory:create', (e: Event) => {
+      element.addEventListener('productcollection:create', (e: Event) => {
         detail = (e as CustomEvent).detail;
       });
       button.click();
       expect(detail).to.deep.equal({ parent_id: null });
     });
 
-    it('dispatches productcategory:create with parent_id on child add', async () => {
+    it('dispatches productcollection:create with parent_id on child add', async () => {
       const router = createRouter();
-      const element = await fixture<InternalProductCategoryTreeControl>(html`
-        <foxy-internal-product-category-tree-control
-          first="https://demo.api/hapi/product_categories"
+      const element = await fixture<InternalProductCollectionTreeControl>(html`
+        <foxy-internal-product-collection-tree-control
+          first="https://demo.api/hapi/product_collections"
           @fetch=${(e: Event) => router.handleEvent(e as any)}
         >
-        </foxy-internal-product-category-tree-control>
+        </foxy-internal-product-collection-tree-control>
       `);
       await waitUntil(() => element.renderRoot.querySelectorAll('[data-testid="node"]').length > 0);
 
@@ -90,21 +90,21 @@ describe('InternalProductCategoryTreeControl', () => {
       const expectedId = Number(addChild!.dataset.id);
 
       let detail: any = null;
-      element.addEventListener('productcategory:create', (e: Event) => {
+      element.addEventListener('productcollection:create', (e: Event) => {
         detail = (e as CustomEvent).detail;
       });
       addChild!.click();
       expect(detail).to.deep.equal({ parent_id: expectedId });
     });
 
-    it('dispatches productcategory:edit with id', async () => {
+    it('dispatches productcollection:edit with id', async () => {
       const router = createRouter();
-      const element = await fixture<InternalProductCategoryTreeControl>(html`
-        <foxy-internal-product-category-tree-control
-          first="https://demo.api/hapi/product_categories"
+      const element = await fixture<InternalProductCollectionTreeControl>(html`
+        <foxy-internal-product-collection-tree-control
+          first="https://demo.api/hapi/product_collections"
           @fetch=${(e: Event) => router.handleEvent(e as any)}
         >
-        </foxy-internal-product-category-tree-control>
+        </foxy-internal-product-collection-tree-control>
       `);
       await waitUntil(() => element.renderRoot.querySelectorAll('[data-testid="node"]').length > 0);
 
@@ -114,21 +114,21 @@ describe('InternalProductCategoryTreeControl', () => {
       const expectedId = Number(editBtn!.dataset.id);
 
       let detail: any = null;
-      element.addEventListener('productcategory:edit', (e: Event) => {
+      element.addEventListener('productcollection:edit', (e: Event) => {
         detail = (e as CustomEvent).detail;
       });
       editBtn!.click();
       expect(detail).to.deep.equal({ id: expectedId });
     });
 
-    it('dispatches productcategory:delete with id', async () => {
+    it('dispatches productcollection:delete with id', async () => {
       const router = createRouter();
-      const element = await fixture<InternalProductCategoryTreeControl>(html`
-        <foxy-internal-product-category-tree-control
-          first="https://demo.api/hapi/product_categories"
+      const element = await fixture<InternalProductCollectionTreeControl>(html`
+        <foxy-internal-product-collection-tree-control
+          first="https://demo.api/hapi/product_collections"
           @fetch=${(e: Event) => router.handleEvent(e as any)}
         >
-        </foxy-internal-product-category-tree-control>
+        </foxy-internal-product-collection-tree-control>
       `);
       await waitUntil(() => element.renderRoot.querySelectorAll('[data-testid="node"]').length > 0);
 
@@ -138,7 +138,7 @@ describe('InternalProductCategoryTreeControl', () => {
       const expectedId = Number(deleteBtn!.dataset.id);
 
       let detail: any = null;
-      element.addEventListener('productcategory:delete', (e: Event) => {
+      element.addEventListener('productcollection:delete', (e: Event) => {
         detail = (e as CustomEvent).detail;
       });
       deleteBtn!.click();

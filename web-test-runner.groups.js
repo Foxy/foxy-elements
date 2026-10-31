@@ -516,12 +516,12 @@ export const groups = [
     files: './src/elements/public/ProductCard/**/*.test.ts',
   },
   {
-    name: 'foxy-product-category-card',
-    files: './src/elements/public/ProductCategoryCard/**/*.test.ts',
+    name: 'foxy-product-collection-card',
+    files: './src/elements/public/ProductCollectionCard/**/*.test.ts',
   },
   {
-    name: 'foxy-product-category-form',
-    files: './src/elements/public/ProductCategoryForm/**/*.test.ts',
+    name: 'foxy-product-collection-form',
+    files: './src/elements/public/ProductCollectionForm/**/*.test.ts',
   },
   {
     name: 'foxy-product-form',

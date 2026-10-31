@@ -1,12 +1,12 @@
 import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
-import { ProductCategoryForm } from './ProductCategoryForm';
+import { ProductCollectionForm } from './ProductCollectionForm';
 import { Data } from './types';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 
-describe('ProductCategoryForm', () => {
+describe('ProductCollectionForm', () => {
   it('imports and registers foxy-internal-text-control', () => {
     expect(customElements.get('foxy-internal-text-control')).to.exist;
   });
@@ -27,33 +27,33 @@ describe('ProductCategoryForm', () => {
     expect(customElements.get('foxy-internal-form')).to.exist;
   });
 
-  it('imports and registers foxy-internal-product-category-tree-control', () => {
-    expect(customElements.get('foxy-internal-product-category-tree-control')).to.exist;
+  it('imports and registers foxy-internal-product-collection-tree-control', () => {
+    expect(customElements.get('foxy-internal-product-collection-tree-control')).to.exist;
   });
 
-  it('imports and registers foxy-product-category-card', () => {
-    expect(customElements.get('foxy-product-category-card')).to.exist;
+  it('imports and registers foxy-product-collection-card', () => {
+    expect(customElements.get('foxy-product-collection-card')).to.exist;
   });
 
-  it('imports and registers itself as foxy-product-category-form', () => {
-    expect(customElements.get('foxy-product-category-form')).to.equal(ProductCategoryForm);
+  it('imports and registers itself as foxy-product-collection-form', () => {
+    expect(customElements.get('foxy-product-collection-form')).to.equal(ProductCollectionForm);
   });
 
-  it('has a default i18n namespace "product-category-form"', () => {
-    expect(ProductCategoryForm.defaultNS).to.equal('product-category-form');
+  it('has a default i18n namespace "product-collection-form"', () => {
+    expect(ProductCollectionForm.defaultNS).to.equal('product-collection-form');
   });
 
   it('extends InternalForm', () => {
-    expect(new ProductCategoryForm()).to.be.instanceOf(InternalForm);
+    expect(new ProductCollectionForm()).to.be.instanceOf(InternalForm);
   });
 
   it('extends NucleonElement', () => {
-    expect(new ProductCategoryForm()).to.be.instanceOf(NucleonElement);
+    expect(new ProductCollectionForm()).to.be.instanceOf(NucleonElement);
   });
 
   describe('v8n', () => {
     function run(form: Partial<Data>): (string | true)[] {
-      return ProductCategoryForm.v8n.map(rule => rule(form as Data, {} as Data));
+      return ProductCollectionForm.v8n.map(rule => rule(form as Data, {} as Data));
     }
 
     it('flags missing name', () => {
@@ -91,22 +91,22 @@ describe('ProductCategoryForm', () => {
   });
 
   describe('rendered structure', () => {
-    it('binds the parent picker to the productCategories collection', async () => {
-      const element = await fixture<ProductCategoryForm>(html`
-        <foxy-product-category-form
-          product-categories="https://demo.api/hapi/product_categories"
-        ></foxy-product-category-form>
+    it('binds the parent picker to the productCollections collection', async () => {
+      const element = await fixture<ProductCollectionForm>(html`
+        <foxy-product-collection-form
+          product-collections="https://demo.api/hapi/product_collections"
+        ></foxy-product-collection-form>
       `);
       const picker = element.renderRoot.querySelector(
         'foxy-internal-resource-picker-control[infer="parent"]'
       ) as HTMLElement | null;
-      expect(picker?.getAttribute('first')).to.equal('https://demo.api/hapi/product_categories');
+      expect(picker?.getAttribute('first')).to.equal('https://demo.api/hapi/product_collections');
       expect(picker?.getAttribute('property')).to.equal('parent_id');
     });
 
     it('renders the name, slug, and sort-order fields', async () => {
-      const element = await fixture<ProductCategoryForm>(html`
-        <foxy-product-category-form></foxy-product-category-form>
+      const element = await fixture<ProductCollectionForm>(html`
+        <foxy-product-collection-form></foxy-product-collection-form>
       `);
       expect(element.renderRoot.querySelector('foxy-internal-text-control[infer="name"]')).to.exist;
       expect(element.renderRoot.querySelector('foxy-internal-text-control[infer="slug"]')).to.exist;

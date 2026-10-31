@@ -1147,14 +1147,14 @@ export const defaults: Defaults = {
     stock_level: null,
     stock_level_initial: null,
     variant_count: 0,
-    category_id: null,
+    collection_id: null,
     deleted_at: null,
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
 
-  product_categories: (query, dataset) => ({
-    id: increment('product_categories', dataset),
+  product_collections: (query, dataset) => ({
+    id: increment('product_collections', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     parent_id: query.get('parent_id') ? parseInt(query.get('parent_id') as string) : null,
     name: '',
@@ -1184,12 +1184,13 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  product_events: (query, dataset) => ({
-    id: increment('product_events', dataset),
+  product_logs: (query, dataset) => ({
+    id: increment('product_logs', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     product_id: parseInt(query.get('product_id') ?? '0'),
-    event_type: 'created',
-    event_source: 'mit_admin',
+    transaction_id: null,
+    type: 'created',
+    source: 'mit_admin',
     changes: null,
     error_message: null,
     details: null,

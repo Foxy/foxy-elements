@@ -4,13 +4,13 @@ import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
-import './internal/InternalProductCategoryTreeControl/index';
+import './internal/InternalProductCollectionTreeControl/index';
 
-import '../ProductCategoryCard/index';
+import '../ProductCollectionCard/index';
 import '../I18n/index';
 
-import { ProductCategoryForm } from './ProductCategoryForm';
+import { ProductCollectionForm } from './ProductCollectionForm';
 
-customElements.define('foxy-product-category-form', ProductCategoryForm);
+customElements.define('foxy-product-collection-form', ProductCollectionForm);
 
-export { ProductCategoryForm };
+export { ProductCollectionForm };

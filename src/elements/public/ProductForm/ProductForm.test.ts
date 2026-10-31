@@ -170,16 +170,16 @@ describe('ProductForm', () => {
       expect(ctrl?.getAttribute('property')).to.be.null;
     });
 
-    it('forwards productCategories attribute to the category picker first link', async () => {
+    it('forwards productCollections attribute to the collection picker first link', async () => {
       const element = await fixture<ProductForm>(html`
         <foxy-product-form
-          product-categories="https://demo.api/hapi/product_categories"
+          product-collections="https://demo.api/hapi/product_collections"
         ></foxy-product-form>
       `);
       const picker = element.renderRoot.querySelector(
-        'foxy-internal-resource-picker-control[infer="category"]'
+        'foxy-internal-resource-picker-control[infer="collection"]'
       ) as HTMLElement | null;
-      expect(picker?.getAttribute('first')).to.equal('https://demo.api/hapi/product_categories');
+      expect(picker?.getAttribute('first')).to.equal('https://demo.api/hapi/product_collections');
     });
 
     it('hides the variants section when this product IS a variant', async () => {

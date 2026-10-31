@@ -2,25 +2,25 @@ import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../../../NucleonElement/NucleonElement';
 import type { Resource } from '@foxy.io/sdk/core';
-import type { ProductCategories, ProductCategory } from '../../types';
+import type { ProductCollections, ProductCollection } from '../../types';
 
 import { TranslatableMixin } from '../../../../../mixins/translatable';
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
-const NS = 'product-category-tree';
+const NS = 'product-collection-tree';
 const Base = TranslatableMixin(InternalControl, NS);
 
-type CategoryData = Resource<ProductCategory>;
+type CollectionData = Resource<ProductCollection>;
 
 interface TreeNode {
-  data: CategoryData;
+  data: CollectionData;
   children: TreeNode[];
 }
 
 /**
- * Tree visualization for product categories. Fetches the full collection in
+ * Tree visualization for product collections. Fetches the full collection in
  * a single request (page size capped via `limit` attribute, default 300),
  * builds a tree client-side from `parent_id` relations, and renders
  * recursively as nested `<details>` blocks.
@@ -32,14 +32,14 @@ interface TreeNode {
  * re-fetch.
  *
  * Events:
- * - `productcategory:create` — `detail.parent_id` is the parent (or `null` for a root).
- * - `productcategory:edit`   — `detail.id` is the category id.
- * - `productcategory:delete` — `detail.id` is the category id.
+ * - `productcollection:create` — `detail.parent_id` is the parent (or `null` for a root).
+ * - `productcollection:edit`   — `detail.id` is the collection id.
+ * - `productcollection:delete` — `detail.id` is the collection id.
  *
- * @element foxy-internal-product-category-tree-control
+ * @element foxy-internal-product-collection-tree-control
  * @since 1.54.0
  */
-export class InternalProductCategoryTreeControl extends Base {
+export class InternalProductCollectionTreeControl extends Base {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -49,16 +49,16 @@ export class InternalProductCategoryTreeControl extends Base {
     };
   }
 
-  /** Collection URL for `fx:product_categories`. */
+  /** Collection URL for `fx:product_collections`. */
   first: string | null = null;
 
-  /** Maximum number of categories to fetch (single page). */
+  /** Maximum number of collections to fetch (single page). */
   limit = 300;
 
   /** Bump this to force a re-fetch after a mutation. */
   refresh = 0;
 
-  private readonly __loaderId = 'productCategoriesLoader';
+  private readonly __loaderId = 'productCollectionsLoader';
 
   renderControl(): TemplateResult {
     const fetchUrl = this.__buildFetchUrl();
@@ -80,9 +80,9 @@ export class InternalProductCategoryTreeControl extends Base {
             type="button"
             class="text-primary cursor-pointer hover-underline"
             data-testid="add-root"
-            @click=${() => this.__dispatch('productcategory:create', { parent_id: null })}
+            @click=${() => this.__dispatch('productcollection:create', { parent_id: null })}
           >
-            <foxy-i18n infer="" key="add_root_category"></foxy-i18n>
+            <foxy-i18n infer="" key="add_root_collection"></foxy-i18n>
           </button>
         </div>
       </div>
@@ -102,14 +102,15 @@ export class InternalProductCategoryTreeControl extends Base {
     }
   }
 
-  private get __collection(): Resource<ProductCategories> | null {
-    type Loader = NucleonElement<Resource<ProductCategories>>;
+  private get __collection(): Resource<ProductCollections> | null {
+    type Loader = NucleonElement<Resource<ProductCollections>>;
     const selector = `#${this.__loaderId}`;
     return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
   }
 
   private get __tree(): TreeNode[] {
-    const items = (this.__collection?._embedded?.['fx:product_categories'] ?? []) as CategoryData[];
+    const items = (this.__collection?._embedded?.['fx:product_collections'] ??
+      []) as CollectionData[];
     if (!items.length) return [];
 
     // Build by id, then attach children to their parents.
@@ -171,7 +172,7 @@ export class InternalProductCategoryTreeControl extends Base {
               data-id=${node.data.id}
               @click=${(e: Event) => {
                 e.preventDefault();
-                this.__dispatch('productcategory:create', { parent_id: node.data.id });
+                this.__dispatch('productcollection:create', { parent_id: node.data.id });
               }}
             >
               <foxy-i18n infer="" key="add_child"></foxy-i18n>
@@ -183,7 +184,7 @@ export class InternalProductCategoryTreeControl extends Base {
               data-id=${node.data.id}
               @click=${(e: Event) => {
                 e.preventDefault();
-                this.__dispatch('productcategory:edit', { id: node.data.id });
+                this.__dispatch('productcollection:edit', { id: node.data.id });
               }}
             >
               <foxy-i18n infer="" key="edit"></foxy-i18n>
@@ -195,7 +196,7 @@ export class InternalProductCategoryTreeControl extends Base {
               data-id=${node.data.id}
               @click=${(e: Event) => {
                 e.preventDefault();
-                this.__dispatch('productcategory:delete', { id: node.data.id });
+                this.__dispatch('productcollection:delete', { id: node.data.id });
               }}
             >
               <foxy-i18n infer="" key="delete"></foxy-i18n>

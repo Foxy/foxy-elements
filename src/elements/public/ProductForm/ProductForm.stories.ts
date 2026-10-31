@@ -28,7 +28,7 @@ const summary: Summary = {
       'general:sku',
       'general:price',
       'general:description',
-      'general:category',
+      'general:collection',
       'stock:stock-level',
     ],
   },

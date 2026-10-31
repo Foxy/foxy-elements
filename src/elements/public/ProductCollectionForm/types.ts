@@ -9,27 +9,27 @@ import type { Rels } from '@foxy.io/sdk/backend';
 import type { Products } from '../ProductForm/types';
 
 // =============================================================================
-// ProductCategory graph
+// ProductCollection graph
 // =============================================================================
 //
-// Foxy Products taxonomy categories — separate from Foxy's billing/shipping
+// Foxy Products taxonomy collections — separate from Foxy's billing/shipping
 // `item_categories`. Tree shape via `parent_id` (adjacency list) plus a
 // materialized `path` for fast subtree queries (max depth 5).
 
-export interface ProductCategories extends Graph {
-  curie: 'fx:product_categories';
-  links: CollectionGraphLinks<ProductCategories>;
+export interface ProductCollections extends Graph {
+  curie: 'fx:product_collections';
+  links: CollectionGraphLinks<ProductCollections>;
   props: CollectionGraphProps;
-  child: ProductCategory;
+  child: ProductCollection;
 }
 
-export interface ProductCategory extends Graph {
-  curie: 'fx:product_category';
+export interface ProductCollection extends Graph {
+  curie: 'fx:product_collection';
   links: {
-    'self': ProductCategory;
+    'self': ProductCollection;
     'fx:store': Rels.Store;
     'fx:products': Products;
-    'fx:parent_category': ProductCategory;
+    'fx:parent_collection': ProductCollection;
     /** Present only when accessed via the admin Lambda. */
     'fx:create_upload_url'?: any;
   };
@@ -49,4 +49,4 @@ export interface ProductCategory extends Graph {
   };
 }
 
-export type Data = Resource<ProductCategory>;
+export type Data = Resource<ProductCollection>;

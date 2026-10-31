@@ -17,7 +17,7 @@ const Base = TranslatableMixin(InternalForm, NS);
 /**
  * Form element for creating or editing a Foxy Product (`fx:product`).
  *
- * Renders core fields (name, SKU, price, description, category, tags, stock)
+ * Renders core fields (name, SKU, price, description, collection, tags, stock)
  * plus collapsed placeholders for variants / advanced / events sections that
  * are filled in by Units 5/6/8/9.
  *
@@ -32,7 +32,7 @@ export class ProductForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      productCategories: { attribute: 'product-categories' },
+      productCollections: { attribute: 'product-collections' },
       __variantActions: { attribute: false },
     };
   }
@@ -51,8 +51,8 @@ export class ProductForm extends Base<Data> {
     ];
   }
 
-  /** Link to the `fx:product_categories` collection for this store, used by the category picker. */
-  productCategories: string | null = null;
+  /** Link to the `fx:product_collections` collection for this store, used by the collection picker. */
+  productCollections: string | null = null;
 
   /**
    * Parent product data, fetched on load when this form is in variant mode
@@ -61,20 +61,20 @@ export class ProductForm extends Base<Data> {
    */
   private __parentProduct: Data | null = null;
 
-  // The picker works in hrefs; the product stores category_id. A category's
-  // href is /product_categories/{id} beside /products/{id} and /stores/{id}.
-  private readonly __categoryGetValue = () => {
-    const id = this.form.category_id;
+  // The picker works in hrefs; the product stores collection_id. A collection's
+  // href is /product_collections/{id} beside /products/{id} and /stores/{id}.
+  private readonly __collectionGetValue = () => {
+    const id = this.form.collection_id;
     if (!id) return undefined;
     const self = this.data?._links.self.href;
-    if (self) return new URL(`../product_categories/${id}`, self).toString();
-    if (this.productCategories)
-      return new URL(`../../product_categories/${id}`, this.productCategories).toString();
+    if (self) return new URL(`../product_collections/${id}`, self).toString();
+    if (this.productCollections)
+      return new URL(`../../product_collections/${id}`, this.productCollections).toString();
   };
 
-  private readonly __categorySetValue = (href: string) => {
+  private readonly __collectionSetValue = (href: string) => {
     const id = getResourceId(href);
-    this.edit({ category_id: typeof id === 'number' ? id : null });
+    this.edit({ collection_id: typeof id === 'number' ? id : null });
   };
 
   private __variantActions: SwipeAction<Data>[] = [
@@ -107,7 +107,7 @@ export class ProductForm extends Base<Data> {
     }
 
     // Hide tags/events/stock-rules sub-collections until the product is saved
-    // (the fx:product_tags / fx:product_events / fx:product_stock_rules links
+    // (the fx:product_tags / fx:product_logs / fx:product_stock_rules links
     // require a server-assigned id).
     if (!this.href) {
       alwaysMatch.unshift('tags', 'events', 'stock-rules');
@@ -158,12 +158,12 @@ export class ProductForm extends Base<Data> {
 
         <foxy-internal-resource-picker-control
           layout="summary-item"
-          first=${ifDefined(this.productCategories ?? undefined)}
-          infer="category"
-          property="category_id"
-          .getValue=${this.__categoryGetValue}
-          .setValue=${this.__categorySetValue}
-          item="foxy-product-category-card"
+          first=${ifDefined(this.productCollections ?? undefined)}
+          infer="collection"
+          property="collection_id"
+          .getValue=${this.__collectionGetValue}
+          .setValue=${this.__collectionSetValue}
+          item="foxy-product-collection-card"
         >
         </foxy-internal-resource-picker-control>
       </foxy-internal-summary-control>

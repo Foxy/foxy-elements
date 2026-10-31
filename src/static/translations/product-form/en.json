@@ -42,10 +42,10 @@
       "helper_text": "Default-currency price.",
       "v8n_negative": "Must be zero or greater."
     },
-    "category": {
-      "label": "Category",
-      "placeholder": "Choose a category",
-      "helper_text": "Foxy Products taxonomy. Separate from billing/shipping item categories.",
+    "collection": {
+      "label": "Collection",
+      "placeholder": "Choose a collection",
+      "helper_text": "How the catalog is organised. Separate from item categories, which set tax and shipping.",
       "value": "{{ resource.name }}",
       "select": "Select",
       "view": "View",
@@ -53,7 +53,7 @@
       "dialog": {
         "cancel": "Cancel",
         "close": "Close",
-        "header": "Select a category",
+        "header": "Select a collection",
         "selection": {
           "label": "",
           "helper_text": "",
@@ -283,10 +283,10 @@
             "helper_text": "Default-currency price.",
             "v8n_negative": "Must be zero or greater."
           },
-          "category": {
-            "label": "Category",
-            "placeholder": "Choose a category",
-            "helper_text": "Foxy Products taxonomy. Separate from billing/shipping item categories.",
+          "collection": {
+            "label": "Collection",
+            "placeholder": "Choose a collection",
+            "helper_text": "How the catalog is organised. Separate from item categories, which set tax and shipping.",
             "value": "{{ resource.name }}",
             "select": "Select",
             "view": "View",
@@ -294,7 +294,7 @@
             "dialog": {
               "cancel": "Cancel",
               "close": "Close",
-              "header": "Select a category",
+              "header": "Select a collection",
               "selection": {
                 "label": "",
                 "helper_text": "",
