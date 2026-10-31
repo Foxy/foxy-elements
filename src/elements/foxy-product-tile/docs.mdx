@@ -1,0 +1,41 @@
+import { Meta } from "@storybook/blocks";
+import * as ProductTileStories from "./element.stories";
+
+<Meta of={ProductTileStories} name="Docs" />
+
+# foxy-product-tile
+
+One product in a grid: its first image, name, price, and either a one-click add or a link to the merchant's own page for the product. `foxy-product-collection` lays these out; a tile also works on its own.
+
+```html
+<foxy-product-tile sku="MUG-ENM-WHT" href="/shop/{sku}"></foxy-product-tile>
+```
+
+Everything renders in light DOM: the add link, so 2.0's `foxycart.js` takes it over (see `foxy-product-link`), and the text, so search engines read it. Each tile also carries schema.org `Product` data in a `<script type="application/ld+json">`, with an `Offer` (or, for a parent, an `AggregateOffer` over its variants) once the currency is known.
+
+## What it offers
+
+| Product | Action |
+| --- | --- |
+| Standalone or a variant, in stock, no required modifier | "Add to cart", adding in one click |
+| Parent, or a required modifier | "Choose options", linking to `href` |
+| Sold out | A "Sold out" badge; "View product" linking to `href`, or a disabled "Sold out" without one |
+
+A parent shows the range of its variants' prices. A listed parent comes without its variants, so the tile fetches it once by SKU for the range.
+
+## Attributes
+
+| Attribute | Property | |
+| --- | --- | --- |
+| `sku` | `sku` | The product's SKU. Not needed when `product` is set. |
+| `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
+| `href` | `href` | The merchant's page for the product. `{sku}` is replaced with its SKU. Foxy doesn't know where product pages live, so without it a tile can only add. |
+| `quick-add` | `quickAdd` | `never` always links to `href`. Default `auto`. |
+| `heading-level` | `headingLevel` | The name's heading level. Default `3`. |
+| `currency`, `currency-cookie`, `lang` | | As for `foxy-product-link`. The name shows in the `lang`'s translation when the catalog has one. |
+
+The `product` property takes a catalog product directly; the collection uses it so a grid makes one request.
+
+## Styling
+
+The same CSS variables as `foxy-product-link`, plus `--border-default`, `--border-radius-md`, `--background-surface` and `--background-page`. Classes: `.foxy-product-tile`, `.foxy-product-tile-media`, `.foxy-product-tile-name`, `.foxy-product-badge`, `.foxy-product-price`, `.foxy-product-button`.

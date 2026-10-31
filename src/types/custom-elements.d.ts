@@ -4,8 +4,10 @@ import type { CustomerPortalElement } from "@/elements/foxy-customer-portal/elem
 import type { PortalVariant } from "@/elements/foxy-customer-portal/types";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
+import type { ProductCollectionElement } from "@/elements/foxy-product-collection/element";
 import type { ProductFormElement } from "@/elements/foxy-product-form/element";
 import type { ProductLinkElement } from "@/elements/foxy-product-link/element";
+import type { ProductTileElement } from "@/elements/foxy-product-tile/element";
 import type {
   SideCartTriggerElement,
   SideCartTriggerLayout,
@@ -140,6 +142,34 @@ type ProductFormElementProps = Omit<
     "show-quantity"?: boolean;
   };
 
+type ProductTileElementProps = DetailedHTMLProps<
+  HTMLAttributes<ProductTileElement>,
+  ProductTileElement
+> &
+  ProductElementSharedProps & {
+    href?: string;
+    quickAdd?: "auto" | "never";
+    "quick-add"?: "auto" | "never";
+    headingLevel?: number;
+    "heading-level"?: number | string;
+  };
+
+type ProductCollectionElementProps = DetailedHTMLProps<
+  HTMLAttributes<ProductCollectionElement>,
+  ProductCollectionElement
+> &
+  Omit<ProductElementSharedProps, "sku"> & {
+    collection?: string;
+    tag?: string;
+    "in-stock"?: boolean | "true" | "false";
+    sort?: string;
+    limit?: number | string;
+    productHref?: string;
+    "product-href"?: string;
+    "quick-add"?: "auto" | "never";
+    "heading-level"?: number | string;
+  };
+
 type ExpressCheckoutElementProps = Omit<
   DetailedHTMLProps<
     HTMLAttributes<ExpressCheckoutElement>,
@@ -210,6 +240,8 @@ declare module "react" {
       "foxy-side-cart-trigger": SideCartTriggerElementProps;
       "foxy-product-link": ProductLinkElementProps;
       "foxy-product-form": ProductFormElementProps;
+      "foxy-product-tile": ProductTileElementProps;
+      "foxy-product-collection": ProductCollectionElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
       "google-pay-button": GooglePayButtonElementProps;
     }
@@ -226,6 +258,8 @@ declare module "react/jsx-runtime" {
       "foxy-side-cart-trigger": SideCartTriggerElementProps;
       "foxy-product-link": ProductLinkElementProps;
       "foxy-product-form": ProductFormElementProps;
+      "foxy-product-tile": ProductTileElementProps;
+      "foxy-product-collection": ProductCollectionElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
       "google-pay-button": GooglePayButtonElementProps;
     }

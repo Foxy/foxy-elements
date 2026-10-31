@@ -1,0 +1,1 @@
+export { ProductCollectionElement } from "./element";

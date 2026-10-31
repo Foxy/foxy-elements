@@ -1,0 +1,38 @@
+import { Meta } from "@storybook/blocks";
+import * as ProductCollectionStories from "./element.stories";
+
+<Meta of={ProductCollectionStories} name="Docs" />
+
+# foxy-product-collection
+
+A grid of `foxy-product-tile`s from the public catalog's list, a page at a time, with "Load more".
+
+```html
+<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-products.js"></script>
+
+<foxy-product-collection store="example.foxycart.com" collection="12" sort="price" product-href="/shop/{sku}">
+  <p>Loading the shop…</p>
+</foxy-product-collection>
+```
+
+The catalog lists standalone products and parents, and leaves out hidden products and variants. Whatever is inside the tag shows until the first page arrives.
+
+## Attributes
+
+| Attribute | Property | |
+| --- | --- | --- |
+| `store` | — | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
+| `collection` | `collection` | A product collection's id. Only products in that collection itself, not its sub-collections. |
+| `tag` | `tag` | Only products with this tag. |
+| `in-stock` | — | Only products in stock; `in-stock="false"` only those out of stock. |
+| `sort` | `sort` | `price`, `name` or `date_created`, with `-` first for descending. Default `-date_created`. |
+| `limit` | `limit` | Products a page, at most 100. Default 20. |
+| `product-href` | `productHref` | Each tile's `href`, such as `/shop/{sku}`. |
+| `quick-add`, `heading-level` | | Passed to every tile. |
+| `currency`, `currency-cookie`, `lang` | | Inherited by the tiles from this element. |
+
+Changing a query attribute starts the list over. The `products` property holds what has loaded so far. While a page loads, the element has `aria-busy="true"`; after "Load more", focus moves to the first product it loaded. An empty or failed list says so in a status message.
+
+## Styling
+
+`--foxy-product-tile-width` sets the narrowest a column gets (default `14rem`), and `--space-md` the gap. Classes: `.foxy-product-grid`, `.foxy-product-status`, `.foxy-product-more`.

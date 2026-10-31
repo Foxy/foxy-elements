@@ -1,0 +1,1 @@
+export { ProductTileElement } from "./element";

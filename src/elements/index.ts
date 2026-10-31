@@ -2,8 +2,10 @@ export * from "./foxy-ach-field";
 export * from "./foxy-customer-portal";
 export * from "./foxy-payment-card-field";
 export * from "./foxy-payment-method-selector";
+export * from "./foxy-product-collection";
 export * from "./foxy-product-form";
 export * from "./foxy-product-link";
+export * from "./foxy-product-tile";
 
 // foxy-side-cart-trigger is deliberately NOT re-exported here. Its module
 // imports `@foxy.io/sdk/checkout/side-cart`, which installs the sidecart as
