@@ -117,11 +117,25 @@ describe('ProductForm', () => {
     // triggering real sub-collection fetches from the internal async-list
     // and resource-picker controls.
 
-    it('renders the placeholder section divs for advanced/stock-rules/events', async () => {
+    it('renders a list of stock rules, giving its form the products to pick from', async () => {
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form parent="https://demo.api/hapi/stores/0/products"></foxy-product-form>
+      `);
+      const list = element.renderRoot.querySelector(
+        'foxy-internal-async-list-control[infer="stock-rules"]'
+      ) as HTMLElement & { formProps: Record<string, unknown> };
+
+      expect(list).to.have.attribute('item', 'foxy-product-stock-rule-card');
+      expect(list).to.have.attribute('form', 'foxy-product-stock-rule-form');
+      expect(list.formProps).to.deep.equal({ products: 'https://demo.api/hapi/stores/0/products' });
+    });
+
+    it('binds the list price control to definition.list_price', async () => {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
-      expect(await getByTestId(element, 'advanced-section')).to.exist;
-      expect(await getByTestId(element, 'stock-rules-section')).to.exist;
-      expect(await getByTestId(element, 'events-section')).to.exist;
+      const ctrl = element.renderRoot.querySelector(
+        'foxy-internal-number-control[infer="list-price"]'
+      );
+      expect(ctrl).to.have.attribute('property', 'definition.list_price');
     });
 
     it('does NOT render the inheritance note when there is no data', async () => {
@@ -129,18 +143,133 @@ describe('ProductForm', () => {
       expect(await getByTestId(element, 'inheritance-note')).to.not.exist;
     });
 
-    it('renders the inheritance note when product_type is "variant"', async () => {
-      // Set just the fields we need — `_links: {}` ensures the async-list
-      // and other sub-collection controls don't see a real href to fetch.
-      const data = {
-        product_type: 'variant',
-        _links: { self: { href: 'https://demo.api/hapi/products/2' } },
-      } as unknown as Data;
+    it("names a variant's parent, and shows its values as placeholders", async () => {
+      const router = createRouter();
       const element = await fixture<ProductForm>(html`
-        <foxy-product-form .data=${data}></foxy-product-form>
+        <foxy-product-form
+          href="https://demo.api/hapi/products/2"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-product-form>
       `);
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
-      expect(await getByTestId(element, 'inheritance-note')).to.exist;
+      await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+      await element.requestUpdate();
+
+      const parent = await getTestData<Data>('https://demo.api/hapi/products/1', router);
+      const note = (await getByTestId(element, 'inheritance-note'))?.querySelector('foxy-i18n');
+      expect(note).to.have.attribute('key', 'inheritance_note_parent');
+      const name = parent.compiled_definition?.name;
+      expect(note).to.have.deep.property('options', {
+        product: name ? `${name} (${parent.sku})` : parent.sku,
+      });
+
+      const price = element.renderRoot.querySelector('foxy-internal-number-control[infer="price"]');
+      const inheritedPrice = parent.compiled_definition?.price;
+      if (inheritedPrice !== undefined) {
+        expect(price).to.have.attribute('placeholder', String(inheritedPrice));
+      }
+    });
+
+    it('offers an add-to-cart link for a product that can be added to the cart', async () => {
+      const router = createRouter();
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form
+          href="https://demo.api/hapi/products/0"
+          default-domain="foxycart.com"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-product-form>
+      `);
+      await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+      await element.requestUpdate();
+
+      const store = await getTestData<any>('https://demo.api/hapi/stores/0', router);
+      const host = store.use_remote_domain
+        ? store.store_domain
+        : `${store.store_domain}.foxycart.com`;
+      const link = `https://${host}/cart?sku=${encodeURIComponent(element.data!.sku)}`;
+      const copy = (await getByTestId(element, 'cart-link'))?.querySelector(
+        'foxy-copy-to-clipboard'
+      );
+      expect(copy).to.have.attribute('text', link);
+    });
+
+    it("offers no add-to-cart link for a parent, which can't be added", async () => {
+      const router = createRouter();
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form
+          href="https://demo.api/hapi/products/1"
+          default-domain="foxycart.com"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-product-form>
+      `);
+      await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+      expect(await getByTestId(element, 'cart-link')).to.not.exist;
+    });
+
+    it('creates a template when Template is chosen as the kind', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const kind = element.renderRoot.querySelector(
+        'foxy-internal-radio-group-control[infer="kind"]'
+      ) as HTMLElement & { setValue: (v: string) => void; getValue: () => string };
+
+      expect(kind.getValue()).to.equal('product');
+      kind.setValue('template');
+      expect(element.form.product_type).to.equal('template');
+      expect(kind.getValue()).to.equal('template');
+    });
+
+    it('edits properties as lists of values, saving a single value as a string', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      element.edit({ definition: { name: 'Tee', properties: { material: 'Organic cotton' } } });
+      const control = element.renderRoot.querySelector(
+        'foxy-internal-array-map-control[infer="properties"]'
+      ) as HTMLElement & {
+        getValue: () => Record<string, string[]>;
+        setValue: (v: Record<string, string[]>) => void;
+      };
+
+      expect(control.getValue()).to.deep.equal({ material: ['Organic cotton'] });
+
+      control.setValue({ material: ['Organic cotton'], care: ['Machine wash', 'Line dry'] });
+      expect(element.form.definition?.properties).to.deep.equal({
+        material: 'Organic cotton',
+        care: ['Machine wash', 'Line dry'],
+      });
+
+      control.setValue({});
+      expect(element.form.definition).to.not.have.property('properties');
+      expect(element.form.definition?.name).to.equal('Tee');
+    });
+
+    it("lists a template's products, filtered by inherit_from_id", async () => {
+      // The API doesn't return a resource's id, so the form reads it from the self link.
+      const router = createRouter();
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form
+          href="https://demo.api/hapi/products/4"
+          parent="https://demo.api/hapi/stores/0/products"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-product-form>
+      `);
+      await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+      const template = { ...element.data } as Partial<Data>;
+      delete template.id;
+      element.data = template as Data;
+      await element.requestUpdate();
+
+      const list = element.renderRoot.querySelector(
+        'foxy-internal-async-list-control[infer="template-products"]'
+      );
+      expect(list).to.have.attribute(
+        'first',
+        'https://demo.api/hapi/stores/0/products?inherit_from_id=4'
+      );
+      expect(element.hiddenSelector.matches('template-products', true)).to.be.false;
+      expect(element.hiddenSelector.matches('stock-rules', true)).to.be.true;
+      expect(element.hiddenSelector.matches('variants', true)).to.be.true;
     });
 
     it('binds the name control to definition.name via property attribute', async () => {
@@ -197,9 +326,25 @@ describe('ProductForm', () => {
       // No href => unsaved.
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
       expect(element.hiddenSelector.matches('tags', true)).to.be.true;
-      expect(element.hiddenSelector.matches('events', true)).to.be.true;
       expect(element.hiddenSelector.matches('stock-rules', true)).to.be.true;
+      expect(element.hiddenSelector.matches('template-products', true)).to.be.true;
       expect(element.hiddenSelector.matches('variants', true)).to.be.true;
+      expect(element.hiddenSelector.matches('general:kind', true)).to.be.false;
+    });
+
+    it('fixes the kind once saved, and keeps templates off variants', async () => {
+      const data = {
+        product_type: 'variant',
+        _links: { self: { href: 'https://demo.api/hapi/products/2' } },
+      } as unknown as Data;
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form
+          href="https://demo.api/hapi/products/2"
+          .data=${data}
+        ></foxy-product-form>
+      `);
+      expect(element.hiddenSelector.matches('general:kind', true)).to.be.true;
+      expect(element.hiddenSelector.matches('general:template', true)).to.be.true;
     });
   });
 

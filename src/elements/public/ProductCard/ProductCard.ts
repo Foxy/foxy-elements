@@ -83,6 +83,12 @@ export class ProductCard extends Base<Data> {
             <span class="truncate" data-testid="sku">${data.sku}</span>
             <span class="text-tertiary">&bull;</span>
             ${this.__renderTypeBadge(data.product_type)}
+            ${data.inherit_from_id && data.product_type !== 'variant'
+              ? html`
+                  <span class="text-tertiary">&bull;</span>
+                  <foxy-i18n data-testid="uses-template" infer="" key="uses_template"></foxy-i18n>
+                `
+              : ''}
             <span class="text-tertiary">&bull;</span>
             ${this.__renderStockIndicator(stockState)}
             ${data.product_type === 'parent' && data.variant_count > 0

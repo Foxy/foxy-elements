@@ -78,6 +78,8 @@ export { ProductCard } from './ProductCard/ProductCard';
 export { ProductCollectionCard } from './ProductCollectionCard/ProductCollectionCard';
 export { ProductCollectionForm } from './ProductCollectionForm/ProductCollectionForm';
 export { ProductForm } from './ProductForm/ProductForm';
+export { ProductStockRuleCard } from './ProductStockRuleCard/ProductStockRuleCard';
+export { ProductStockRuleForm } from './ProductStockRuleForm/ProductStockRuleForm';
 export { ProductTagCard } from './ProductTagCard/ProductTagCard';
 export { ProductTagForm } from './ProductTagForm/ProductTagForm';
 export { PaymentCard } from './PaymentCard/PaymentCard';

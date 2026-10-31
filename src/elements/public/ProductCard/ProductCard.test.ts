@@ -57,6 +57,16 @@ describe('ProductCard', () => {
       return element;
     }
 
+    it('marks a product that inherits from a template', async () => {
+      const element = await renderWith({ id: 0, product_type: 'standalone', inherit_from_id: 4 });
+      expect(await getByTestId(element, 'uses-template')).to.exist;
+    });
+
+    it('leaves the template mark off a variant, which inherits from its parent', async () => {
+      const element = await renderWith({ id: 2, product_type: 'variant', inherit_from_id: 1 });
+      expect(await getByTestId(element, 'uses-template')).to.not.exist;
+    });
+
     it('renders the product name from definition.name', async () => {
       const element = await renderWith({ id: 0, definition: { name: 'Acme Widget' } as any });
       expect((await getByTestId(element, 'name'))?.textContent?.trim()).to.equal('Acme Widget');

@@ -1,0 +1,102 @@
+{
+  "header": {
+    "title_existing": "Stock rule",
+    "title_new": "New stock rule",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "target": {
+      "label": "Takes stock from",
+      "placeholder": "Choose a product",
+      "helper_text": "The product whose stock goes down when this one is bought. A template can't be chosen.",
+      "value": "{{name}} ({{sku}})",
+      "value_busy": "Loading…",
+      "value_fail": "Unknown product",
+      "select": "Select",
+      "view": "View",
+      "clear": "Clear",
+      "v8n_required": "Required.",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select a product",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select"
+          },
+          "card": {
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No data",
+              "loading_error": "Unknown error"
+            },
+            "price": "{{amount, price}}",
+            "type_standalone": "Standalone",
+            "type_parent": "Parent",
+            "type_variant": "Variant",
+            "type_template": "Template",
+            "uses_template": "Uses a template",
+            "stock_in_stock": "In stock",
+            "stock_low_stock": "Low stock",
+            "stock_out_of_stock": "Out of stock",
+            "stock_untracked": "Untracked",
+            "variant_count": "{{count}} variant",
+            "variant_count_plural": "{{count}} variants"
+          }
+        }
+      }
+    },
+    "multiplier": {
+      "label": "Units per purchase",
+      "placeholder": "1",
+      "helper_text": "Units taken from the target product for each one bought. 0 counts against nothing.",
+      "v8n_invalid": "Must be a whole number, 0 or more."
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "create": {
+    "caption": "Create"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Delete this stock rule? Rules can't be changed, so delete one and create it again to change it."
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "undo": {
+    "caption": "Undo"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}

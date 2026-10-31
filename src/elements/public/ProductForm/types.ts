@@ -37,7 +37,7 @@ export interface ProductDefinition {
   /** Price in the store's currency. The API stores what it's sent: a string or a number. */
   price?: number | string;
   /** Strikethrough/compare-at price for "$25 ~~$30~~" presentation. */
-  list_price?: number;
+  list_price?: number | string;
   /** Per-currency price overrides keyed by ISO 4217 code. */
   prices?: Record<string, string>;
   description?: string;
@@ -45,7 +45,8 @@ export interface ProductDefinition {
   brand?: string;
   gtin?: string;
   mpn?: string;
-  properties?: Record<string, string | number | boolean>;
+  /** Facts shown on the product page and used by catalog filters. Never added to the cart. */
+  properties?: Record<string, string | string[]>;
   options?: ProductDefinitionOption[];
   meta_title?: string;
   meta_description?: string;
@@ -113,38 +114,6 @@ export interface Product extends Graph {
 }
 
 // =============================================================================
-// ProductStockRule graph
-// =============================================================================
-
-export interface ProductStockRules extends Graph {
-  curie: 'fx:product_stock_rules';
-  links: CollectionGraphLinks<ProductStockRules>;
-  props: CollectionGraphProps;
-  child: ProductStockRule;
-}
-
-export interface ProductStockRule extends Graph {
-  curie: 'fx:product_stock_rule';
-  links: {
-    'self': ProductStockRule;
-    'fx:store': Rels.Store;
-    'fx:source_product': Product;
-    'fx:target_product': Product;
-  };
-  props: {
-    id: number;
-    /** When this product is purchased… */
-    source_product_id: number;
-    /** …decrement the stock of this product. */
-    target_product_id: number;
-    /** Units to decrement per unit purchased (default 1). */
-    multiplier: number;
-    date_created: string | null;
-    date_modified: string | null;
-  };
-}
-
-// =============================================================================
 // Imports forward-declared above
 // =============================================================================
 //
@@ -152,6 +121,7 @@ export interface ProductStockRule extends Graph {
 // to avoid pulling the runtime definition. Same for ProductLogs and ProductTags
 // — they live in their own siblings' types.ts.
 
+import type { ProductStockRules } from '../ProductStockRuleForm/types';
 import type { ProductTags } from '../ProductTagForm/types';
 import type { ProductLogs } from '../ProductLogCard/types';
 

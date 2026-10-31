@@ -528,6 +528,14 @@ export const groups = [
     files: './src/elements/public/ProductForm/**/*.test.ts',
   },
   {
+    name: 'foxy-product-stock-rule-card',
+    files: './src/elements/public/ProductStockRuleCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-stock-rule-form',
+    files: './src/elements/public/ProductStockRuleForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-product-tag-card',
     files: './src/elements/public/ProductTagCard/**/*.test.ts',
   },
