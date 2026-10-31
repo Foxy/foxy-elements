@@ -617,7 +617,7 @@ export const links: Links = {
     'fx:download_url': { href: 'about:blank' },
   }),
 
-  products: ({ id, store_id, inherit_from_id, collection_id }) => ({
+  products: ({ id, store_id, inherit_from_id, collection_id, definition }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:product_variants': { href: `./products?inherit_from_id=${id}&product_type=variant` },
     'fx:product_stock_rules': { href: `./product_stock_rules?source_product_id=${id}` },
@@ -628,6 +628,9 @@ export const links: Links = {
       : {}),
     ...(inherit_from_id != null
       ? { 'fx:parent_product': { href: `./products/${inherit_from_id}` } }
+      : {}),
+    ...((definition as { options?: unknown[] } | undefined)?.options?.length
+      ? { 'fx:generate_variants': { href: `./products/${id}/generate_variants` } }
       : {}),
   }),
 

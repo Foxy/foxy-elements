@@ -3,12 +3,18 @@ import '../../internal/InternalArrayMapControl/index';
 import '../../internal/InternalRadioGroupControl/index';
 import '../../internal/InternalResourcePickerControl/index';
 import '../../internal/InternalSummaryControl/index';
+import '../../internal/InternalSelectControl/index';
+import '../../internal/InternalSwitchControl/index';
 import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
 import './internal/InternalProductFormDescriptionControl/index';
 import './internal/InternalProductFormImagesControl/index';
+import './internal/InternalProductFormOptionsControl/index';
+import './internal/InternalProductFormModifiersControl/index';
+import './internal/InternalProductFormGenerateVariantsControl/index';
+import './internal/InternalProductFormCartLinkControl/index';
 
 import '../ProductStockRuleCard/index';
 import '../ProductStockRuleForm/index';

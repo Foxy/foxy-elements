@@ -81,8 +81,22 @@ export class ProductCard extends Base<Data> {
             style="gap: 0.5rem; margin-top: 0.125rem"
           >
             <span class="truncate" data-testid="sku">${data.sku}</span>
+            ${data.option_values && Object.keys(data.option_values).length
+              ? html`
+                  <span class="text-tertiary">&bull;</span>
+                  <span class="truncate" data-testid="option-values">
+                    ${Object.values(data.option_values).join(' / ')}
+                  </span>
+                `
+              : ''}
             <span class="text-tertiary">&bull;</span>
             ${this.__renderTypeBadge(data.product_type)}
+            ${data.hidden
+              ? html`
+                  <span class="text-tertiary">&bull;</span>
+                  <foxy-i18n data-testid="hidden" infer="" key="hidden"></foxy-i18n>
+                `
+              : ''}
             ${data.inherit_from_id && data.product_type !== 'variant'
               ? html`
                   <span class="text-tertiary">&bull;</span>

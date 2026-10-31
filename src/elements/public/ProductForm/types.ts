@@ -17,13 +17,62 @@ export interface ProductDefinitionImage {
   height?: number;
 }
 
-export interface ProductDefinitionOption {
-  name: string;
+/** An option's value. Only `value` is required; `label` and `sku_code` fall back to it. */
+export interface ProductOptionValue {
+  /** What a form sends and the order records. */
   value: string;
-  /** Override price for this option (additive to definition.price). */
-  price_mod?: number;
-  /** Override weight for this option (additive to definition.weight). */
+  /** What the shopper sees. */
+  label?: string;
+  /** The value's part of a generated SKU. */
+  sku_code?: string;
+  /** Swatch colour, `#rgb` or `#rrggbb`. */
+  color?: string;
+  /** Swatch image, shown in place of the colour when both are set. */
+  image?: { src: string; alt?: string };
+  /** Added to the price of a variant that doesn't set its own, in the store's currency. */
+  price_mod?: number | string;
+  /** Amounts for other currencies, keyed by ISO 4217 code. */
+  price_mods?: Record<string, string>;
   weight_mod?: number;
+}
+
+/** A choice that makes variants: each variant names one value for every option of its parent. */
+export interface ProductOption {
+  name: string;
+  label?: string;
+  values: ProductOptionValue[];
+}
+
+export interface ProductModifierValue {
+  value: string;
+  label?: string;
+  price_mod?: number | string;
+  price_mods?: Record<string, string>;
+  weight_mod?: number;
+  /** An item category code that replaces the item's category when this value is chosen. */
+  category_code?: string;
+}
+
+/** A shopper's choice recorded on the cart item, without changing which product it is. */
+export interface ProductModifier {
+  name: string;
+  label?: string;
+  type: 'select' | 'text';
+  required?: boolean;
+  /** `text` only. */
+  max_length?: number;
+  /** `text` only: applies when the shopper enters a value. */
+  price_mod?: number | string;
+  price_mods?: Record<string, string>;
+  weight_mod?: number;
+  /** `select` only. */
+  values?: ProductModifierValue[];
+}
+
+/** Removes the inherited modifier of that name. */
+export interface ProductModifierRemoval {
+  name: string;
+  remove: true;
 }
 
 /**
@@ -40,6 +89,8 @@ export interface ProductDefinition {
   list_price?: number | string;
   /** Per-currency price overrides keyed by ISO 4217 code. */
   prices?: Record<string, string>;
+  /** Per-currency list prices keyed by ISO 4217 code. */
+  list_prices?: Record<string, string>;
   description?: string;
   images?: ProductDefinitionImage[];
   brand?: string;
@@ -47,7 +98,10 @@ export interface ProductDefinition {
   mpn?: string;
   /** Facts shown on the product page and used by catalog filters. Never added to the cart. */
   properties?: Record<string, string | string[]>;
-  options?: ProductDefinitionOption[];
+  /** Declared on a parent or standalone only. */
+  options?: ProductOption[];
+  /** Merged by name with the inherited modifiers rather than replacing them. */
+  modifiers?: (ProductModifier | ProductModifierRemoval)[];
   meta_title?: string;
   meta_description?: string;
   weight?: number;
@@ -85,6 +139,8 @@ export interface Product extends Graph {
     'fx:product_logs': ProductLogs;
     'fx:product_collection': import('../ProductCollectionForm/types').ProductCollection;
     'fx:parent_product': Product;
+    /** Present on a product with options. */
+    'fx:generate_variants'?: any;
     /** Present only when accessed via the admin Lambda. */
     'fx:create_upload_url'?: any;
   };
@@ -96,6 +152,10 @@ export interface Product extends Graph {
     /** ID of the parent product when this is a variant, or the inherited template. */
     inherit_from_id: number | null;
     definition: ProductDefinition;
+    /** A variant's value for each of its parent's options; `null` for any other product. */
+    option_values?: Record<string, string> | null;
+    /** Left out of the public catalog's lists, but still sold and still found by SKU. */
+    hidden?: boolean;
     /** `definition` with inheritance applied, maintained by the API. */
     compiled_definition: ProductDefinition;
     /** `null` means the product is not stock-tracked (always available). */

@@ -1144,6 +1144,8 @@ export const defaults: Defaults = {
       ? parseInt(query.get('inherit_from_id') as string)
       : null,
     definition: {},
+    option_values: null,
+    hidden: false,
     stock_level: null,
     stock_level_initial: null,
     variant_count: 0,

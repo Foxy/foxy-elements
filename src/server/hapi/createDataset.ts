@@ -2318,7 +2318,28 @@ export const createDataset: () => Dataset = () => ({
         ],
         brand: 'Acme',
         gtin: '012345678901',
+        modifiers: [
+          {
+            name: 'engraving',
+            label: 'Engraving',
+            type: 'text',
+            max_length: 20,
+            price_mod: '6.00',
+          },
+          { name: 'recipient', label: 'Gift for', type: 'text', required: true, max_length: 60 },
+          {
+            name: 'delivery',
+            label: 'Delivery',
+            type: 'select',
+            required: true,
+            values: [
+              { value: 'Pickup', label: 'Pick up in store', category_code: 'PICKUP' },
+              { value: 'Delivered', label: 'Local delivery', category_code: 'LOCAL-DELIVERY' },
+            ],
+          },
+        ],
       },
+      hidden: false,
       stock_level: 42,
       stock_level_initial: 100,
       variant_count: 0,
@@ -2339,10 +2360,44 @@ export const createDataset: () => Dataset = () => ({
         description: 'Soft cotton tee with the Foxy logo.',
         images: [{ src: 'https://picsum.photos/seed/tee/400', alt: 'Foxy Tee' }],
         options: [
-          { name: 'Size', value: 'M' },
-          { name: 'Color', value: 'Blue' },
+          {
+            name: 'color',
+            label: 'Colour',
+            values: [
+              { value: 'Blue', sku_code: 'BLU', color: '#2f5d9e' },
+              { value: 'Red', sku_code: 'RED', color: '#b3261e' },
+              {
+                value: 'Natural',
+                label: 'Natural (undyed)',
+                sku_code: 'NAT',
+                image: { src: 'https://picsum.photos/seed/natural/80', alt: 'Undyed cotton' },
+              },
+            ],
+          },
+          {
+            name: 'size',
+            label: 'Size',
+            values: [
+              { value: 'S' },
+              { value: 'M' },
+              { value: 'L' },
+              { value: '2XL', price_mod: '2.00', price_mods: { EUR: '1.85' }, weight_mod: 0.04 },
+            ],
+          },
+        ],
+        modifiers: [
+          {
+            name: 'gift_wrap',
+            label: 'Gift wrap',
+            type: 'select',
+            values: [
+              { value: 'No', label: 'No thanks' },
+              { value: 'Yes', label: 'Wrap it', price_mod: '4.50', weight_mod: 0.05 },
+            ],
+          },
         ],
       },
+      hidden: false,
       stock_level: null,
       stock_level_initial: null,
       variant_count: 2,
@@ -2358,11 +2413,18 @@ export const createDataset: () => Dataset = () => ({
       product_type: 'variant',
       inherit_from_id: 1,
       definition: {
-        options: [
-          { name: 'Color', value: 'Blue' },
-          { name: 'Size', value: 'S' },
+        modifiers: [
+          {
+            name: 'engraving',
+            label: 'Engraving',
+            type: 'text',
+            max_length: 20,
+            price_mod: '6.00',
+          },
         ],
       },
+      option_values: { color: 'Blue', size: 'S' },
+      hidden: false,
       stock_level: 12,
       stock_level_initial: 50,
       variant_count: 0,
@@ -2378,11 +2440,10 @@ export const createDataset: () => Dataset = () => ({
       product_type: 'variant',
       inherit_from_id: 1,
       definition: {
-        options: [
-          { name: 'Color', value: 'Red' },
-          { name: 'Size', value: 'L' },
-        ],
+        modifiers: [{ name: 'gift_wrap', remove: true }],
       },
+      option_values: { color: 'Red', size: 'L' },
+      hidden: true,
       stock_level: 0,
       stock_level_initial: 50,
       variant_count: 0,
@@ -2401,7 +2462,11 @@ export const createDataset: () => Dataset = () => ({
         name: 'Conference Pass Template',
         description: 'Reusable defaults for event passes.',
         subscription_frequency: '',
+        modifiers: [
+          { name: 'attendee_name', label: 'Attendee name', type: 'text', required: true },
+        ],
       },
+      hidden: false,
       stock_level: null,
       stock_level_initial: null,
       variant_count: 0,

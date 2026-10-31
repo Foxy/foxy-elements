@@ -67,6 +67,21 @@ describe('ProductCard', () => {
       expect(await getByTestId(element, 'uses-template')).to.not.exist;
     });
 
+    it("shows a variant's option values, in its parent's order", async () => {
+      const element = await renderWith({ id: 2, option_values: { color: 'Blue', size: 'S' } });
+      expect((await getByTestId(element, 'option-values'))?.textContent?.trim()).to.equal(
+        'Blue / S'
+      );
+    });
+
+    it('marks a hidden product, and only a hidden one', async () => {
+      const hidden = await renderWith({ id: 3, hidden: true });
+      expect(await getByTestId(hidden, 'hidden')).to.exist;
+      const listed = await renderWith({ id: 0, hidden: false });
+      expect(await getByTestId(listed, 'hidden')).to.not.exist;
+      expect(await getByTestId(listed, 'option-values')).to.not.exist;
+    });
+
     it('renders the product name from definition.name', async () => {
       const element = await renderWith({ id: 0, definition: { name: 'Acme Widget' } as any });
       expect((await getByTestId(element, 'name'))?.textContent?.trim()).to.equal('Acme Widget');

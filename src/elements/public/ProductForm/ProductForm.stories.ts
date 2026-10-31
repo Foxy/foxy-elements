@@ -15,7 +15,12 @@ const summary: Summary = {
       'timestamps',
       'header',
       'general',
+      'option-values',
+      'options',
+      'modifiers',
       'stock',
+      'cart-link-builder',
+      'generate-variants',
       'tags',
       'variants',
       'advanced',
@@ -29,6 +34,7 @@ const summary: Summary = {
       'general:price',
       'general:description',
       'general:collection',
+      'general:hidden',
       'stock:stock-level',
     ],
   },
@@ -40,6 +46,8 @@ export const Playground = getStory({ ...summary, code: true });
 export const Empty = getStory(summary);
 export const Error = getStory(summary);
 export const Busy = getStory(summary);
+export const Parent = getStory({ ...summary, href: 'https://demo.api/hapi/products/1' });
+export const Variant = getStory({ ...summary, href: 'https://demo.api/hapi/products/2' });
 
 Empty.args.href = '';
 Error.args.href = 'https://demo.api/virtual/empty?status=404';

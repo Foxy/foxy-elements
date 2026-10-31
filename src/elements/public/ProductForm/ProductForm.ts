@@ -4,9 +4,16 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { SwipeAction } from '../../internal/InternalAsyncListControl/types';
 import type { BooleanSelector, Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
-import type { Data, ProductDefinition } from './types';
+import type { Data, ProductDefinition, ProductModifier, ProductOption } from './types';
 
 import { getResourceId } from '@foxy.io/sdk/core';
+import {
+  buildCartLink,
+  isRemoval,
+  mergeModifiers,
+  validateModifiers,
+  validateOptions,
+} from './catalog';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -30,7 +37,9 @@ export class ProductForm extends Base<Data> {
       ...super.properties,
       productCollections: { attribute: 'product-collections' },
       defaultDomain: { attribute: 'default-domain' },
+      parentProduct: { attribute: false },
       __variantActions: { attribute: false },
+      __deleteConfirmed: { attribute: false },
     };
   }
 
@@ -45,6 +54,38 @@ export class ProductForm extends Base<Data> {
         if (price === undefined || price === null || price === '') return true;
         return Number(price) >= 0 || 'price:v8n_negative';
       },
+      ({ definition }, host: ProductForm) => {
+        const own = (definition as ProductDefinition | undefined)?.modifiers;
+        const names = mergeModifiers(host.__inheritedModifiers, own ?? []).map(m => m.name);
+        const options = (definition as ProductDefinition | undefined)?.options;
+        return validateOptions(options, names).length === 0 || 'options:v8n_invalid';
+      },
+      (form, host: ProductForm) => {
+        const skus = host
+          .__variantsToDeleteBy(form)
+          .map(variant => variant.sku)
+          .join(' ');
+        if (!skus || host.__deleteConfirmed === skus) return true;
+        return 'options:v8n_confirm_delete';
+      },
+      (form, host: ProductForm) => {
+        const def = form.definition as ProductDefinition | undefined;
+        const optionNames = (
+          host.__isVariantForm(form) ? host.__parentOptions : def?.options ?? []
+        ).map(option => option.name);
+        const errors = validateModifiers(def?.modifiers, host.__inheritedModifiers, optionNames);
+        return errors.length === 0 || 'modifiers:v8n_invalid';
+      },
+      (form, host: ProductForm) => {
+        if (!host.__isVariantForm(form)) return true;
+        for (const option of host.__parentOptions) {
+          const value = form.option_values?.[option.name]?.toLowerCase();
+          if (!option.values.some(v => v.value.toLowerCase() === value)) {
+            return `option-values:${option.name}:v8n_required`;
+          }
+        }
+        return true;
+      },
     ];
   }
 
@@ -54,10 +95,19 @@ export class ProductForm extends Base<Data> {
   /** Host domain for stores without a custom domain, such as `foxycart.com`, for the add-to-cart link. */
   defaultDomain: string | null = null;
 
-  /** The product this one inherits from: its parent, or its template. */
-  private __parentProduct: Data | null = null;
+  /**
+   * The product this one inherits from: its parent, or its template. Loaded
+   * with the product; set it for a new variant, which has nothing to load yet.
+   */
+  parentProduct: Data | null = null;
 
   private __store: Resource<Rels.Store> | null = null;
+
+  /** The active variants, when this product has saved options. */
+  private __variants: { options: ProductOption[]; list: Data[] } | null = null;
+
+  /** The SKUs the merchant agreed to delete, so a further removal asks again. */
+  private __deleteConfirmed = '';
 
   private readonly __kindOptions = [
     { label: 'option_product', value: 'product' },
@@ -159,13 +209,16 @@ export class ProductForm extends Base<Data> {
     }
 
     // A variant inherits from its parent, never from a template.
-    if (type === 'variant') alwaysMatch.unshift('general:template');
+    if (this.__isVariant) alwaysMatch.unshift('general:template');
 
-    // The kind is chosen once, when the product is created.
-    if (this.href) alwaysMatch.unshift('general:kind');
+    // The kind is chosen once, when the product is created; a variant is never a template.
+    if (this.href || this.__isVariant) alwaysMatch.unshift('general:kind');
 
     // A template's stock is only where new products start, so nothing draws on it.
     if (type === 'template') alwaysMatch.unshift('stock-rules');
+
+    // A template is never listed, so there's nothing to hide it from.
+    if (this.form.product_type === 'template') alwaysMatch.unshift('general:hidden');
     if (type !== 'template') alwaysMatch.unshift('template-products');
 
     // These sub-collections need the saved product's links.
@@ -183,9 +236,16 @@ export class ProductForm extends Base<Data> {
   }
 
   renderBody(): TemplateResult {
-    const parent = this.__parentProduct;
+    const parent = this.parentProduct;
     const inherited = this.__inherited;
     const isTemplate = this.form.product_type === 'template';
+    const isVariant = this.__isVariant;
+    const ownOptions = this.form.definition?.options ?? [];
+    const optionNames = (isVariant ? this.__parentOptions : ownOptions).map(option => option.name);
+    const modifierNames = mergeModifiers(
+      this.__inheritedModifiers,
+      this.form.definition?.modifiers ?? []
+    ).map(modifier => modifier.name);
 
     return html`
       ${this.renderHeader()}
@@ -268,7 +328,9 @@ export class ProductForm extends Base<Data> {
         >
         </foxy-internal-resource-picker-control>
 
-        ${this.__cartLink
+        <foxy-internal-switch-control infer="hidden"></foxy-internal-switch-control>
+
+        ${this.__cartLink && !this.__cartLinkChoices
           ? html`
               <div class="flex items-center justify-between gap-m" data-testid="cart-link">
                 <div class="min-w-0">
@@ -281,6 +343,32 @@ export class ProductForm extends Base<Data> {
             `
           : ''}
       </foxy-internal-summary-control>
+
+      ${isVariant && this.__parentOptions.length
+        ? html`
+            <foxy-internal-summary-control infer="option-values">
+              ${this.__parentOptions.map(
+                option => html`
+                  <foxy-internal-select-control
+                    layout="summary-item"
+                    infer="option"
+                    data-option=${option.name}
+                    .label=${option.label || option.name}
+                    .helperText=${''}
+                    .v8nPrefix=${`option-values:${option.name}:`}
+                    .options=${option.values.map(v => ({
+                      rawLabel: v.label || v.value,
+                      value: v.value,
+                    }))}
+                    .getValue=${() => this.__getOptionValue(option)}
+                    .setValue=${(value: string) => this.__setOptionValue(option, value)}
+                  >
+                  </foxy-internal-select-control>
+                `
+              )}
+            </foxy-internal-summary-control>
+          `
+        : ''}
 
       <foxy-internal-product-form-description-control
         infer="description"
@@ -299,6 +387,31 @@ export class ProductForm extends Base<Data> {
       >
       </foxy-internal-array-map-control>
 
+      ${isVariant || isTemplate
+        ? ''
+        : html`
+            <foxy-internal-product-form-options-control
+              infer="options"
+              .modifierNames=${modifierNames}
+              .variantsToDelete=${this.__variantsToDelete.map(variant => variant.sku)}
+              .deleteConfirmed=${this.__deleteConfirmed ===
+              this.__variantsToDelete.map(variant => variant.sku).join(' ')}
+              @confirm-delete=${(evt: CustomEvent<boolean>) => {
+                const skus = this.__variantsToDelete.map(variant => variant.sku).join(' ');
+                this.__deleteConfirmed = evt.detail ? skus : '';
+                this.edit({});
+              }}
+            >
+            </foxy-internal-product-form-options-control>
+          `}
+
+      <foxy-internal-product-form-modifiers-control
+        infer="modifiers"
+        .inherited=${this.__inheritedModifiers}
+        .optionNames=${optionNames}
+      >
+      </foxy-internal-product-form-modifiers-control>
+
       <foxy-internal-summary-control infer="stock">
         <foxy-internal-number-control
           layout="summary-item"
@@ -308,6 +421,19 @@ export class ProductForm extends Base<Data> {
         >
         </foxy-internal-number-control>
       </foxy-internal-summary-control>
+
+      ${this.__cartLink && this.__cartLinkChoices
+        ? html`
+            <foxy-internal-product-form-cart-link-control
+              infer="cart-link-builder"
+              host=${this.__cartHost!}
+              sku=${this.data!.sku}
+              .options=${this.__cartLinkChoices.options}
+              .modifiers=${this.__cartLinkChoices.modifiers}
+            >
+            </foxy-internal-product-form-cart-link-control>
+          `
+        : ''}
 
       <foxy-internal-async-list-control
         layout="details"
@@ -330,6 +456,13 @@ export class ProductForm extends Base<Data> {
       >
       </foxy-internal-async-list-control>
 
+      ${this.data?._links['fx:generate_variants'] && !isVariant && !isTemplate
+        ? html`
+            <foxy-internal-product-form-generate-variants-control infer="generate-variants">
+            </foxy-internal-product-form-generate-variants-control>
+          `
+        : ''}
+
       <foxy-internal-async-list-control
         layout="details"
         infer="variants"
@@ -337,6 +470,8 @@ export class ProductForm extends Base<Data> {
         item="foxy-product-card"
         form="foxy-product-form"
         .actions=${this.__variantActions}
+        .formProps=${{ '.parentProduct': this.data }}
+        ?hide-create-button=${!this.__savedOptions.length}
         wide
       >
       </foxy-internal-async-list-control>
@@ -381,9 +516,77 @@ export class ProductForm extends Base<Data> {
     return image_url;
   }
 
+  /**
+   * Creates a variant for every combination of the saved options that has
+   * none yet, through `fx:generate_variants`, and reloads the variants.
+   * Resolves with how many were created; rejects with the API's message.
+   *
+   * @param skuPattern Such as `{parent}-{size}-{color}`. The API's default without it.
+   */
+  async generateVariants(skuPattern?: string): Promise<number> {
+    const href = this.data?._links['fx:generate_variants']?.href;
+    if (!href) throw new Error('This product has no fx:generate_variants link.');
+
+    let result: { _embedded?: { 'fx:products'?: Data[] } };
+    try {
+      result = await this._fetch(href, {
+        method: 'POST',
+        body: JSON.stringify(skuPattern ? { sku_pattern: skuPattern } : {}),
+      });
+    } catch (err) {
+      let message = '';
+      if (err instanceof Response) {
+        const body = await err.json().catch(() => null);
+        message = body?._embedded?.['fx:errors']?.[0]?.message ?? '';
+      }
+      throw new Error(message);
+    }
+
+    this.__refreshVariantsList();
+    // A standalone becomes a parent, and its variant count changes.
+    this.refresh();
+
+    return result._embedded?.['fx:products']?.length ?? 0;
+  }
+
+  private __refreshVariantsList() {
+    const variants = this.renderRoot.querySelector<HTMLElement & { renderRoot: ParentNode }>(
+      'foxy-internal-async-list-control[infer="variants"]'
+    );
+    const page = variants?.renderRoot.querySelector('foxy-collection-page') as
+      | (Element & { refresh?: () => void })
+      | null
+      | undefined;
+    page?.refresh?.();
+  }
+
+  /**
+   * The variants that saving the edited options would delete: those using a
+   * value, or an option, that the edit removes.
+   */
+  private get __variantsToDelete(): Data[] {
+    return this.__variantsToDeleteBy(this.form);
+  }
+
+  // Validation runs inside the state machine, so this reads only the form it's given and fields.
+  private __variantsToDeleteBy(form: Partial<Data>): Data[] {
+    const saved = this.__variants?.options ?? [];
+    const edited = form.definition?.options ?? [];
+    if (!this.__variants?.list.length || !saved.length) return [];
+
+    return this.__variants.list.filter(variant =>
+      saved.some(option => {
+        const value = variant.option_values?.[option.name]?.toLowerCase();
+        if (value === undefined) return false;
+        const kept = edited.find(o => o.name === option.name);
+        return !kept?.values.some(v => v.value.toLowerCase() === value);
+      })
+    );
+  }
+
   /** The parent's or template's name and SKU, or the SKU alone if it has no name. */
   private get __parentLabel(): string {
-    const parent = this.__parentProduct;
+    const parent = this.parentProduct;
     const name = (parent?.compiled_definition as ProductDefinition | undefined)?.name;
     return name ? `${name} (${parent?.sku})` : parent?.sku ?? '';
   }
@@ -403,19 +606,87 @@ export class ProductForm extends Base<Data> {
     return url.toString();
   }
 
-  private get __cartLink(): string | undefined {
+  private get __cartHost(): string | undefined {
     const store = this.__store;
-    const data = this.data;
-    if (!store || !data || !['standalone', 'variant'].includes(data.product_type)) return;
+    if (!store) return;
     const host = store.use_remote_domain
       ? store.store_domain
       : this.defaultDomain && `${store.store_domain}.${this.defaultDomain}`;
-    return host ? `https://${host}/cart?sku=${encodeURIComponent(data.sku)}` : undefined;
+    return host || undefined;
+  }
+
+  /** The link for a product added without choices; a parent needs its options chosen. */
+  private get __cartLink(): string | undefined {
+    const data = this.data;
+    const host = this.__cartHost;
+    if (!host || !data) return;
+    if (data.product_type === 'parent' && !this.__savedOptions.length) return;
+    if (!['standalone', 'variant', 'parent'].includes(data.product_type)) return;
+    return buildCartLink(host, data.sku);
+  }
+
+  /** What the shopper chooses when adding the saved product, if anything. */
+  private get __cartLinkChoices():
+    | { options: ProductOption[]; modifiers: ProductModifier[] }
+    | undefined {
+    const data = this.data;
+    if (!data) return;
+    const options = data.product_type === 'parent' ? this.__savedOptions : [];
+    const modifiers =
+      data.compiled_definition?.modifiers?.filter(m => !isRemoval(m)) ??
+      mergeModifiers(this.__inheritedModifiers, data.definition?.modifiers ?? []);
+    if (!options.length && !modifiers.length) return;
+    return { options, modifiers: modifiers as ProductModifier[] };
+  }
+
+  private get __savedOptions(): ProductOption[] {
+    return this.data?.compiled_definition?.options ?? this.data?.definition?.options ?? [];
+  }
+
+  /** A variant, saved or new, of a parent rather than a product using a template. */
+  private get __isVariant(): boolean {
+    return this.__isVariantForm(this.form);
+  }
+
+  private __isVariantForm(form: Partial<Data>): boolean {
+    if (form.product_type) return form.product_type === 'variant';
+    const parentType = this.parentProduct?.product_type;
+    return !!parentType && parentType !== 'template';
+  }
+
+  /** The options a variant picks its values from, which are its parent's. */
+  private get __parentOptions(): ProductOption[] {
+    const parent = this.parentProduct;
+    return parent?.compiled_definition?.options ?? parent?.definition?.options ?? [];
+  }
+
+  /** The compiled modifiers of the product this one inherits from. */
+  private get __inheritedModifiers(): ProductModifier[] {
+    const parent = this.parentProduct;
+    if (!parent) return [];
+    const compiled = parent.compiled_definition?.modifiers;
+    const modifiers = compiled ?? parent.definition?.modifiers ?? [];
+    return modifiers.filter(m => !isRemoval(m)) as ProductModifier[];
+  }
+
+  // Stored as declared on the parent; matched case-insensitively.
+  private __getOptionValue(option: ProductOption): string | undefined {
+    const stored = this.form.option_values?.[option.name]?.toLowerCase();
+    return option.values.find(v => v.value.toLowerCase() === stored)?.value;
+  }
+
+  private __setOptionValue(option: ProductOption, value: string) {
+    const values: Record<string, string> = {};
+    for (const { name } of this.__parentOptions) {
+      const current = name === option.name ? value : this.form.option_values?.[name];
+      if (current) values[name] = current;
+    }
+    this.edit({ option_values: values });
   }
 
   /** Field placeholders show what an empty field inherits. */
   private get __inherited(): ProductDefinition | undefined {
-    return this.__parentProduct?.compiled_definition as ProductDefinition | undefined;
+    return this.parentProduct?.compiled_definition as ProductDefinition | undefined;
   }
 
   protected async _sendGet(): Promise<Data> {
@@ -428,14 +699,51 @@ export class ProductForm extends Base<Data> {
     const storeHref = product?._links?.['fx:store']?.href;
     const [parent, store] = await Promise.all([
       parentHref ? super._fetch<Data>(parentHref).catch(() => null) : null,
-      storeHref && ['standalone', 'variant'].includes(product.product_type)
+      storeHref && ['standalone', 'variant', 'parent'].includes(product.product_type)
         ? super._fetch<Resource<Rels.Store>>(storeHref).catch(() => null)
         : null,
     ]);
 
-    this.__parentProduct = parent;
+    this.parentProduct = parent;
     this.__store = store;
+    this.__variants = await this.__loadVariants(product);
 
     return product;
+  }
+
+  protected async _sendPatch(edits: Partial<Data>): Promise<Data> {
+    const product = await super._sendPatch(edits);
+    // Removing an option value deletes the variants that use it.
+    if (edits.definition) {
+      this.__variants = await this.__loadVariants(product);
+      this.__refreshVariantsList();
+      this.__deleteConfirmed = '';
+    }
+    return product;
+  }
+
+  /** Every active variant of a product with options, to tell which ones a change deletes. */
+  private async __loadVariants(
+    product: Data
+  ): Promise<{ options: ProductOption[]; list: Data[] } | null> {
+    const href = product?._links?.['fx:product_variants']?.href;
+    const options = product?.definition?.options ?? [];
+    if (!href || !options.length) return null;
+
+    const variants: Data[] = [];
+    const url = new URL(href);
+    url.searchParams.set('limit', '200');
+    try {
+      for (let offset = 0; ; offset += 200) {
+        url.searchParams.set('offset', String(offset));
+        const page = await super._fetch<any>(url.toString());
+        const items: Data[] = page?._embedded?.['fx:products'] ?? [];
+        variants.push(...items);
+        if (!items.length || variants.length >= Number(page.total_items ?? 0)) break;
+      }
+    } catch {
+      return null;
+    }
+    return { options, list: variants };
   }
 }
