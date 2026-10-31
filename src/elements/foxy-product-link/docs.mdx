@@ -1,0 +1,64 @@
+import { Meta } from "@storybook/blocks";
+import * as ProductLinkStories from "./element.stories";
+
+<Meta of={ProductLinkStories} name="Docs" />
+
+# foxy-product-link
+
+A link, styled as a button, that adds one catalog product to the cart by its SKU. Use it for a standalone product, or for one variant of a parent. A parent, or a product with a required modifier, needs `foxy-product-form`.
+
+```html
+<script data-cfasync="false" src="https://cdn.foxycart.com/example.foxycart.com/loader.js" async defer></script>
+<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-product-link.js"></script>
+
+<foxy-product-link sku="MUG-ENM-WHT" show-price>
+  <a href="https://example.foxycart.com/cart?sku=MUG-ENM-WHT">Buy the mug</a>
+</foxy-product-link>
+```
+
+It renders a real `<a href="https://<store>/cart?sku=…" rel="nofollow">` in light DOM, not shadow DOM. Foxy 2.0's `foxycart.js` listens for clicks on `body` and takes over any link whose URL contains the store's domain followed by `/cart`, so the add opens 2.0's sidecart. Without 2.0's JavaScript, the link opens the cart page. A link inside shadow DOM would be missed, because the click reaches `body` with the element, not the link, as its target.
+
+Whatever you put inside the tag shows until the link renders, and again when the product can't be bought in one click.
+
+## Attributes
+
+| Attribute | Property | |
+| --- | --- | --- |
+| `sku` | `sku` | Required. The product's SKU. Hidden products work too. |
+| `store` | `store` | The store's domain, such as `example.foxycart.com`. Defaults to the domain 2.0's `loader.js` was loaded for. |
+| `quantity` | `quantity` | Units to add. Default `1`. |
+| `label` | `label` | The button text. Default "Add to cart". |
+| `checkout` | `checkout` | Adds `cart=checkout`, so the shopper goes straight to checkout. |
+| `show-price` | `showPrice` | Shows the price, with the list price struck through when it's higher. |
+| `currency` | `currency` | The currency to show the price in. See below. |
+| `currency-cookie` | — | The name of a cookie holding the currency, for a merchant's own currency switcher. |
+| `lang` | `lang` | The language of the label and price. Defaults to the nearest `lang`, then `en-US`. |
+
+The `product` property holds the catalog's product once it has loaded, or `null` when the store has no such SKU.
+
+## What it shows
+
+| Product | Shows |
+| --- | --- |
+| Standalone, or a variant, in stock | The link |
+| Out of stock | "Sold out", without an `href`, so nothing adds it |
+| Parent with variants, or a required modifier | The content inside the tag, and a `[Foxy]` warning in the console |
+| Unknown SKU, or the catalog can't be read | The link without a price; the cart has the last word |
+
+## Currency
+
+The price shows in the first of: a `currency` attribute on the element or any ancestor; the cookie a `currency-cookie` attribute names; the 2.0 cart session's currency, which follows its template set. The amount is the product's price for that currency when it sets one (`prices`), otherwise its store-currency `price`. A store that converts currencies converts that amount in the cart, so the shown amount can differ from the charged one until the catalog says which currency it's in. Without any currency, the price shows as a plain amount.
+
+## Styling
+
+The defaults are design-system tokens, behind the same CSS variables the other elements' `theme-*` attributes set. Set them on the element or any ancestor:
+
+```css
+foxy-product-link {
+  --background-button-primary: #0b5d3b;
+  --border-radius-sm: 999px;
+  --font-body: 400 1rem/1.5 Georgia, serif;
+}
+```
+
+For anything else, style `foxy-product-link a.foxy-product-button`, `.foxy-product-label` and `.foxy-product-price`. The rules are written to beat a theme's bare `a` styles, so match their specificity or add to it.
