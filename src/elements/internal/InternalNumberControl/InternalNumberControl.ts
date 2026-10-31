@@ -65,6 +65,8 @@ export class InternalNumberControl extends InternalEditableControl {
 
   private __isErrorVisible = false;
 
+  private __inputText = '';
+
   reportValidity(): void {
     this.__isErrorVisible = true;
     super.reportValidity();
@@ -133,14 +135,16 @@ export class InternalNumberControl extends InternalEditableControl {
             min=${ifDefined(this.min ?? void 0)}
             max=${ifDefined(this.max ?? void 0)}
             id="input"
-            .value=${this._value}
+            .value=${parseFloat(this.__inputText) === this._value ? this.__inputText : this._value}
             ?disabled=${this.disabled}
             ?readonly=${this.readonly}
             @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
             @blur=${() => (this.__isErrorVisible = true)}
             @input=${(evt: Event) => {
               evt.stopPropagation();
-              const newValue = parseFloat((evt.target as HTMLInputElement).value);
+              // keep the typed text (e.g. ".0") so a re-render doesn't replace it with "0"
+              this.__inputText = (evt.target as HTMLInputElement).value;
+              const newValue = parseFloat(this.__inputText);
               if (!isNaN(newValue)) this._value = newValue;
             }}
           />

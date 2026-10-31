@@ -368,6 +368,37 @@ describe('InternalNumberControl', () => {
     expect(control).to.have.property('testValue', 12.34);
   });
 
+  it('keeps partial decimal input like ".0" while typing in summary item layout', async () => {
+    const control = await fixture<TestControl>(html`
+      <test-internal-number-control layout="summary-item"></test-internal-number-control>
+    `);
+
+    control.testValue = 5;
+    await control.requestUpdate();
+
+    const input = control.renderRoot.querySelector('input')!;
+    expect(input).to.have.property('value', '5');
+
+    input.value = '.0';
+    input.dispatchEvent(new CustomEvent('input'));
+    await control.requestUpdate();
+
+    expect(control).to.have.property('testValue', 0);
+    expect(input).to.have.property('value', '.0');
+
+    input.value = '.02';
+    input.dispatchEvent(new CustomEvent('input'));
+    await control.requestUpdate();
+
+    expect(control).to.have.property('testValue', 0.02);
+    expect(input).to.have.property('value', '.02');
+
+    control.testValue = 7;
+    await control.requestUpdate();
+
+    expect(input).to.have.property('value', '7');
+  });
+
   it('submits the host nucleon form on Enter in summary item layout', async () => {
     const control = await fixture<TestControl>(html`
       <test-internal-number-control layout="summary-item"></test-internal-number-control>
