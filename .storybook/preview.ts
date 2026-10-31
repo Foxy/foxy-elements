@@ -18,6 +18,7 @@ const THEMEABLE_TAGS = [
   "foxy-payment-method-selector",
   "foxy-ach-field",
   "foxy-payment-card-field",
+  "foxy-product-form",
 ] as const;
 
 type ThemePreset = Partial<Record<ThemePropertyName, string>>;

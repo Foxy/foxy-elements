@@ -1,0 +1,62 @@
+import { Meta } from "@storybook/blocks";
+import * as ProductFormStories from "./element.stories";
+
+<Meta of={ProductFormStories} name="Docs" />
+
+# foxy-product-form
+
+Everything a shopper chooses for one catalog product before adding it: a parent's options, the product's modifiers, and quantity.
+
+```html
+<script data-cfasync="false" src="https://cdn.foxycart.com/example.foxycart.com/loader.js" async defer></script>
+<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-product-form.js"></script>
+
+<foxy-product-form sku="TEE-ORG" show-quantity>
+  <a href="https://example.foxycart.com/cart?sku=TEE-ORG-S-BLK">Buy the small black tee</a>
+</foxy-product-form>
+```
+
+## How it adds
+
+The controls are design-system components in shadow DOM. What the cart is sent lives in a hidden `<form action="https://<store>/cart" method="post">` in the element's light DOM, and the add button submits that form with `requestSubmit()`. Foxy 2.0's `foxycart.js` listens for `submit` on `body` and takes over any form whose `action` contains the store's domain followed by `/cart`, so the add opens 2.0's sidecart. A `submit` event never leaves shadow DOM, which is why the form isn't there. Without 2.0's JavaScript, the browser posts the form to the cart page.
+
+The form sends only what the cart accepts for a catalog product:
+
+| Product | Sent |
+| --- | --- |
+| Parent with options | `sku=<parent>` and one field per option, such as `color=Black&size=M`. The cart picks the variant. |
+| Parent whose variants have no option values | `sku=<variant>`, chosen from a list of the variants by name |
+| Standalone, or a variant | `sku=<sku>` |
+| Any of them | Each modifier with a value, by its name, and `quantity` when it's more than 1 |
+
+Whatever is inside the tag shows until the product has loaded, and stays if it can't.
+
+## Options
+
+One group per option, in declared order. Each option only offers the values that exist with the choices made for the options before it:
+
+- a value no variant has with those choices is left out (**missing**); hidden variants count as missing;
+- a value whose variants are all out of stock is shown disabled, marked "sold out".
+
+A value with a `color` or `image` shows it as a swatch. When an earlier choice rules out a later one, the later option moves to its first available value. The price is the chosen variant's, plus the chosen modifiers' amounts.
+
+## Modifiers
+
+A text modifier is a text field with its `max_length`; a select modifier is a select, with a "None" choice when it isn't required, and its first value preselected. Amounts show beside their labels. A required modifier left empty stops the add with a message; the cart checks again.
+
+## Attributes
+
+| Attribute | Property | |
+| --- | --- | --- |
+| `sku` | `sku` | Required. A standalone, parent or variant SKU. |
+| `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
+| `value` | `value` | Preselected options, as a query string: `color=Black&size=M`. Changing it starts the choices over. |
+| `show-quantity` | `showQuantity` | Shows quantity controls. |
+| `label` | `label` | The add button's text. Default "Add to cart". |
+| `currency`, `currency-cookie` | `currency` | As for `foxy-product-link`. |
+| `lang` | `lang` | The language of its text and prices. |
+| `theme-*` | `theme*` | The same theme attributes as the other design-system elements. |
+
+## Styling
+
+`::part(form)`, `::part(price)` and `::part(button)`, plus the `theme-*` attributes, or the matching CSS variables on an ancestor.

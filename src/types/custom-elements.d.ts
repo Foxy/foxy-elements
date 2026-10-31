@@ -4,6 +4,7 @@ import type { CustomerPortalElement } from "@/elements/foxy-customer-portal/elem
 import type { PortalVariant } from "@/elements/foxy-customer-portal/types";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
+import type { ProductFormElement } from "@/elements/foxy-product-form/element";
 import type { ProductLinkElement } from "@/elements/foxy-product-link/element";
 import type {
   SideCartTriggerElement,
@@ -127,6 +128,18 @@ type ProductLinkElementProps = DetailedHTMLProps<
     "show-price"?: boolean;
   };
 
+type ProductFormElementProps = Omit<
+  DetailedHTMLProps<HTMLAttributes<ProductFormElement>, ProductFormElement>,
+  "value"
+> &
+  SharedThemeProps &
+  ProductElementSharedProps & {
+    value?: string;
+    label?: string;
+    showQuantity?: boolean;
+    "show-quantity"?: boolean;
+  };
+
 type ExpressCheckoutElementProps = Omit<
   DetailedHTMLProps<
     HTMLAttributes<ExpressCheckoutElement>,
@@ -196,6 +209,7 @@ declare module "react" {
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "foxy-side-cart-trigger": SideCartTriggerElementProps;
       "foxy-product-link": ProductLinkElementProps;
+      "foxy-product-form": ProductFormElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
       "google-pay-button": GooglePayButtonElementProps;
     }
@@ -211,6 +225,7 @@ declare module "react/jsx-runtime" {
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "foxy-side-cart-trigger": SideCartTriggerElementProps;
       "foxy-product-link": ProductLinkElementProps;
+      "foxy-product-form": ProductFormElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
       "google-pay-button": GooglePayButtonElementProps;
     }

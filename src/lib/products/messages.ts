@@ -51,6 +51,14 @@ export const messages = defineMessages({
     id: "product_quantity",
     defaultMessage: "Quantity",
   },
+  increase: {
+    id: "product_quantity_increase",
+    defaultMessage: "Increase quantity",
+  },
+  decrease: {
+    id: "product_quantity_decrease",
+    defaultMessage: "Decrease quantity",
+  },
   optional: {
     id: "product_optional",
     defaultMessage: "{label} (optional)",
@@ -62,6 +70,18 @@ export const messages = defineMessages({
   noChoice: {
     id: "product_no_choice",
     defaultMessage: "None",
+  },
+  choose: {
+    id: "product_choose",
+    defaultMessage: "Choose…",
+  },
+  required: {
+    id: "product_required",
+    defaultMessage: "Fill this in to add it to the cart.",
+  },
+  tooLong: {
+    id: "product_too_long",
+    defaultMessage: "Must be {max} characters or fewer.",
   },
   loadMore: {
     id: "product_load_more",

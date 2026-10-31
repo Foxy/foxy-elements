@@ -1,0 +1,1 @@
+export { ProductFormElement } from "./element";

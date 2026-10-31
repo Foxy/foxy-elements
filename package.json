@@ -20,6 +20,7 @@
     "./foxy-customer-portal": "./dist/npm/foxy-customer-portal.js",
     "./foxy-payment-card-field": "./dist/npm/foxy-payment-card-field.js",
     "./foxy-payment-method-selector": "./dist/npm/foxy-payment-method-selector.js",
+    "./foxy-product-form": "./dist/npm/foxy-product-form.js",
     "./foxy-product-link": "./dist/npm/foxy-product-link.js",
     "./foxy-side-cart-trigger": "./dist/npm/foxy-side-cart-trigger.js"
   },
