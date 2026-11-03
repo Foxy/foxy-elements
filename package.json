@@ -9,7 +9,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": "22.x",
+    "node": ">=22 <=26",
     "npm": ">=10"
   },
   "module": "./dist/npm/index.js",
