@@ -39,6 +39,7 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
       ...super.properties,
       granterScope: { attribute: 'granter-scope' },
       __customSelected: { attribute: false },
+      __isCustomPicked: { attribute: false },
       __isErrorVisible: { attribute: false },
     };
   }
@@ -119,6 +120,9 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
    */
   private __customSelected = false;
 
+  /** Set only when the admin picks `Custom` itself, so the select stops showing a matching role. */
+  private __isCustomPicked = false;
+
   /**
    * Cached outcome of `__hasUnreachableGrant` from the most recently completed `renderControl()`
    * pass. Read by `updated()` below -- see its doc comment for why the lock needs to land on
@@ -139,7 +143,7 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     const grantable = getGrantable(this.granterScope ?? void 0);
     const currentPreset = this.__preset(selection);
     // A role parses as `custom`, so the matrix stays open; only the select shows its name.
-    const currentRole = getRole(selection);
+    const currentRole = this.__isCustomPicked ? null : getRole(selection);
     const presets: Preset[] = [];
 
     if (grantable.storeFullAccess) presets.push('store');
@@ -511,6 +515,7 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
 
   private __selectPreset(preset: PresetOption): void {
     this.__customSelected = preset === 'custom';
+    this.__isCustomPicked = preset === 'custom';
 
     if (preset in ROLES) {
       // Replaces the selection but keeps `extra` tokens, like the store preset does.

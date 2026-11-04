@@ -112,6 +112,24 @@ describe('InternalUserInvitationFormScopeControl', () => {
     expect(presetSelect(element)?.value).to.equal('custom');
   });
 
+  it('shows Custom access when Custom is picked while the scope matches a role', async () => {
+    const element = await control('store_full_access', ROLES.accountant);
+    let written: unknown = ROLES.accountant;
+    element.getValue = () => written;
+    element.setValue = value => (written = value);
+    await element.requestUpdate();
+    await presetControl(element)?.updateComplete;
+    expect(presetSelect(element)?.value).to.equal('accountant');
+
+    selectPreset(element, 'custom');
+    await element.requestUpdate();
+    await element.updateComplete;
+    await presetControl(element)?.updateComplete;
+
+    expect(written).to.equal(ROLES.accountant);
+    expect(presetSelect(element)?.value).to.equal('custom');
+  });
+
   it('shows the role whose scope an existing invitation matches', async () => {
     const element = await control('templates_read', `${ROLES.designer} client_full_access`);
     await presetControl(element)?.updateComplete;
