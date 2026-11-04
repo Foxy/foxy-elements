@@ -70,15 +70,17 @@ describe('InternalUserInvitationFormScopeControl', () => {
     expect(presets(await control(allReads))).to.deep.equal(['read', 'accountant', 'custom']);
   });
 
-  it('omits the read preset when the granter cannot grant all reads', async () => {
-    expect(presets(await control('customers_read'))).to.deep.equal(['custom']);
+  it('applies Custom and hides the preset select when it is the only option', async () => {
+    const element = await control('customers_read');
+    expect(presetControl(element)).to.not.exist;
+    expect(element.renderRoot.querySelector('.matrix')).to.exist;
   });
 
   it('offers only the roles the granter can fully grant', async () => {
     const granter = ROLES.designer.replace('templates_write', 'templates_read');
 
     expect(presets(await control(ROLES.designer))).to.deep.equal(['designer', 'custom']);
-    expect(presets(await control(granter))).to.deep.equal(['custom']);
+    expect(presetControl(await control(granter))).to.not.exist;
   });
 
   it('replaces the selection with a role, shows its name and keeps extra tokens', async () => {
@@ -325,7 +327,12 @@ describe('custom matrix', () => {
 
     expect(levelsFor(element, 'customers')).to.deep.equal(['none', 'read']);
     expect(levelsFor(element, 'carts')).to.deep.equal(['none', 'read', 'full']);
-    expect(levelsFor(element, 'coupons')).to.deep.equal(['none']);
+    expect(levelControl(element, 'coupons')).to.not.exist;
+  });
+
+  it('still shows an ungrantable row the invitation holds', async () => {
+    const element = await control('customers_read', 'customers_read coupons_read');
+    expect(levelControl(element, 'coupons')).to.exist;
   });
 
   it('writes both tokens when a row is set to full', async () => {
@@ -651,8 +658,8 @@ describe('row layout at narrow widths', () => {
 describe('locking on an unreachable grant', () => {
   it('makes the whole control readonly when the invitation holds a level the granter cannot re-grant', async () => {
     const element = await control('customers_read', 'customers_write');
-    await presetControl(element)?.updateComplete;
-    expect(presetControl(element)?.readonly).to.be.true;
+    await levelControl(element, 'customers')?.updateComplete;
+    expect(levelControl(element, 'customers')?.readonly).to.be.true;
   });
 
   it('still renders the out-of-reach level as the row value, hidden from interaction, while locked', async () => {
@@ -674,15 +681,15 @@ describe('locking on an unreachable grant', () => {
 
   it('locks on a resend grant the granter cannot re-extend', async () => {
     const element = await control('transactions_read', 'transactions_read transactions_resend');
-    await presetControl(element)?.updateComplete;
-    expect(presetControl(element)?.readonly).to.be.true;
+    await levelControl(element, 'transactions')?.updateComplete;
+    expect(levelControl(element, 'transactions')?.readonly).to.be.true;
   });
 
   it('shows the locked helper text only while locked', async () => {
     const locked = await control('customers_read', 'customers_write');
     const unlocked = await control('store_full_access', 'customers_read');
 
-    const lockedSummary = presetControl(locked)?.closest('foxy-internal-summary-control');
+    const lockedSummary = locked.renderRoot.querySelector('foxy-internal-summary-control');
     const unlockedSummary = presetControl(unlocked)?.closest('foxy-internal-summary-control');
 
     expect((lockedSummary as InternalEditableControl | null)?.helperText).to.equal(

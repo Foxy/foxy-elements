@@ -771,6 +771,30 @@ describe('UserInvitationForm', () => {
       expect(element.hiddenSelector.matches('scope', true)).to.be.false;
     });
 
+    it('shows the scope error itself when Custom is the only option', async () => {
+      const element = await form('customers_read customers_write');
+      element.edit({ email: 'test@example.com' });
+      await element.requestUpdate();
+
+      const control = element.renderRoot.querySelector(
+        'foxy-internal-user-invitation-form-scope-control[infer="scope"]'
+      ) as HTMLElement & {
+        reportValidity(): void;
+        t(key: string): string;
+        updateComplete: Promise<unknown>;
+      };
+
+      await control.updateComplete;
+      expect(control.shadowRoot?.querySelector('[data-preset]')).to.not.exist;
+      expect(control.shadowRoot?.querySelector('p.text-error')).to.not.exist;
+
+      control.reportValidity();
+      await control.updateComplete;
+
+      const error = control.shadowRoot?.querySelector('p.text-error');
+      expect(error?.textContent?.trim()).to.equal(control.t('v8n_required'));
+    });
+
     it('renders the scope control in the admin template state', async () => {
       const element = await form('store_full_access');
       const control = element.renderRoot.querySelector(
@@ -1012,22 +1036,6 @@ describe('UserInvitationForm', () => {
         // waiting for its own `updateComplete` too.
         await (control as unknown as { updateComplete: Promise<unknown> })?.updateComplete;
 
-        const presetControl = control?.shadowRoot?.querySelector(
-          'foxy-internal-select-control[data-preset]'
-        ) as
-          | (HTMLElement & { readonly: boolean; updateComplete: Promise<unknown> })
-          | null
-          | undefined;
-
-        expect(presetControl, 'the preset control must exist for this check to be meaningful').to
-          .exist;
-
-        // Same reason as the `control` wait above: the preset control's own `readonly`
-        // (inferred from `control`, in turn inferred from the form) settles on its own
-        // microtask.
-        await presetControl?.updateComplete;
-        expect(presetControl?.readonly).to.be.false;
-
         // And prove it's actually editable, not just unlocked in appearance: change a level
         // through the row's `foxy-internal-select-control` (`data-collection` lives directly on
         // it -- there's no separate row wrapper since the summary-item rework) and confirm it
@@ -1035,7 +1043,10 @@ describe('UserInvitationForm', () => {
         // this granter can re-grant it at any level, so drop it to `read`.
         const rowControl = control?.shadowRoot?.querySelector(
           'foxy-internal-select-control[data-collection="customers"]'
-        ) as (HTMLElement & { updateComplete: Promise<unknown> }) | null | undefined;
+        ) as
+          | (HTMLElement & { readonly: boolean; updateComplete: Promise<unknown> })
+          | null
+          | undefined;
 
         expect(rowControl, 'the customers row control must exist for this edit to be meaningful').to
           .exist;
@@ -1044,6 +1055,9 @@ describe('UserInvitationForm', () => {
         // `readonly` (inferred from `control`, in turn inferred from the form) settles on its
         // own microtask.
         await rowControl?.updateComplete;
+        // Custom is this granter's only option, so the preset select is not rendered; the row's
+        // own `readonly` is what must be false.
+        expect(rowControl?.readonly).to.be.false;
 
         const select = rowControl?.shadowRoot?.querySelector('select') as
           | (HTMLElement & { value: string })
