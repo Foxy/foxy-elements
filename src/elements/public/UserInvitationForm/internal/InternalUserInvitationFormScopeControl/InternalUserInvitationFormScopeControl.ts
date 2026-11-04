@@ -1,6 +1,6 @@
 import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { Option } from '../../../../internal/InternalSelectControl/types';
-import type { Level, Selection } from '../../../../../utils/invitation-scope';
+import type { Level, Role, Selection } from '../../../../../utils/invitation-scope';
 
 import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { COLLECTIONS, RESENDABLE } from '../../../../../utils/group-invitation-scopes';
@@ -11,13 +11,17 @@ import { html } from 'lit-html';
 import {
   canGrantLevel,
   canGrantReadPreset,
+  canGrantRole,
   canGrantResend,
   getGrantable,
+  getRole,
   parseScope,
+  ROLES,
   serializeScope,
 } from '../../../../../utils/invitation-scope';
 
 type Preset = 'store' | 'read' | 'custom';
+type PresetOption = Preset | Role;
 
 /**
  * Lets an admin choose which scopes an invitation grants, offering only what the granting
@@ -120,6 +124,8 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     const selection = parseScope(this.__scope);
     const grantable = getGrantable(this.granterScope ?? void 0);
     const currentPreset = this.__preset(selection);
+    // A role parses as `custom`, so the matrix stays open; only the select shows its name.
+    const currentRole = getRole(selection);
     const presets: Preset[] = [];
 
     if (grantable.storeFullAccess) presets.push('store');
@@ -161,7 +167,16 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     const readonly = this.readonly || isLocked;
     const helperText = isLocked ? this.t('helper_text_locked') : this.helperText;
 
-    const presetOptions: Option[] = renderedPresets.map(preset => ({
+    // Roles sit before `custom`. A role is hidden unless fully grantable or already current.
+    const optionValues: PresetOption[] = [
+      ...renderedPresets.filter(preset => preset !== 'custom'),
+      ...(Object.keys(ROLES) as Role[]).filter(
+        role => role === currentRole || canGrantRole(grantable, role)
+      ),
+      'custom',
+    ];
+
+    const presetOptions: Option[] = optionValues.map(preset => ({
       label: `preset_${preset}`,
       value: preset,
     }));
@@ -178,8 +193,8 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
             ?disabled=${this.disabled}
             ?readonly=${readonly}
             .options=${presetOptions}
-            .getValue=${() => currentPreset ?? undefined}
-            .setValue=${(newValue: unknown) => this.__selectPreset(newValue as Preset)}
+            .getValue=${() => currentRole ?? currentPreset ?? undefined}
+            .setValue=${(newValue: unknown) => this.__selectPreset(newValue as PresetOption)}
           >
           </foxy-internal-select-control>
         </foxy-internal-summary-control>
@@ -465,8 +480,17 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     return selection.preset;
   }
 
-  private __selectPreset(preset: Preset): void {
+  private __selectPreset(preset: PresetOption): void {
     this.__customSelected = preset === 'custom';
+
+    if (preset in ROLES) {
+      // Replaces the selection but keeps `extra` tokens, like the store preset does.
+      this.__customSelected = true;
+      const { extra } = parseScope(this.__scope);
+      const role = parseScope(ROLES[preset as Role]);
+      this._value = serializeScope({ ...role, preset: 'custom', extra });
+      return;
+    }
 
     // Choosing Custom keeps whatever is already in the form, so the matrix opens on the
     // current grant rather than wiping it. The wildcard has no per-row levels, so it is

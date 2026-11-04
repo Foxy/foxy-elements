@@ -459,6 +459,26 @@ describe('UserInvitationForm', () => {
     expect(action).to.have.attribute('theme', 'error');
   });
 
+  it('renders revoke after the scope control and outside the resend/delete row', async () => {
+    const router = createRouter();
+    const form = await fixture<Form>(html`
+      <foxy-user-invitation-form
+        layout="admin"
+        href="https://demo.api/hapi/user_invitations/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-user-invitation-form>
+    `);
+
+    await waitUntil(() => !!form.data, undefined, { timeout: 5000 });
+    const scope = form.renderRoot.querySelector('foxy-internal-user-invitation-form-scope-control');
+    const revoke = form.renderRoot.querySelector('[infer="revoke"]')!;
+    const resend = form.renderRoot.querySelector('[infer="resend"]')!;
+
+    expect(scope!.compareDocumentPosition(revoke) & Node.DOCUMENT_POSITION_FOLLOWING).to.be.ok;
+    expect(resend.parentElement!.contains(revoke)).to.be.false;
+  });
+
   it("renders a special async action for revoking current user's access in snapshot admin layout", async () => {
     const router = createRouter();
     const form = await fixture<Form>(html`

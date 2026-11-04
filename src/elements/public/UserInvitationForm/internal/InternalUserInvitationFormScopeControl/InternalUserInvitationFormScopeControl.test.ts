@@ -7,6 +7,7 @@ import './index';
 import { expect, fixture, html } from '@open-wc/testing';
 import { COLLECTIONS, RESENDABLE } from '../../../../../utils/group-invitation-scopes';
 import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
+import { ROLES, serializeScope, parseScope } from '../../../../../utils/invitation-scope';
 import { spy } from 'sinon';
 
 const allReads = COLLECTIONS.map(collection => `${collection}_read`).join(' ');
@@ -54,15 +55,67 @@ describe('InternalUserInvitationFormScopeControl', () => {
   });
 
   it('offers every preset to a store_full_access granter', async () => {
-    expect(presets(await control('store_full_access'))).to.deep.equal(['store', 'read', 'custom']);
+    expect(presets(await control('store_full_access'))).to.deep.equal([
+      'store',
+      'read',
+      'customer_service',
+      'developer',
+      'designer',
+      'accountant',
+      'custom',
+    ]);
   });
 
   it('omits the store preset when the granter lacks store_full_access', async () => {
-    expect(presets(await control(allReads))).to.deep.equal(['read', 'custom']);
+    expect(presets(await control(allReads))).to.deep.equal(['read', 'accountant', 'custom']);
   });
 
   it('omits the read preset when the granter cannot grant all reads', async () => {
     expect(presets(await control('customers_read'))).to.deep.equal(['custom']);
+  });
+
+  it('offers only the roles the granter can fully grant', async () => {
+    const granter = ROLES.designer.replace('templates_write', 'templates_read');
+
+    expect(presets(await control(ROLES.designer))).to.deep.equal(['designer', 'custom']);
+    expect(presets(await control(granter))).to.deep.equal(['custom']);
+  });
+
+  it('replaces the selection with a role, shows its name and keeps extra tokens', async () => {
+    const element = await control('store_full_access', 'customers_read client_full_access');
+    let written: unknown = 'customers_read client_full_access';
+    element.getValue = () => written;
+    element.setValue = value => (written = value);
+
+    selectPreset(element, 'designer');
+    await element.requestUpdate();
+    await element.updateComplete;
+    await presetControl(element)?.updateComplete;
+
+    const expected = serializeScope({
+      ...parseScope(ROLES.designer),
+      preset: 'custom',
+      extra: ['client_full_access'],
+    });
+
+    expect(written).to.equal(expected);
+    expect(presetSelect(element)?.value).to.equal('designer');
+    expect(element.renderRoot.querySelector('.matrix')).to.exist;
+
+    setLevel(element, 'templates', 'read');
+    await element.requestUpdate();
+    await element.updateComplete;
+    await presetControl(element)?.updateComplete;
+
+    expect(presetSelect(element)?.value).to.equal('custom');
+  });
+
+  it('shows the role whose scope an existing invitation matches', async () => {
+    const element = await control('templates_read', `${ROLES.designer} client_full_access`);
+    await presetControl(element)?.updateComplete;
+
+    expect(presets(element)).to.include('designer');
+    expect(presetSelect(element)?.value).to.equal('designer');
   });
 
   it('selects no preset for an empty scope', async () => {
