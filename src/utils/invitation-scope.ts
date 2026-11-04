@@ -145,3 +145,51 @@ export function canGrantResend(grantable: Grantable, collection: string): boolea
 export function canGrantReadPreset(grantable: Grantable): boolean {
   return COLLECTIONS.every(collection => canGrantLevel(grantable, collection, 'read'));
 }
+
+/**
+ * Role presets. They only prefill the Custom matrix and are never saved as a role.
+ * `developer` has no `webhooks_resend`: `webhooks_write` already includes it.
+ */
+export const ROLES = {
+  customer_service:
+    'transactions_write customers_write subscriptions_write gift_cards_write coupons_read carts_read downloadables_read shipping_settings_read stores_read',
+  developer:
+    'stores_write templates_write customer_portal_settings_write webhooks_write integrations_write item_categories_write shipping_settings_write shipping_integrations_write taxes_write subscription_settings_write downloadables_read coupons_read gift_cards_read carts_read transactions_read customers_read subscriptions_read reporting_read',
+  designer: 'templates_write customer_portal_settings_write stores_read item_categories_read',
+  accountant:
+    'transactions_read subscriptions_read customers_read reporting_read taxes_read gift_cards_read coupons_read stores_read',
+} as const;
+
+export type Role = keyof typeof ROLES;
+
+/**
+ * The role whose levels and resend grants exactly match the selection, or `null`. Extra tokens
+ * are ignored, and so is a resend token on a Full collection, since Full includes it.
+ */
+export function getRole(selection: Selection): Role | null {
+  if (selection.preset === 'store') return null;
+
+  const resendKey = ({ levels, resend }: Selection) => {
+    return resend.filter(collection => levels[collection] !== 'full').join(' ');
+  };
+
+  const match = (Object.keys(ROLES) as Role[]).find(role => {
+    const roleSelection = parseScope(ROLES[role]);
+    return (
+      COLLECTIONS.every(c => selection.levels[c] === roleSelection.levels[c]) &&
+      resendKey(selection) === resendKey(roleSelection)
+    );
+  });
+
+  return match ?? null;
+}
+
+/** Whether the granter can give every level and resend grant the role contains. */
+export function canGrantRole(grantable: Grantable, role: Role): boolean {
+  const { levels, resend } = parseScope(ROLES[role]);
+
+  return (
+    COLLECTIONS.every(collection => canGrantLevel(grantable, collection, levels[collection])) &&
+    resend.every(collection => canGrantResend(grantable, collection))
+  );
+}

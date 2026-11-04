@@ -106,6 +106,10 @@
     "v8n_required_custom_empty": "Custom access needs at least one permission selected, or choose a different option above.",
     "preset_label": "Access level",
     "preset_store": "Full access to the entire store",
+    "preset_customer_service": "Customer service",
+    "preset_developer": "Developer",
+    "preset_designer": "Designer",
+    "preset_accountant": "Accountant",
     "preset_read": "Read-only access to everything",
     "preset_custom": "Custom access",
     "level_none": "None",
@@ -137,7 +141,7 @@
       "taxes": "Taxes",
       "templates": "Templates",
       "transactions": "Transactions",
-      "user_invitations": "User invitations",
+      "user_invitations": "Users and permissions",
       "webhooks": "Webhooks"
     }
   },

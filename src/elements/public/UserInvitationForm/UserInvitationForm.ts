@@ -375,35 +375,8 @@ export class UserInvitationForm extends Base<Data> {
 
             <div
               class="flex gap-m"
-              ?hidden=${hidden.matches('revoke', true) &&
-              hidden.matches('resend', true) &&
-              hidden.matches('delete', true)}
+              ?hidden=${hidden.matches('resend', true) && hidden.matches('delete', true)}
             >
-              ${this.__isOwnInvitationForCurrentStore
-                ? html`
-                    <foxy-internal-post-action-control
-                      message-options=${JSON.stringify({
-                        store_domain: this.__storeDomainGetValue(),
-                        store_name,
-                      })}
-                      infer="revoke"
-                      class="flex-1"
-                      theme="error"
-                      href=${ifDefined(this.data?._links['fx:revoke']?.href)}
-                      @success=${() => this.dispatchEvent(new CustomEvent('selfrevoked'))}
-                    >
-                    </foxy-internal-post-action-control>
-                  `
-                : html`
-                    <foxy-internal-user-invitation-form-async-action
-                      infer="revoke"
-                      class="flex-1"
-                      theme="error"
-                      href=${ifDefined(this.data?._links['fx:revoke']?.href)}
-                    >
-                    </foxy-internal-user-invitation-form-async-action>
-                  `}
-
               <foxy-internal-user-invitation-form-async-action
                 infer="resend"
                 class="flex-1"
@@ -423,7 +396,37 @@ export class UserInvitationForm extends Base<Data> {
         >
         </foxy-internal-user-invitation-form-scope-control>
 
-        <foxy-internal-submit-control infer="submit"></foxy-internal-submit-control>
+        <div
+          class="flex items-center gap-m"
+          ?hidden=${hidden.matches('revoke', true) && hidden.matches('submit', true)}
+        >
+          ${this.__isOwnInvitationForCurrentStore
+            ? html`
+                <foxy-internal-post-action-control
+                  message-options=${JSON.stringify({
+                    store_domain: this.__storeDomainGetValue(),
+                    store_name,
+                  })}
+                  infer="revoke"
+                  theme="error"
+                  href=${ifDefined(this.data?._links['fx:revoke']?.href)}
+                  @success=${() => this.dispatchEvent(new CustomEvent('selfrevoked'))}
+                >
+                </foxy-internal-post-action-control>
+              `
+            : html`
+                <foxy-internal-user-invitation-form-async-action
+                  infer="revoke"
+                  theme="error"
+                  href=${ifDefined(this.data?._links['fx:revoke']?.href)}
+                >
+                </foxy-internal-user-invitation-form-async-action>
+              `}
+          <foxy-internal-submit-control
+            class="ml-auto"
+            infer="submit"
+          ></foxy-internal-submit-control>
+        </div>
       </div>
     `;
   }
