@@ -93,7 +93,7 @@ export function SignInScreen({
         {/* `$maxWidth="none"` because the column already caps the width --
             the form's own 480px default would fight it. */}
         <Form onSubmit={handleSubmit} noValidate $maxWidth="none">
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.email)}>
             <Field.Label htmlFor={emailId}>
               {intl.formatMessage(messages.signInEmail)}
             </Field.Label>
@@ -116,7 +116,7 @@ export function SignInScreen({
             ) : null}
           </Field.Root>
 
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.password)}>
             <AuthLabelRow>
               <Field.Label htmlFor={passwordId}>
                 {intl.formatMessage(messages.signInPassword)}

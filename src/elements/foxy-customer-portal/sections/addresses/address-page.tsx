@@ -347,7 +347,7 @@ export function AddressPage({
           </Alert.Root>
         ) : null}
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.addressName)}>
           <Field.Label htmlFor={labelId}>
             {intl.formatMessage(messages.addressLabel)}
           </Field.Label>
@@ -370,7 +370,7 @@ export function AddressPage({
         </Field.Root>
 
         <Pair>
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.firstName)}>
             <Field.Label htmlFor={firstNameId}>
               {intl.formatMessage(messages.addressFirstName)}
             </Field.Label>
@@ -392,7 +392,7 @@ export function AddressPage({
             ) : null}
           </Field.Root>
 
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.lastName)}>
             <Field.Label htmlFor={lastNameId}>
               {intl.formatMessage(messages.addressLastName)}
             </Field.Label>
@@ -415,7 +415,7 @@ export function AddressPage({
           </Field.Root>
         </Pair>
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.company)}>
           <Field.Label htmlFor={companyId}>
             {intl.formatMessage(messages.addressCompany)}
           </Field.Label>
@@ -437,7 +437,7 @@ export function AddressPage({
           ) : null}
         </Field.Root>
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.phone)}>
           <Field.Label htmlFor={phoneId}>
             {intl.formatMessage(messages.addressPhone)}
           </Field.Label>
@@ -459,7 +459,7 @@ export function AddressPage({
           ) : null}
         </Field.Root>
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.address1)}>
           <Field.Label htmlFor={line1Id}>
             {intl.formatMessage(messages.addressLine1)}
           </Field.Label>
@@ -482,7 +482,7 @@ export function AddressPage({
           ) : null}
         </Field.Root>
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.address2)}>
           <Field.Label htmlFor={line2Id}>
             {intl.formatMessage(messages.addressLine2)}
           </Field.Label>
@@ -505,7 +505,7 @@ export function AddressPage({
         </Field.Root>
 
         <Pair>
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.country)}>
             <Field.Label htmlFor={countryId}>
               {intl.formatMessage(messages.addressCountry)}
             </Field.Label>
@@ -553,9 +553,12 @@ export function AddressPage({
                 onBlur={(event) => validateField("country", event.target.value)}
               />
             )}
+            {errors.country ? (
+              <Field.Error match>{errors.country}</Field.Error>
+            ) : null}
           </Field.Root>
 
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.region)}>
             <Field.Label htmlFor={regionId}>
               {intl.formatMessage(regionLabel)}
             </Field.Label>
@@ -610,7 +613,7 @@ export function AddressPage({
         </Pair>
 
         <Pair>
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.city)}>
             <Field.Label htmlFor={cityId}>
               {intl.formatMessage(messages.addressCity)}
             </Field.Label>
@@ -632,7 +635,7 @@ export function AddressPage({
             ) : null}
           </Field.Root>
 
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.postalCode)}>
             <Field.Label htmlFor={postalCodeId}>
               {intl.formatMessage(messages.addressPostalCode)}
             </Field.Label>

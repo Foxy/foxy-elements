@@ -131,7 +131,7 @@ export function PasswordResetScreen({
         )}
 
         <Form onSubmit={handleSubmit} noValidate $maxWidth="none">
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.password)}>
             <Field.Label htmlFor={newId}>
               {intl.formatMessage(messages.passwordNew)}
             </Field.Label>
@@ -154,7 +154,7 @@ export function PasswordResetScreen({
             ) : null}
           </Field.Root>
 
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.confirmation)}>
             <Field.Label htmlFor={confirmId}>
               {intl.formatMessage(messages.passwordConfirm)}
             </Field.Label>
