@@ -81,7 +81,11 @@ const rowGrid = css<{ $columns?: string }>`
   align-items: center;
 `;
 
-export const OrderHeaderRow = styled.div<{ $columns?: string }>`
+// Hidden from screen readers: each row names its own columns (see
+// `ColumnName`), because a row is one button and can't point at a header.
+export const OrderHeaderRow = styled.div.attrs({ "aria-hidden": true })<{
+  $columns?: string;
+}>`
   ${rowGrid};
   padding: 0 0 10px;
   border-bottom: ${(props) => props.theme.tokens.border.default};
@@ -226,6 +230,24 @@ const StatusCell = styled.div<{ $withSummary: boolean }>`
   }
 `;
 
+/**
+ * A cell's column name, for screen readers only. A row is one button, and a
+ * button reads its content as a single string, so without these a row was
+ * "100 Jan 1, 2024 Widget ×1 $25.00 Approved" with nothing saying which value
+ * is which.
+ */
+const ColumnName = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+`;
+
 const ReceiptCell = styled.div`
   text-align: right;
 
@@ -265,19 +287,35 @@ export function OrderRow({
 
   const cells = (
     <>
-      <IdCell>{order.display_id}</IdCell>
+      <IdCell>
+        <ColumnName>
+          {intl.formatMessage(messages.ordersColumnOrder)}{" "}
+        </ColumnName>
+        {order.display_id}
+      </IdCell>
 
       <DateCell>
+        <ColumnName>
+          {intl.formatMessage(messages.ordersColumnDate)}{" "}
+        </ColumnName>
         {date ? intl.formatDate(date, { dateStyle: "medium" }) : ""}
       </DateCell>
 
       {withSummary ? (
         // Truncated to one line, so the full text has to stay reachable on
         // hover for the rows this clips.
-        <SummaryCell title={summary}>{summary}</SummaryCell>
+        <SummaryCell title={summary}>
+          <ColumnName>
+            {intl.formatMessage(messages.ordersColumnSummary)}{" "}
+          </ColumnName>
+          {summary}
+        </SummaryCell>
       ) : null}
 
       <AmountCell>
+        <ColumnName>
+          {intl.formatMessage(messages.ordersColumnAmount)}{" "}
+        </ColumnName>
         <FormattedNumber
           value={order.total_order}
           style="currency"
@@ -286,6 +324,9 @@ export function OrderRow({
       </AmountCell>
 
       <StatusCell $withSummary={withSummary}>
+        <ColumnName>
+          {intl.formatMessage(messages.ordersColumnStatus)}{" "}
+        </ColumnName>
         <Badge $variant={statusVariant}>
           {statusMessage ? intl.formatMessage(statusMessage) : order.status}
         </Badge>
@@ -307,6 +348,11 @@ export function OrderRow({
         {receiptHref ? (
           <ReceiptLink href={receiptHref} target="_blank" rel="noreferrer">
             {intl.formatMessage(messages.paymentsReceipt)}{" "}
+            {/* Every row has a Receipt link; this tells them apart. */}
+            <ColumnName>
+              {intl.formatMessage(messages.ordersColumnOrder)}{" "}
+              {order.display_id}
+            </ColumnName>
             <ExternalLink size={14} />
           </ReceiptLink>
         ) : null}
