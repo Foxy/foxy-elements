@@ -1225,9 +1225,8 @@ describe("PaymentMethodSelectorElement", () => {
       document.body.append(element);
       await waitForRender();
 
-      const status = element.shadowRoot?.querySelector('[role="status"]');
       await waitForText(
-        () => status?.textContent,
+        () => element.shadowRoot?.textContent,
         "No payment methods are currently available.",
       );
       await expect(element.tokenize()).rejects.toThrow(
@@ -3183,8 +3182,7 @@ describe("PaymentMethodSelectorElement", () => {
         await waitForRender();
 
         await waitForText(
-          () =>
-            element.shadowRoot?.querySelector('[role="status"]')?.textContent,
+          () => element.shadowRoot?.textContent,
           "No payment methods are available.",
         );
         expect(element.shadowRoot?.textContent).not.toContain(

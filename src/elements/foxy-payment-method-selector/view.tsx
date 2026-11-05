@@ -14,6 +14,7 @@ import {
 } from "react";
 import { Card } from "@foxy.io/design-system/card";
 import { Checkbox } from "@foxy.io/design-system/checkbox";
+import { DelayedStatus } from "@foxy.io/design-system/delayed-status";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { Check } from "lucide-react";
@@ -932,25 +933,34 @@ export function Payment({
     );
   }
 
+  // The banner replaces the loading state with its text already in it, and a
+  // live region that appears with its text is often not announced. The
+  // design system's DelayedStatus mounts empty and speaks a moment later.
   if (!visibleOptions.length && allOptionsHidden) {
     return (
-      <EmptyStateBanner role="status" aria-live="polite">
+      <EmptyStateBanner>
         <EmptyStateTitle>
           {intl.formatMessage(messages.noPaymentMethodsVisible)}
         </EmptyStateTitle>
+        <DelayedStatus
+          message={intl.formatMessage(messages.noPaymentMethodsVisible)}
+        />
       </EmptyStateBanner>
     );
   }
 
   if (!visibleOptions.length) {
     return (
-      <EmptyStateBanner role="status" aria-live="polite">
+      <EmptyStateBanner>
         <EmptyStateTitle>
           {intl.formatMessage(messages.noPaymentMethods)}
         </EmptyStateTitle>
         <MutedFootnote>
           {intl.formatMessage(messages.noPaymentMethodsDescription)}
         </MutedFootnote>
+        <DelayedStatus
+          message={`${intl.formatMessage(messages.noPaymentMethods)} ${intl.formatMessage(messages.noPaymentMethodsDescription)}`}
+        />
       </EmptyStateBanner>
     );
   }
