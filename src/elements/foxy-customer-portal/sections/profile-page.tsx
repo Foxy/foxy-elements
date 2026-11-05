@@ -113,7 +113,7 @@ export function ProfilePage({ customer, onBack }: Props) {
           </Alert.Root>
         )}
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.firstName)}>
           <Field.Label htmlFor={firstNameId}>
             {intl.formatMessage(messages.profileFirstName)}
           </Field.Label>
@@ -135,7 +135,7 @@ export function ProfilePage({ customer, onBack }: Props) {
           ) : null}
         </Field.Root>
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.lastName)}>
           <Field.Label htmlFor={lastNameId}>
             {intl.formatMessage(messages.profileLastName)}
           </Field.Label>
@@ -157,7 +157,7 @@ export function ProfilePage({ customer, onBack }: Props) {
           ) : null}
         </Field.Root>
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.email)}>
           <Field.Label htmlFor={emailId}>
             {intl.formatMessage(messages.signInEmail)}
           </Field.Label>
@@ -181,7 +181,7 @@ export function ProfilePage({ customer, onBack }: Props) {
         </Field.Root>
 
         {isEmailChanged && (
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.currentPassword)}>
             <Field.Label htmlFor={currentPasswordId}>
               {intl.formatMessage(messages.profileCurrentPassword)}
             </Field.Label>
@@ -217,7 +217,7 @@ export function ProfilePage({ customer, onBack }: Props) {
           </Field.Root>
         )}
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.taxId)}>
           <Field.Label htmlFor={taxIdId}>
             {intl.formatMessage(messages.profileTaxId)}
           </Field.Label>
