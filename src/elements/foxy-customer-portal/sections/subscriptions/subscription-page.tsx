@@ -695,7 +695,10 @@ export function SubscriptionPage({
 
       {isFailed ? (
         <AlertSlot>
-          <Alert.Root $variant="destructive">
+          {/* `status` for the same reason as the subscription card's
+              message: this describes the subscription, not something the
+              customer just did. */}
+          <Alert.Root $variant="destructive" role="status">
             <AlertTitle>
               {intl.formatMessage(messages.subscriptionPastDueTitle)}
             </AlertTitle>
