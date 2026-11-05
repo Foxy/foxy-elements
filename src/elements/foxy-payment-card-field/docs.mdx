@@ -381,6 +381,21 @@ example, <code>translation-card-number-label</code> is also available as
         <code>theme-size-control</code>.
       </td>
     </tr>
+    <tr>
+      <td>
+        <code>errorMessage</code>
+      </td>
+      <td>
+        <code>string</code> (read-only)
+      </td>
+      <td>
+        The card error to show below the field, translated by the frame: the
+        first field the shopper left invalid, or every empty one after a refused
+        tokenize. Empty when there is none. The frame describes its inputs with
+        the same text for screen readers; the visible copy is yours to show,
+        because the frame sits inside your field's border.
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -504,6 +519,18 @@ example, <code>translation-card-number-label</code> is also available as
         </code>
       </td>
       <td>Fires when card tokenization fails.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>errormessagechange</code>
+      </td>
+      <td>
+        <code>Event</code>
+      </td>
+      <td>
+        Fires when <code>errorMessage</code> changes. Read the property in the
+        handler.
+      </td>
     </tr>
   </tbody>
 </table>

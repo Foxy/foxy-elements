@@ -629,6 +629,35 @@ describe("PaymentCardFieldElement", () => {
     });
   });
 
+  it("exposes the frame's error text and announces each change", () => {
+    const element = document.createElement(
+      PAYMENT_CARD_FIELD_ELEMENT_TAG,
+    ) as PaymentCardFieldElement;
+    document.body.append(element);
+
+    const privateElement = element as unknown as {
+      _handlePortMessage: (event: MessageEvent<string>) => void;
+    };
+    const send = (message: unknown) =>
+      privateElement._handlePortMessage({
+        data: JSON.stringify({ type: "error_text", message }),
+      } as MessageEvent<string>);
+    let changes = 0;
+    element.addEventListener("errormessagechange", () => (changes += 1));
+
+    send("Enter a date as MM/YY or MM/YYYY.");
+    expect(element.errorMessage).toBe("Enter a date as MM/YY or MM/YYYY.");
+    expect(changes).toBe(1);
+
+    send("Enter a date as MM/YY or MM/YYYY.");
+    send(42);
+    expect(changes).toBe(1);
+
+    send("");
+    expect(element.errorMessage).toBe("");
+    expect(changes).toBe(2);
+  });
+
   it("exposes validity and validationMessage to consumers", () => {
     const element = document.createElement(
       PAYMENT_CARD_FIELD_ELEMENT_TAG,
