@@ -26,6 +26,7 @@ import {
 } from "./account-page";
 import { customerPortalEvents } from "./events";
 import { usePortalContainer } from "./portal-container";
+import { focusIndex, focusPage } from "./page-focus";
 import { messages } from "./messages";
 import type { PortalScreen, PortalVariant } from "./types";
 import { AccessRecoveryScreen } from "./screens/access-recovery";
@@ -159,10 +160,24 @@ export function Portal({
   // nowhere near where the customer was.
   const pendingScroll = useRef<"top" | number | null>(null);
 
+  // The same bookkeeping for focus: which control the customer left each
+  // entry from, so the Back that returns there can focus it again.
+  const focusPositions = useRef(new Map<string, number>());
+  const pendingFocus = useRef<number | null>(null);
+
   // Read inside `navigateAccountPage` without making it depend on the current
   // page, which would rebuild the callback -- and every consumer's memo --
   // on every navigation.
   const accountPageRef = useRef(accountPage);
+
+  const rememberFocus = useCallback(
+    (key: string) => {
+      const index = portalContainer ? focusIndex(portalContainer) : null;
+      if (index === null) focusPositions.current.delete(key);
+      else focusPositions.current.set(key, index);
+    },
+    [portalContainer],
+  );
 
   /**
    * Brings the top of the portal into view after a navigation.
@@ -270,6 +285,7 @@ export function Portal({
       // Remember the spot being left before anything re-renders.
       const leavingKey = currentScrollKey.current || keyForNow();
       scrollPositions.current.set(leavingKey, window.scrollY);
+      rememberFocus(leavingKey);
 
       // `restoreScroll` is set only by the in-portal Back control, so a
       // forward navigation to a page visited earlier still opens at its top.
@@ -290,6 +306,10 @@ export function Portal({
           : undefined;
 
       pendingScroll.current = saved ?? "top";
+      pendingFocus.current =
+        options?.restoreScroll && cameFrom
+          ? (focusPositions.current.get(cameFrom) ?? null)
+          : null;
       setAccountPageState(page);
       if (!urlSync) {
         currentScrollKey.current = accountPageKey(page);
@@ -311,7 +331,7 @@ export function Portal({
         url,
       );
     },
-    [urlSync, keyForNow, readScrollState],
+    [urlSync, keyForNow, readScrollState, rememberFocus],
   );
 
   // Sign-out uses this, not `navigateAccountPage`: a customer signing in
@@ -322,8 +342,10 @@ export function Portal({
   // pattern as `navigateAccountPage` above, for the same reason.
   const resetAccountPage = useCallback(() => {
     scrollPositions.current.clear();
+    focusPositions.current.clear();
     currentScrollKey.current = "";
     pendingScroll.current = "top";
+    pendingFocus.current = null;
     setAccountPageState({ type: "home" });
     if (!urlSync) return;
     const url = new URL(window.location.href);
@@ -369,6 +391,7 @@ export function Portal({
       // one being left has to come from the ref.
       if (currentScrollKey.current) {
         scrollPositions.current.set(currentScrollKey.current, window.scrollY);
+        rememberFocus(currentScrollKey.current);
       }
 
       const arrivingKey =
@@ -380,6 +403,7 @@ export function Portal({
       // reload and has never stood on this entry in this session -- its top
       // is the only honest answer.
       pendingScroll.current = scrollPositions.current.get(arrivingKey) ?? "top";
+      pendingFocus.current = focusPositions.current.get(arrivingKey) ?? null;
 
       setAccountPageState(page);
     }
@@ -389,7 +413,23 @@ export function Portal({
       window.removeEventListener("popstate", handlePopState);
       history.scrollRestoration = previousRestoration;
     };
-  }, [urlSync]);
+  }, [urlSync, rememberFocus]);
+
+  // Runs after the scroll effect above, so a control that Back returns to is
+  // already scrolled into place. Skips the first render: focusing the portal
+  // on page load would take focus away from the host page.
+  const viewKey = `${screen}|${accountPageKey(accountPage)}`;
+  const firstView = useRef(true);
+  useEffect(() => {
+    if (firstView.current) {
+      firstView.current = false;
+      return;
+    }
+    const index = pendingFocus.current;
+    pendingFocus.current = null;
+    if (!portalContainer) return;
+    return focusPage(portalContainer, index);
+  }, [viewKey, portalContainer]);
 
   /**
    * A request came back 401 or 403: the session is gone or was never valid.
