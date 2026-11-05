@@ -547,6 +547,69 @@ describe("AchFieldElement events", () => {
     });
   });
 
+  it("reports an error code only once the customer has left the field", () => {
+    const routing = createField("routing-number");
+
+    dispatchHostedChange(routing, {
+      "routing-number": {
+        complete: false,
+        empty: true,
+        errorCode: "required",
+        touched: false,
+      },
+    });
+    expect(routing.errorCode).toBeNull();
+
+    dispatchHostedChange(routing, {
+      "routing-number": {
+        complete: false,
+        empty: false,
+        errorCode: "routing_number_length",
+        touched: true,
+      },
+    });
+    expect(routing.errorCode).toBe("routing_number_length");
+  });
+
+  it("sends its error message to the field frame, and again when fields register", () => {
+    const routing = createField("routing-number");
+    const source = attachFakeControllerSource(routing);
+    const expected = {
+      type: "set_error_message",
+      field: "routing_number",
+      message: "Enter a 9-digit routing number.",
+    };
+
+    routing.errorMessage = "  Enter a 9-digit routing number. ";
+    expect(routing.getAttribute("error-message")).toBe(
+      "Enter a 9-digit routing number.",
+    );
+    expect(source.postMessage).toHaveBeenLastCalledWith(
+      expected,
+      getExpectedOrigin(routing),
+    );
+
+    source.postMessage.mockClear();
+    (
+      routing as unknown as { _onWindowMessage: (event: MessageEvent) => void }
+    )._onWindowMessage({
+      data: { type: "ready", registeredFields: ["routing_number"] },
+      origin: getExpectedOrigin(routing),
+      source,
+    } as unknown as MessageEvent);
+    expect(source.postMessage).toHaveBeenCalledWith(
+      expected,
+      getExpectedOrigin(routing),
+    );
+
+    routing.errorMessage = "";
+    expect(routing.hasAttribute("error-message")).toBe(false);
+    expect(source.postMessage).toHaveBeenLastCalledWith(
+      { ...expected, message: "" },
+      getExpectedOrigin(routing),
+    );
+  });
+
   it("clears hosted state when the form resets", () => {
     const routing = createField("routing-number");
     const internals = getInternals(routing);

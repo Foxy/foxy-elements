@@ -28,6 +28,8 @@ type AchFieldElementProps = Omit<
   lang?: string;
   accountTypeValues?: ("checking" | "savings")[];
   "account-type-values"?: string;
+  errorMessage?: string;
+  "error-message"?: string;
   disabled?: boolean;
 } & SharedThemeProps;
 
