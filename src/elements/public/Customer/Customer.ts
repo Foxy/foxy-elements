@@ -379,7 +379,7 @@ export class Customer extends Base<Data> {
           .currentUserScope=${this.currentUserScope}
           group=${this.group}
           class="w-payment-method-card border-radius-overflow-fix rounded-t-l rounded-b-l overflow-hidden"
-          href=${ifDefined(this.data?._links['fx:default_payment_method'].href)}
+          href=${ifDefined(this.data?._links['fx:default_payment_method']?.href)}
           lang=${this.lang}
           ns="${this.ns} payment-method-card"
           .templates=${this.getNestedTemplates(cardId)}
@@ -783,6 +783,12 @@ export class Customer extends Base<Data> {
     const isBusy = this.in('busy');
     const tabs: Tab[] = [];
 
+    // This element manages one default payment method. Customers that list several
+    // payment methods (`fx:payment_methods`) or have no default one don't fit that model.
+    const links = this.data?._links as Record<string, unknown> | undefined;
+    const hidePaymentMethods =
+      !!links && (!links['fx:default_payment_method'] || !!links['fx:payment_methods']);
+
     if (!hiddenSelector.matches('transactions', true)) {
       tabs.push({ title: 'transaction_plural', content: this.__renderTransactions() });
     }
@@ -802,7 +808,9 @@ export class Customer extends Base<Data> {
           ${hiddenSelector.matches('header', true) ? '' : this.__renderHeader()}
           ${hiddenSelector.matches('default', true) ? '' : this.renderTemplateOrSlot()}
           ${hiddenSelector.matches('addresses', true) ? '' : this.__renderAddresses()}
-          ${hiddenSelector.matches('payment-methods', true) ? '' : this.__renderPaymentMethods()}
+          ${hiddenSelector.matches('payment-methods', true) || hidePaymentMethods
+            ? ''
+            : this.__renderPaymentMethods()}
           ${hiddenSelector.matches('attributes', true) ? '' : this.__renderAttributes()}
           ${tabs.length === 0 ? '' : this.__renderTabs(tabs)}
         </div>

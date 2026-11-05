@@ -1342,6 +1342,24 @@ describe('Customer', () => {
       expect(await getByTestId(element, 'payment-methods')).not.to.exist;
     });
 
+    it('is hidden when customer has "fx:payment_methods" link', async () => {
+      const data = await getTestData<any>('./hapi/customers/0');
+      data._links['fx:payment_methods'] = { href: 'https://demo.api/hapi/payment_methods' };
+      const element = await fixture<Customer>(html`<foxy-customer .data=${data}></foxy-customer>`);
+
+      expect(await getByTestId(element, 'payment-methods')).not.to.exist;
+    });
+
+    it('is hidden without breaking the rest when customer has no "fx:default_payment_method" link', async () => {
+      const data = await getTestData<any>('./hapi/customers/0');
+      delete data._links['fx:default_payment_method'];
+      const element = await fixture<Customer>(html`<foxy-customer .data=${data}></foxy-customer>`);
+
+      expect(await getByTestId(element, 'payment-methods')).not.to.exist;
+      expect(await getByTestId(element, 'header')).to.exist;
+      expect(await getByTestId(element, 'addresses')).to.exist;
+    });
+
     it('renders "payment-methods:before" slot by default', async () => {
       const layout = html`<foxy-customer></foxy-customer>`;
       const element = await fixture<Customer>(layout);
