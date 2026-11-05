@@ -537,6 +537,28 @@ function PaymentOptionBody({
           styleAttributes={styleAttributes}
           onControllerReady={onControllerReady}
           defaultLabelsByField={achDefaultLabels}
+          fieldErrorMessages={{
+            required: intl.formatMessage(messages.achFieldRequired),
+            routing_number_length: intl.formatMessage(
+              messages.achRoutingNumberLength,
+            ),
+            routing_number_checksum: intl.formatMessage(
+              messages.achRoutingNumberChecksum,
+            ),
+            account_number_too_short: intl.formatMessage(
+              messages.achAccountNumberTooShort,
+            ),
+            account_number_too_long: intl.formatMessage(
+              messages.achAccountNumberTooLong,
+            ),
+            account_type_invalid: intl.formatMessage(
+              messages.achAccountTypeInvalid,
+            ),
+            account_holder_name_too_long: intl.formatMessage(
+              messages.achAccountHolderNameTooLong,
+            ),
+          }}
+          fieldErrorFallback={intl.formatMessage(messages.achFieldInvalid)}
           ownerConfirmationLabel={intl.formatMessage(
             messages.achOwnerConfirmationLabel,
           )}

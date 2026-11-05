@@ -93,6 +93,15 @@ const ACH_FIELDS: AchHostedFieldName[] = [
   "account-holder-name",
 ];
 
+function mountedFields(
+  elements: Partial<Record<AchHostedFieldName, AchFieldElement | null>>,
+): [AchHostedFieldName, AchFieldElement][] {
+  return ACH_FIELDS.flatMap((fieldName) => {
+    const element = elements[fieldName];
+    return element ? [[fieldName, element] as const] : [];
+  }) as [AchHostedFieldName, AchFieldElement][];
+}
+
 type AchHostedEmbedProps = {
   option: PaymentMethodSelectorOption;
   lang?: string;
@@ -100,6 +109,10 @@ type AchHostedEmbedProps = {
   styleAttributes: HostedFieldStyleAttributes;
   onControllerReady?: (controller: PaymentController | null) => void;
   defaultLabelsByField: Partial<Record<AchHostedFieldName, string>>;
+  /** Text per embed error code, shown under a field the customer left invalid. */
+  fieldErrorMessages: Record<string, string>;
+  /** For a code `fieldErrorMessages` doesn't have. */
+  fieldErrorFallback: string;
   ownerConfirmationLabel: string;
   ownerConfirmationErrorMessage: string;
   tokenizeErrorMessage: string;
@@ -112,6 +125,8 @@ export default function AchOptionEmbed({
   styleAttributes,
   onControllerReady,
   defaultLabelsByField,
+  fieldErrorMessages,
+  fieldErrorFallback,
   ownerConfirmationLabel,
   ownerConfirmationErrorMessage,
   tokenizeErrorMessage,
@@ -121,6 +136,9 @@ export default function AchOptionEmbed({
   const [error, setError] = useState<
     AchTokenizationErrorEventDetail["code"] | null
   >(null);
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<AchHostedFieldName, string>>
+  >({});
   const refs = useRef<
     Partial<Record<AchHostedFieldName, AchFieldElement | null>>
   >({});
@@ -186,9 +204,42 @@ export default function AchOptionEmbed({
     ownerConfirmationErrorMessage,
   ]);
 
+  // Read through a ref so the listeners below aren't re-added on every render:
+  // the selector builds a new messages object each time.
+  const errorText = useRef({ fieldErrorMessages, fieldErrorFallback });
+  errorText.current = { fieldErrorMessages, fieldErrorFallback };
+
+  // A field's error is known only after the customer leaves it, so read it
+  // on blur as well as on change.
+  useEffect(() => {
+    const cleanups = mountedFields(refs.current).map(
+      ([fieldName, element]) => {
+        const update = () => {
+          const code = element.errorCode;
+          setFieldErrors((current) => ({
+            ...current,
+            [fieldName]: code
+              ? (errorText.current.fieldErrorMessages[code] ??
+                errorText.current.fieldErrorFallback)
+              : undefined,
+          }));
+        };
+        element.addEventListener("blur", update);
+        element.addEventListener("change", update);
+        return () => {
+          element.removeEventListener("blur", update);
+          element.removeEventListener("change", update);
+        };
+      },
+    );
+    return () => cleanups.forEach((cleanup) => cleanup());
+  }, [hostedFieldsKey]);
+
   if (!option.hostedFields) {
     return null;
   }
+
+  const ownerConfirmationErrorId = `ach-owner-confirmation-error-${option.id}`;
 
   return (
     <AchFieldsRoot>
@@ -199,6 +250,8 @@ export default function AchOptionEmbed({
               option.hostedFields?.labels?.[fieldName] ??
               defaultLabelsByField[fieldName] ??
               "";
+
+            const fieldError = fieldErrors[fieldName];
 
             return (
               <Field.Root key={fieldName}>
@@ -214,6 +267,7 @@ export default function AchOptionEmbed({
                       : undefined
                   }
                   disabled={disabled || undefined}
+                  error-message={fieldError}
                   theme-background-field={styleAttributes.inputBackground}
                   theme-color-secondary={styleAttributes.inputPlaceholderColor}
                   theme-font-body={styleAttributes.inputFont}
@@ -223,6 +277,7 @@ export default function AchOptionEmbed({
                     refs.current[fieldName] = node as AchFieldElement | null;
                   }}
                 />
+                {fieldError ? <ErrorText>{fieldError}</ErrorText> : null}
               </Field.Root>
             );
           })}
@@ -233,6 +288,10 @@ export default function AchOptionEmbed({
                 checked={ownerConfirmed}
                 disabled={disabled}
                 data-ach-owner-confirmation="true"
+                aria-invalid={ownerConfirmationError || undefined}
+                aria-describedby={
+                  ownerConfirmationError ? ownerConfirmationErrorId : undefined
+                }
                 onCheckedChange={(checked) => {
                   const isChecked = Boolean(checked);
                   setOwnerConfirmed(isChecked);
@@ -249,13 +308,16 @@ export default function AchOptionEmbed({
             </Checkbox.Label>
           </AchOwnerConfirmationField>
           {ownerConfirmationError ? (
-            <AchOwnerConfirmationError>
+            <AchOwnerConfirmationError id={ownerConfirmationErrorId}>
               {ownerConfirmationErrorMessage}
             </AchOwnerConfirmationError>
           ) : null}
         </AchFieldGrid>
       </Field.Set>
-      {error ? <ErrorText>{tokenizeErrorMessage}</ErrorText> : null}
+      {/* An alert: it answers the customer's own submit. */}
+      {error ? (
+        <ErrorText role="alert">{tokenizeErrorMessage}</ErrorText>
+      ) : null}
     </AchFieldsRoot>
   );
 }
