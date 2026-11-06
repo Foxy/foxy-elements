@@ -50,7 +50,7 @@ npm install @foxy.io/sdk@2 @foxy.io/elements@2
 Initialize the API client from our SDK like so:
 
 ```js
-import { client } from "@foxy.io/sdk/checkout/client";
+import { client } from "@foxy.io/sdk/checkout";
 client.setStoreDomain("your-store-domain");
 ```
 

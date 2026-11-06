@@ -1,4 +1,4 @@
-import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import { client as checkoutClient } from "@foxy.io/sdk/checkout";
 import type { KlarnaSdkInstance } from "@foxy.io/sdk/checkout";
 import type { PaymentMethodSelectorOption } from "../types";
 

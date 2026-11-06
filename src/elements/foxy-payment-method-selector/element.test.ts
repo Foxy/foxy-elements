@@ -7,7 +7,7 @@ import {
   it,
   vi,
 } from "vitest";
-import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import { client as checkoutClient } from "@foxy.io/sdk/checkout";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 import {
   THEME_ATTRIBUTE_NAMES,
