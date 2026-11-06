@@ -9,7 +9,7 @@ import type {
 } from "./types";
 import "../foxy-ach-field/element";
 import "../foxy-payment-card-field/element";
-import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import { client as checkoutClient } from "@foxy.io/sdk/checkout";
 import { Alert } from "@foxy.io/design-system/alert";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 import { StyleSheetManager, ThemeProvider } from "styled-components";

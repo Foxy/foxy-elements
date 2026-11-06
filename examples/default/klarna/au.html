@@ -11,7 +11,7 @@
     ></script>
 
     <script type="module">
-      import { client } from "@foxy.io/sdk/checkout/client";
+      import { client } from "@foxy.io/sdk/checkout";
       import { getKlarnaInitPaymentOptionFromEnv } from "/src/lib/klarna-init-response.ts";
 
       await client.hydrateJson(

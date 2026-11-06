@@ -1,4 +1,4 @@
-import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import { client as checkoutClient } from "@foxy.io/sdk/checkout";
 import type { PaymentController, PaymentMethodSelectorOption } from "../types";
 import { defaultTheme, type DesignSystemTheme } from "@foxy.io/design-system/theme";
 

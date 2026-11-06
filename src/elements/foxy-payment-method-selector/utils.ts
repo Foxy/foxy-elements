@@ -1,6 +1,6 @@
 import { action } from "storybook/actions";
 import { waitFor } from "storybook/test";
-import { client as checkoutClient } from "@foxy.io/sdk/checkout/client";
+import { client as checkoutClient } from "@foxy.io/sdk/checkout";
 import { defaultTheme } from "@foxy.io/design-system/theme";
 import { paymentMethodSelectorEvents } from "./events";
 import type { PaymentMethodSelectorElement } from "./element";
