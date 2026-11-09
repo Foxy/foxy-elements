@@ -1,6 +1,6 @@
 // src/elements/foxy-side-cart-trigger/element.ts
 import { IntlMessageFormat } from "intl-messageformat";
-import { sideCart } from "@foxy.io/sdk/checkout/side-cart";
+import { sideCart } from "@foxy.io/sdk/checkout";
 import enUsMessages from "@/locales/en-US.json";
 import { messages } from "./messages";
 
@@ -94,7 +94,7 @@ const STYLES = `
 `;
 
 /**
- * `@foxy.io/sdk/checkout/side-cart` does not export a type for this, so it is
+ * `@foxy.io/sdk/checkout` does not export a type for this, so it is
  * declared here from the shape documented on `sideCart`'s `itemcountchange`
  * event: `true` only for the first report after a connect (a
  * cache-to-authoritative correction the shopper did not cause), `false` for

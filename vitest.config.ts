@@ -46,7 +46,6 @@ export default defineConfig({
       "@foxy.io/design-system/summary-table",
       "@foxy.io/design-system/theme",
       "@foxy.io/sdk/checkout",
-      "@foxy.io/sdk/checkout/side-cart",
       "@foxy.io/sdk/customer",
       "@stripe/react-stripe-js",
       "@stripe/stripe-js/pure",

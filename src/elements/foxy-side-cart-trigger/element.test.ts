@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // src/elements/foxy-side-cart-trigger/element.test.ts
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { sideCart } from "@foxy.io/sdk/checkout/side-cart";
+import { sideCart } from "@foxy.io/sdk/checkout";
 import "./element";
 
 function mount(): HTMLElement {
@@ -416,12 +416,7 @@ describe("foxy-side-cart-trigger", () => {
   });
 
   it("is not re-exported from the elements barrel", async () => {
-    // Its module imports `@foxy.io/sdk/checkout/side-cart`, which installs
-    // the sidecart as `client`'s cart-mutation transport as an import side
-    // effect. Re-exporting it from the barrel would make that side effect
-    // fire for anyone importing `@foxy.io/elements` at all, whether or not a
-    // trigger is on the page -- it must be reached only through its own
-    // subpath.
+    // It is reached only through its own subpath.
     const barrel = await import("../index");
     expect("SideCartTriggerElement" in barrel).toBe(false);
   });

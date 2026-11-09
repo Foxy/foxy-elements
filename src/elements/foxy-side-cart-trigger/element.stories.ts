@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { expect, spyOn, userEvent, waitFor } from "storybook/test";
-import { sideCart } from "@foxy.io/sdk/checkout/side-cart";
+import { sideCart } from "@foxy.io/sdk/checkout";
 import "./element";
 import type { SideCartTriggerElement, SideCartTriggerLayout } from "./element";
 
@@ -66,7 +66,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Drop-in trigger for the sidecart: shows the cart's item count and opens the drawer on click. It reads the same public `sideCart` singleton a merchant integration would (`@foxy.io/sdk/checkout/side-cart`), so these stories stub only that singleton's `itemCount` getter — everything else is the real element.",
+          "Drop-in trigger for the sidecart: shows the cart's item count and opens the drawer on click. It reads the same public `sideCart` singleton a merchant integration would (`@foxy.io/sdk/checkout`), so these stories stub only that singleton's `itemCount` getter — everything else is the real element.",
       },
     },
   },
