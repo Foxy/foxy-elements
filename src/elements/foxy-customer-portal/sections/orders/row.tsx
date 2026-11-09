@@ -235,6 +235,10 @@ const StatusCell = styled.div<{ $withSummary: boolean }>`
  * button reads its content as a single string, so without these a row was
  * "100 Jan 1, 2024 Widget ×1 $25.00 Approved" with nothing saying which value
  * is which.
+ *
+ * `pre`, not the usual `nowrap`: layout trims the space at either end of this
+ * out-of-flow box, and Chrome builds the text screen readers read from layout,
+ * so they heard "Amount$25.00". Keep each separator space inside the span.
  */
 const ColumnName = styled.span`
   position: absolute;
@@ -244,7 +248,7 @@ const ColumnName = styled.span`
   padding: 0;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  white-space: pre;
   border: 0;
 `;
 
@@ -347,9 +351,12 @@ export function OrderRow({
       <ReceiptCell>
         {receiptHref ? (
           <ReceiptLink href={receiptHref} target="_blank" rel="noreferrer">
-            {intl.formatMessage(messages.paymentsReceipt)}{" "}
-            {/* Every row has a Receipt link; this tells them apart. */}
+            {intl.formatMessage(messages.paymentsReceipt)}
+            {/* Every row has a Receipt link; this tells them apart. The space
+                is inside the span: the link is inline-flex, which trims
+                the trailing space of "Receipt " outside it. */}
             <ColumnName>
+              {" "}
               {intl.formatMessage(messages.ordersColumnOrder)}{" "}
               {order.display_id}
             </ColumnName>

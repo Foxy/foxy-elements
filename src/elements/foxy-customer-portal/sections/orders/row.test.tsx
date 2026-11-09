@@ -128,6 +128,36 @@ describe("OrderRow", () => {
       .toBeInTheDocument();
   });
 
+  // The accessible names above were always right, but Chrome hands screen
+  // readers its layout text, and layout trimmed the separator spaces at the
+  // edges of the hidden column names: NVDA said "Amount$25.00" and JAWS
+  // "ReceiptOrder 100". Each name keeps its space inside and preserves it.
+  it("keeps the space between each column name and its value through layout", () => {
+    render({
+      onOpen: vi.fn(),
+      order: order({
+        _links: {
+          self: { href: "/s/1" },
+          "fx:receipt": { href: "https://example.test/receipt/1" },
+        },
+      }) as never,
+    });
+
+    const columnNames = [...document.querySelectorAll("span")].filter(
+      (span) => getComputedStyle(span).clip === "rect(0px, 0px, 0px, 0px)",
+    );
+    expect(columnNames.length).toBeGreaterThan(1);
+    for (const name of columnNames) {
+      expect(getComputedStyle(name).whiteSpace).toBe("pre");
+    }
+
+    const [receiptName] = columnNames.filter((name) => name.closest("a"));
+    expect(receiptName.textContent).toMatch(/^ Order 98213$/);
+    for (const name of columnNames.filter((name) => !name.closest("a"))) {
+      expect(name.textContent).toMatch(/\S $/);
+    }
+  });
+
   it("hides the visual header row from screen readers", () => {
     screen = mountScreen(<OrderHeaderRow />, {});
     expect(document.querySelector('[aria-hidden="true"]')).not.toBeNull();
