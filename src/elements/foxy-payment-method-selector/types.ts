@@ -84,9 +84,15 @@ export type PaymentMethodSelectorKlarnaTokenizePayload = {
 };
 
 
+/**
+ * Nothing is paid yet: the store calls Adyen when the checkout is submitted
+ * with `stateData` as its `payment_method_data`. A 3DS step it asks for runs
+ * through {@link PaymentController.handleAction}.
+ */
 export type PaymentMethodSelectorAdyenEmbeddedTokenizePayload = {
   adyenEmbedded: {
-    result: Record<string, unknown>;
+    /** The Drop-in's `state.data` from `onSubmit`. */
+    stateData: Record<string, unknown>;
   };
 };
 
@@ -177,6 +183,13 @@ export type PaymentController = {
    * server-side via `POST /checkout?action=continue`.
    */
   confirm?: (params: { clientSecret: string }) => Promise<void>;
+  /**
+   * Optional. Runs a gateway step the checkout API asked for after submit
+   * (`next_action.type === "three_ds_challenge"`) with the SDK that holds the
+   * shopper's details, given the action's `params`. Resolves with what the SDK
+   * handed back, which the checkout sends as `continueCheckOut`'s `sdkResult`.
+   */
+  handleAction?: (params: Record<string, unknown>) => Promise<Record<string, unknown>>;
   /**
    * Optional. Called when the host selects a different (non-Adyen) payment
    * option so the controller can deselect/collapse any internally selected

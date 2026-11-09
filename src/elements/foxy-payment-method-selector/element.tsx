@@ -426,25 +426,27 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
    *
    * Resolving means the gateway has the details, not that the payment
    * succeeded: the caller must resume with `POST /checkout?action=continue`,
-   * which is where the outcome is established server-to-server.
+   * which is where the outcome is established server-to-server. A
+   * `three_ds_challenge` resolves with what the gateway's SDK handed back, to
+   * send along as `sdkResult`.
    */
   async handleNextAction(nextAction: {
     type: string;
     gateway?: string;
     params?: Record<string, unknown>;
-  }): Promise<void> {
+  }): Promise<Record<string, unknown> | void> {
     if (!this.#resolveApiState()) {
       throw new Error("Checkout client is not initialized.");
     }
 
-    if (nextAction.type !== "confirm_intent") {
+    if (nextAction.type !== "confirm_intent" && nextAction.type !== "three_ds_challenge") {
       throw new Error(
         `Unsupported checkout next action: ${nextAction.type || "(none)"}.`,
       );
     }
 
     const clientSecret = this.#toOptionalText(nextAction.params?.client_secret);
-    if (!clientSecret) {
+    if (nextAction.type === "confirm_intent" && !clientSecret) {
       throw new Error("Checkout next action is missing a client secret.");
     }
 
@@ -470,11 +472,22 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     this.#setLoading(true);
 
     try {
+      if (nextAction.type === "three_ds_challenge") {
+        const controller = await this.#awaitController(selectedOption.id);
+        if (!controller?.handleAction) {
+          throw new Error(
+            "The selected payment method cannot complete this verification step.",
+          );
+        }
+
+        return await controller.handleAction(nextAction.params ?? {});
+      }
+
       if (
         selectedOption.type === "saved-card" &&
         selectedOption.gateway === "stripe_v2"
       ) {
-        await this.#handleSavedStripeCardNextAction(clientSecret);
+        await this.#handleSavedStripeCardNextAction(clientSecret!);
         return;
       }
 
@@ -486,7 +499,7 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
         );
       }
 
-      await controller.confirm({ clientSecret });
+      await controller.confirm({ clientSecret: clientSecret! });
     } finally {
       this.#setLoading(false);
     }
@@ -1353,16 +1366,16 @@ export class PaymentMethodSelectorElement extends ThemeableHTMLElement {
     }
 
     if (selectedOption.adyenEmbedded) {
-      const result = this.#asRecord(payload.result);
-      if (!result) {
+      const stateData = this.#asRecord(payload.stateData);
+      if (!stateData) {
         throw new Error(
-          "Adyen Embedded tokenization response is missing a result.",
+          "Adyen Embedded tokenization response is missing the payment data.",
         );
       }
 
       return {
         adyenEmbedded: {
-          result,
+          stateData,
         },
       };
     }

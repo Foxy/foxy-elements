@@ -316,17 +316,17 @@ type AdyenComponentConstructor = new (
 
 type CheckoutClientLike = {
   adyenEmbedded?: AdyenCheckoutLike | null;
-  submitAdyenEmbeddedPayment?: (
-    data: Record<string, unknown>,
-  ) => Promise<Record<string, unknown>>;
-  submitAdyenEmbeddedPaymentDetails?: (
-    data: Record<string, unknown>,
-  ) => Promise<Record<string, unknown>>;
 };
 
-type TokenizationRequest = {
-  resolve: (value: { result: Record<string, unknown> }) => void;
+type PendingRequest = {
+  resolve: (value: Record<string, unknown>) => void;
   reject: (reason: Error) => void;
+};
+
+/** The `actions` Adyen passes to `onSubmit` and `onAdditionalDetails`. */
+type AdyenActions = {
+  resolve?: (response: Record<string, unknown>) => void;
+  reject?: () => void;
 };
 
 type AdyenEmbeddedOptionProps = {
@@ -438,7 +438,7 @@ function toError(value: unknown, fallback: string): Error {
 }
 
 function settleRequest(
-  request: TokenizationRequest | null,
+  request: PendingRequest | null,
   result: Record<string, unknown> | Error,
 ): void {
   if (!request) return;
@@ -448,7 +448,7 @@ function settleRequest(
     return;
   }
 
-  request.resolve({ result });
+  request.resolve(result);
 }
 
 function cleanupAdyenComponent(
@@ -483,7 +483,17 @@ export default function AdyenEmbeddedOption({
   const readyPromiseRef = useRef<Promise<void> | null>(null);
   const statusRef = useRef<AdyenStatus>("loading");
   const errorRef = useRef<string | null>(null);
-  const tokenizationRequestRef = useRef<TokenizationRequest | null>(null);
+  const tokenizationRequestRef = useRef<PendingRequest | null>(null);
+  /** A `handleAction()` waiting for the Drop-in's `onAdditionalDetails`. */
+  const actionRequestRef = useRef<PendingRequest | null>(null);
+  /**
+   * The Drop-in waits on these until the store answers the submit (or the
+   * continue). They answer it with the next 3DS action; a new submit rejects
+   * them so the Drop-in is ready again.
+   */
+  const heldActionsRef = useRef<AdyenActions | null>(null);
+  /** Set while held actions are rejected on purpose, so that is not shown as a failed payment. */
+  const releasingRef = useRef(false);
 
   useEffect(() => {
     statusRef.current = status;
@@ -579,67 +589,64 @@ export default function AdyenEmbeddedOption({
       onSelect: () => {
         onSelect?.();
       },
-      onSubmit: async (state: unknown, _component: unknown, actions: unknown) => {
-        const actionsRecord = asRecord(actions);
-        try {
-          const data =
-            (asRecord(state)?.data as Record<string, unknown>) ?? {};
-          const client = checkoutClient as CheckoutClientLike;
-          const response =
-            (await client.submitAdyenEmbeddedPayment?.(data)) ?? {};
-          (actionsRecord?.resolve as (r: unknown) => void)?.(response);
-        } catch (error) {
-          (actionsRecord?.reject as () => void)?.();
-          const request = tokenizationRequestRef.current;
-          tokenizationRequestRef.current = null;
-          settleRequest(request, toError(error, submitErrorMessage));
-        }
-      },
-      onAdditionalDetails: async (
-        state: unknown,
-        _component: unknown,
-        actions: unknown,
-      ) => {
-        const actionsRecord = asRecord(actions);
-        try {
-          const data =
-            (asRecord(state)?.data as Record<string, unknown>) ?? {};
-          const client = checkoutClient as CheckoutClientLike;
-          const response =
-            (await client.submitAdyenEmbeddedPaymentDetails?.(data)) ?? {};
-          (actionsRecord?.resolve as (r: unknown) => void)?.(response);
-        } catch (error) {
-          (actionsRecord?.reject as () => void)?.();
-          const request = tokenizationRequestRef.current;
-          tokenizationRequestRef.current = null;
-          settleRequest(request, toError(error, submitErrorMessage));
-        }
-      },
-      onPaymentCompleted: (result: unknown) => {
+      // Nothing is paid here: the state data goes back from tokenize() to
+      // the checkout, which submits it, and the store calls Adyen. The
+      // Drop-in waits on `actions` until a 3DS step needs it.
+      onSubmit: (state: unknown, _component: unknown, actions: unknown) => {
+        heldActionsRef.current = asRecord(actions) as AdyenActions | null;
         const request = tokenizationRequestRef.current;
         tokenizationRequestRef.current = null;
-        const resultRecord = asRecord(result) ?? { value: result };
-        settleRequest(request, resultRecord);
+        const stateData = asRecord(asRecord(state)?.data);
+        settleRequest(
+          request,
+          stateData ? { stateData } : new Error(submitErrorMessage),
+        );
+      },
+      // The Drop-in finished a 3DS step: its data goes to the store through
+      // `continueCheckOut`'s `sdkResult`, never straight to Adyen from here.
+      onAdditionalDetails: (state: unknown, _component: unknown, actions: unknown) => {
+        heldActionsRef.current = asRecord(actions) as AdyenActions | null;
+        const request = actionRequestRef.current;
+        actionRequestRef.current = null;
+        const details = asRecord(asRecord(state)?.data);
+        settleRequest(request, details ?? new Error(submitErrorMessage));
       },
       onPaymentFailed: (result: unknown) => {
-        const request = tokenizationRequestRef.current;
-        tokenizationRequestRef.current = null;
+        if (releasingRef.current) return;
         const normalizedError = toError(result, submitErrorMessage);
         setError(normalizedError.message);
-        settleRequest(request, normalizedError);
+        settleRequest(tokenizationRequestRef.current, normalizedError);
+        settleRequest(actionRequestRef.current, normalizedError);
+        tokenizationRequestRef.current = null;
+        actionRequestRef.current = null;
       },
       onError: (error: unknown) => {
-        const request = tokenizationRequestRef.current;
-        tokenizationRequestRef.current = null;
         const normalizedError = toError(error, submitErrorMessage);
         setStatus("error");
         setError(normalizedError.message);
-        settleRequest(request, normalizedError);
+        settleRequest(tokenizationRequestRef.current, normalizedError);
+        settleRequest(actionRequestRef.current, normalizedError);
+        tokenizationRequestRef.current = null;
+        actionRequestRef.current = null;
       },
     });
 
     localComponent = component;
     componentRef.current = component;
+
+    const releaseHeldActions = (): void => {
+      const actions = heldActionsRef.current;
+      heldActionsRef.current = null;
+      if (!actions?.reject) return;
+      releasingRef.current = true;
+      try {
+        actions.reject();
+      } catch {
+        // The Drop-in may already have moved on.
+      } finally {
+        releasingRef.current = false;
+      }
+    };
 
     const controller: PaymentController = {
       tokenize: async () => {
@@ -660,6 +667,8 @@ export default function AdyenEmbeddedOption({
           throw new Error(loadErrorMessage);
         }
 
+        releaseHeldActions();
+
         return await new Promise((resolve, reject) => {
           tokenizationRequestRef.current = {
             resolve,
@@ -674,6 +683,21 @@ export default function AdyenEmbeddedOption({
           }
         });
       },
+      handleAction: (params) =>
+        new Promise((resolve, reject) => {
+          const actions = heldActionsRef.current;
+          const action = asRecord(params.action);
+          if (!actions?.resolve || !action) {
+            reject(new Error(submitErrorMessage));
+            return;
+          }
+
+          heldActionsRef.current = null;
+          actionRequestRef.current = { resolve, reject };
+          const resultCode =
+            typeof params.resultCode === "string" ? params.resultCode : "Pending";
+          actions.resolve({ resultCode, action });
+        }),
       deselect: () => {
         try {
           componentRef.current?.closeActivePaymentMethod?.();
@@ -720,9 +744,11 @@ export default function AdyenEmbeddedOption({
     return () => {
       cancelled = true;
       readyPromiseRef.current = null;
-      const request = tokenizationRequestRef.current;
+      settleRequest(tokenizationRequestRef.current, new Error(submitErrorMessage));
+      settleRequest(actionRequestRef.current, new Error(submitErrorMessage));
       tokenizationRequestRef.current = null;
-      settleRequest(request, new Error(submitErrorMessage));
+      actionRequestRef.current = null;
+      heldActionsRef.current = null;
       cleanupAdyenComponent(localComponent, container);
       onControllerReady?.(null);
 
