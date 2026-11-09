@@ -115,6 +115,17 @@ describe("SubscriptionCard", () => {
     expect(screen!.host.textContent).toMatch(/Card declined\./);
   });
 
+  // The message is stored on the subscription, so it is read as content. A
+  // live region would speak it over whatever control the customer focused.
+  it("keeps the error out of any live region", () => {
+    render(subscription({ error_message: "Card declined." }));
+    expect(
+      screen!.host.querySelector(
+        '[role="alert"], [role="status"], [aria-live]',
+      ),
+    ).toBeNull();
+  });
+
   it("shows no error text when there is none", () => {
     render(subscription());
     expect(screen!.host.textContent).not.toMatch(/declined/i);

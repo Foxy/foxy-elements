@@ -1451,6 +1451,31 @@ describe("PaymentMethodSelectorElement", () => {
     }
   });
 
+  // Rendered inside OptionRadioGroup, the Base UI checkbox took itself for a
+  // roving-focus item of the radio group and had no tabindex, so Tab skipped it.
+  it("keeps the ACH owner confirmation checkbox in the Tab order", async () => {
+    const restoreClient = overrideClientState(createAchApiState());
+    const element = document.createElement(
+      "foxy-payment-method-selector",
+    ) as PaymentMethodSelectorElement;
+
+    try {
+      document.body.append(element);
+      const checkbox = await waitForTruthy(
+        () =>
+          element.shadowRoot?.querySelector(
+            '[role="checkbox"][data-ach-owner-confirmation="true"]:not([data-disabled])',
+          ) as HTMLElement | null,
+        "enabled owner confirmation checkbox",
+      );
+
+      expect(checkbox.tabIndex).toBe(0);
+    } finally {
+      element.remove();
+      restoreClient();
+    }
+  });
+
   // The hosted iframe inside is 36px; with content-box sizing the 2px border
   // added on top of the 40px min-height, so the field stood 4px taller than a
   // design system control with 4px of dead space under the iframe.
