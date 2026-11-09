@@ -52,6 +52,7 @@ export default defineConfig({
       "@stripe/stripe-js/pure",
       "lit",
       "lucide-react",
+      "react-dom",
       "react-intl",
       "react-svg-credit-card-payment-icons",
       "react/jsx-dev-runtime",
