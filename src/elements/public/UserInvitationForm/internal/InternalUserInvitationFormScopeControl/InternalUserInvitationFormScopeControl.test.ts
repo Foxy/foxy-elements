@@ -5,11 +5,18 @@ import type { InternalSwitchControl } from '../../../../internal/InternalSwitchC
 import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
-import { COLLECTIONS, RESENDABLE } from '../../../../../utils/group-invitation-scopes';
+import {
+  COLLECTIONS,
+  RESENDABLE,
+  WRITE_ONLY,
+  isWriteOnly,
+} from '../../../../../utils/group-invitation-scopes';
 import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { spy } from 'sinon';
 
-const allReads = COLLECTIONS.map(collection => `${collection}_read`).join(' ');
+const allReads = COLLECTIONS.filter(collection => !isWriteOnly(collection))
+  .map(collection => `${collection}_read`)
+  .join(' ');
 
 const control = async (granterScope: string, scope = '') => {
   const element = await fixture<Control>(html`
@@ -95,7 +102,7 @@ describe('InternalUserInvitationFormScopeControl', () => {
     expect(written).to.equal('store_full_access');
   });
 
-  it('writes all 20 reads when the read preset is chosen', async () => {
+  it('writes every read when the read preset is chosen', async () => {
     const element = await control('store_full_access');
     let written: unknown = null;
     element.setValue = value => (written = value);
@@ -235,7 +242,8 @@ describe('custom matrix', () => {
     const tokens = String(written).split(' ');
     expect(tokens).to.not.include('store_full_access');
     COLLECTIONS.forEach(collection => {
-      expect(tokens, collection).to.include(`${collection}_read`);
+      if (isWriteOnly(collection)) expect(tokens, collection).to.not.include(`${collection}_read`);
+      else expect(tokens, collection).to.include(`${collection}_read`);
       expect(tokens, collection).to.include(`${collection}_write`);
     });
     RESENDABLE.forEach(collection => expect(tokens).to.not.include(`${collection}_resend`));
@@ -259,12 +267,12 @@ describe('custom matrix', () => {
     const element = await control('store_full_access', '');
     await selectCustom(element);
 
-    expect(rows(element)).to.have.lengthOf(20);
+    expect(rows(element)).to.have.lengthOf(21);
   });
 
   it('renders rows for a scope that is already custom', async () => {
     const element = await control('store_full_access', 'customers_read');
-    expect(rows(element)).to.have.lengthOf(20);
+    expect(rows(element)).to.have.lengthOf(21);
   });
 
   it('offers only grantable levels per row', async () => {
@@ -476,12 +484,14 @@ describe('custom matrix', () => {
   });
 
   it('keeps the matrix open when an edit makes the selection match another preset', async () => {
-    const scopeMinusOne = COLLECTIONS.filter(collection => collection !== 'customers')
+    const scopeMinusOne = COLLECTIONS.filter(
+      collection => collection !== 'customers' && !isWriteOnly(collection)
+    )
       .map(collection => `${collection}_read`)
       .join(' ');
 
     const element = await control('store_full_access', scopeMinusOne);
-    expect(rows(element)).to.have.lengthOf(20);
+    expect(rows(element)).to.have.lengthOf(21);
 
     let currentScope: unknown = scopeMinusOne;
     element.getValue = () => currentScope;
@@ -492,7 +502,7 @@ describe('custom matrix', () => {
     await element.requestUpdate();
 
     expect(currentScope).to.equal(allReads);
-    expect(rows(element)).to.have.lengthOf(20);
+    expect(rows(element)).to.have.lengthOf(21);
   });
 
   it('gives each row a real label naming its collection, associated with its select', async () => {
@@ -512,7 +522,7 @@ describe('custom matrix', () => {
 
     // No visible duplicate: an unset `helperText` resolves to `t('helper_text')`, which would
     // otherwise show the wrong string ("You can only grant access you have yourself.") under
-    // every one of the 20 rows.
+    // every one of the 21 rows.
     expect(rowControl?.helperText).to.equal('');
   });
 
@@ -555,6 +565,36 @@ describe('custom matrix', () => {
     const element = await control('store_full_access', 'customers_read');
     await presetControl(element)?.updateComplete;
     expect(presetControl(element)?.readonly).to.be.false;
+  });
+
+  it('offers only none and full for a write-only collection', async () => {
+    const element = await control('store_full_access', 'customers_read');
+    WRITE_ONLY.forEach(collection => {
+      expect(levelsFor(element, collection), collection).to.deep.equal(['none', 'full']);
+    });
+  });
+
+  it('writes only the write token when a write-only row is set to full', async () => {
+    const element = await control('store_full_access', 'customers_read');
+    let written: unknown = null;
+    element.setValue = value => (written = value);
+
+    setLevel(element, 'customer_anonymizations', 'full');
+
+    expect(written).to.equal('customers_read customer_anonymizations_write');
+  });
+
+  it('shows a write-only grant as full', async () => {
+    const element = await control('store_full_access', 'customer_anonymizations_write');
+    expect(levelSelect(element, 'customer_anonymizations')?.value).to.equal('full');
+  });
+
+  it('offers a write-only collection only to a granter holding its write token', async () => {
+    const without = await control('customers_read customers_write', 'customers_read');
+    expect(levelsFor(without, 'customer_anonymizations')).to.deep.equal(['none']);
+
+    const holding = await control('customers_read customer_anonymizations_write', 'customers_read');
+    expect(levelsFor(holding, 'customer_anonymizations')).to.deep.equal(['none', 'full']);
   });
 });
 
@@ -656,5 +696,15 @@ describe('locking on an unreachable grant', () => {
     setLevel(element, 'customers', 'full');
 
     expect(written).to.equal('customers_read customers_write');
+  });
+
+  it('locks the control when the invitation holds a write-only grant the granter lacks', async () => {
+    const element = await control(
+      'customers_read customers_write',
+      'customers_read customer_anonymizations_write'
+    );
+
+    await presetControl(element)?.updateComplete;
+    expect(presetControl(element)?.readonly).to.be.true;
   });
 });

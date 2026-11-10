@@ -22,6 +22,7 @@
     "carts": "carts",
     "coupons": "coupons",
     "customers": "customers",
+    "customer_anonymizations": "customer anonymization",
     "customer_portal_settings": "customer portal settings",
     "downloadables": "downloadables",
     "gift_cards": "gift cards",

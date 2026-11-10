@@ -2692,11 +2692,30 @@ describe('StoreForm', () => {
     it('keeps selectors unchanged without a scope and with store_full_access', async () => {
       const form = await create();
 
-      [null, 'store_full_access', 'payment_settings_read'].forEach(scope => {
+      [null, 'store_full_access'].forEach(scope => {
         form.currentUserScope = scope;
         expect(form.hiddenSelector.toString()).to.equal('undo submit create');
         expect(form.readonlySelector.toString()).to.equal('');
       });
+
+      form.currentUserScope = 'payment_settings_read';
+      expect(form.hiddenSelector.toString()).to.equal('undo submit create');
+      expect(form.readonlySelector.toString()).to.equal('data-retention');
+    });
+
+    it('makes data retention read-only without customer_anonymizations_write', async () => {
+      const form = await create('stores_write');
+      const selector = '[infer="data-retention"]';
+
+      expect(form.readonlySelector.matches('data-retention', true)).to.be.true;
+      expect(form.readonlySelector.matches('essentials-group-one', true)).to.be.false;
+      expect(form.hiddenSelector.matches('data-retention', true)).to.be.false;
+      expect((await getControl(form, selector)).readonly).to.be.true;
+
+      form.currentUserScope = 'stores_write customer_anonymizations_write';
+      await form.requestUpdate();
+      expect(form.readonlySelector.matches('data-retention', true)).to.be.false;
+      expect((await getControl(form, selector)).readonly).to.be.false;
     });
 
     it('is read-only with stores_read', async () => {

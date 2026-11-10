@@ -6,7 +6,7 @@ import type { NucleonElement } from '../NucleonElement';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
 import type { Rels } from '@foxy.io/sdk/backend';
-import type { ScopeCollection } from '../../../utils/user-scope';
+import type { ScopeCollection, ScopeRule } from '../../../utils/user-scope';
 
 import type {
   ParsedCustomDisplayIdConfig,
@@ -499,6 +499,14 @@ export class StoreForm extends Base<Data> {
   get scopeCollection(): ScopeCollection | null {
     // A new store is created under the user's stores list, which this scope does not cover.
     return this.href ? 'stores' : null;
+  }
+
+  get scopeRules(): ScopeRule[] {
+    // Turning auto-anonymization on or changing its window anonymizes customers in bulk, so
+    // the API requires the same permission as anonymizing one customer.
+    return [
+      { path: 'data-retention', collection: 'customer_anonymizations', readonlyIfNoWrite: true },
+    ];
   }
 
   get headerSubtitleOptions(): Record<string, unknown> {

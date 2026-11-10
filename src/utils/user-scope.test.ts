@@ -54,6 +54,19 @@ describe('parseUserScope', () => {
   it('denies users without a users token', () => {
     expect(parseUserScope('customers_read')!.canRead('users')).to.be.false;
   });
+
+  it('treats a write-only collection as readable and writable only with its write token', () => {
+    const without = parseUserScope('customers_write')!;
+    expect(without.canRead('customer_anonymizations')).to.be.true;
+    expect(without.canWrite('customer_anonymizations')).to.be.false;
+
+    const holding = parseUserScope('customers_read customer_anonymizations_write')!;
+    expect(holding.canWrite('customer_anonymizations')).to.be.true;
+  });
+
+  it('restricts a scope holding only a write-only collection token', () => {
+    expect(parseUserScope('customer_anonymizations_write')).to.not.be.null;
+  });
 });
 
 describe('getScopeSelectors', () => {
@@ -93,6 +106,19 @@ describe('getScopeSelectors', () => {
     const result = getScopeSelectors(scope, rules, null);
     expect(result.readonly).to.include('customer');
     expect(result.hidden).to.not.include('customer');
+  });
+
+  it('marks a write-only collection path readonly, never hidden, without its write token', () => {
+    const rules = [
+      { path: 'x', collection: 'customer_anonymizations' as const, readonlyIfNoWrite: true },
+    ];
+
+    const result = getScopeSelectors(parseUserScope('stores_write'), rules, null);
+    expect(result.readonly).to.deep.equal(['x']);
+    expect(result.hidden).to.deep.equal([]);
+
+    const holding = parseUserScope('stores_write customer_anonymizations_write');
+    expect(getScopeSelectors(holding, rules, null)).to.deep.equal(none);
   });
 
   it('does not mark paths readonly when the scope can write', () => {
