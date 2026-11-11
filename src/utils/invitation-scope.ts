@@ -3,6 +3,11 @@ import { COLLECTIONS, RESENDABLE, isWriteOnly } from './group-invitation-scopes'
 /** Access level a single collection can be granted at. `WRITE_ONLY` collections have no `read`. */
 export type Level = 'none' | 'read' | 'full';
 
+/** The level the read preset gives a collection: `read`, or `none` for a `WRITE_ONLY` one. */
+export function readPresetLevel(collection: string): Level {
+  return isWriteOnly(collection) ? 'none' : 'read';
+}
+
 export type Selection = {
   /** `null` means nothing has been chosen yet, which the form's v8n rule rejects. */
   preset: 'store' | 'read' | 'custom' | null;
@@ -34,13 +39,15 @@ export function parseScope(scope: string | undefined): Selection {
 
     // A write token means full access whether or not the read token is present. The API
     // treats write as implying read, so a lone write is still full access.
-    if (tokens.has(write)) levels[collection] = 'full';
-    else if (tokens.has(read) && !isWriteOnly(collection)) levels[collection] = 'read';
-    else levels[collection] = 'none';
-
     // A write-only collection's read token is not a grant the API knows, so it is left in
     // `extra` rather than modelled as a level.
-    if (tokens.has(read) && !isWriteOnly(collection)) known.add(read);
+    const hasRead = tokens.has(read) && !isWriteOnly(collection);
+
+    if (tokens.has(write)) levels[collection] = 'full';
+    else if (hasRead) levels[collection] = 'read';
+    else levels[collection] = 'none';
+
+    if (hasRead) known.add(read);
     if (tokens.has(write)) known.add(write);
   });
 
@@ -65,9 +72,7 @@ export function parseScope(scope: string | undefined): Selection {
   } else if (
     !resend.length &&
     !extra.length &&
-    COLLECTIONS.every(
-      collection => levels[collection] === (isWriteOnly(collection) ? 'none' : 'read')
-    )
+    COLLECTIONS.every(collection => levels[collection] === readPresetLevel(collection))
   ) {
     preset = 'read';
   } else {
@@ -155,7 +160,7 @@ export function canGrantResend(grantable: Grantable, collection: string): boolea
  * the gap.
  */
 export function canGrantReadPreset(grantable: Grantable): boolean {
-  return COLLECTIONS.every(
-    collection => isWriteOnly(collection) || canGrantLevel(grantable, collection, 'read')
+  return COLLECTIONS.every(collection =>
+    canGrantLevel(grantable, collection, readPresetLevel(collection))
   );
 }

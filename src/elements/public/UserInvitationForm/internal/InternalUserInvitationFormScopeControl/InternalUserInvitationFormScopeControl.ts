@@ -3,7 +3,7 @@ import type { Option } from '../../../../internal/InternalSelectControl/types';
 import type { Level, Selection } from '../../../../../utils/invitation-scope';
 
 import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
-import { COLLECTIONS, RESENDABLE, isWriteOnly } from '../../../../../utils/group-invitation-scopes';
+import { COLLECTIONS, RESENDABLE } from '../../../../../utils/group-invitation-scopes';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { css } from 'lit-element';
 import { html } from 'lit-html';
@@ -14,6 +14,7 @@ import {
   canGrantResend,
   getGrantable,
   parseScope,
+  readPresetLevel,
   serializeScope,
 } from '../../../../../utils/invitation-scope';
 
@@ -489,7 +490,7 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     } else {
       const selection = parseScope('');
       COLLECTIONS.forEach(collection => {
-        selection.levels[collection] = isWriteOnly(collection) ? 'none' : 'read';
+        selection.levels[collection] = readPresetLevel(collection);
       });
       this._value = serializeScope(selection);
     }
