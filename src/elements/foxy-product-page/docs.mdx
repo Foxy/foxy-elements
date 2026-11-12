@@ -1,0 +1,59 @@
+import { Meta } from "@storybook/blocks";
+import * as ProductPageStories from "./element.stories";
+
+<Meta of={ProductPageStories} name="Docs" />
+
+# foxy-product-page
+
+A whole product page from one tag: photos, brand, name, price, stock, options, modifiers, quantity, the add button, the description and a list of details.
+
+```html
+<script data-cfasync="false" src="https://cdn.foxycart.com/example.foxycart.com/loader.js" async defer></script>
+<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-products.js"></script>
+
+<foxy-product-page sku-param="sku">
+  <p>Loading…</p>
+</foxy-product-page>
+```
+
+With `sku-param="sku"`, one page at `/product?sku=TEE-ORG` serves every product, and a tile's `href="/product?sku={sku}"` links to it. Whatever is inside the tag shows until the product has loaded, and stays when the store has no such product.
+
+It renders in light DOM, so search engines read its text, with schema.org `Product` data in a `<script type="application/ld+json">`: an `Offer`, or an `AggregateOffer` over a parent's variants, once the currency is known. It adds the way `foxy-product-form` does, through a hidden `<form action="https://<store>/cart">` that Foxy 2.0's `foxycart.js` takes over, and sends the same fields.
+
+## What it shows
+
+| Part | From | |
+| --- | --- | --- |
+| Photos | `images` | The first is the main one. More than one adds thumbnails, which are buttons. A chosen variant with photos of its own shows those. |
+| Brand, name | `brand`, `name` | The name is the page's `<h1>`, in the `lang`'s translation when the catalog has one. |
+| Price | `price`, `list_price`, per-currency prices | For a parent, the range of its variants' prices until a variant is chosen; then that variant's, plus the chosen modifiers' amounts. A higher list price is struck through beside it. |
+| Stock | `is_in_stock`, `stock_level` | Once a variant is chosen: "In stock", "Only 3 left" at or below the store's low-stock threshold, or "Sold out". |
+| Options | `options`, the variants | Buttons, or swatches with their names under them when a value has a `color` or `image`. A combination with no variant is left out; a sold-out one is shown, marked "(sold out)", and can't be chosen. Nothing is chosen for the shopper. |
+| Modifiers | the chosen variant's `modifiers` | As in `foxy-product-form`: the chosen variant's, an optional choice on its first value, no added "None". |
+| Quantity | `quantity_min`, `quantity_max`, stock | A stepper that stops at what's in stock. Left out when only one can be bought. |
+| Add button | | Says what's missing: "Choose a size", then "Choose a colour", then "Add to cart · $49.90" (the price times the quantity). "Sold out" when it is. |
+| Description | `description` | See below. |
+| Details | `brand`, the SKU, `gtin`, `mpn`, `properties` | The SKU is the chosen variant's once there is one. A property with several values lists them. |
+
+## The description
+
+A product's description is Markdown, written by the merchant, and it's untrusted on a storefront. The element never parses it as HTML: it removes raw HTML tags, builds each paragraph, heading, list, table, bold, italic and code span as an element with the text set as text, and keeps a link only when its address is `https`. Headings start at `<h2>`, under the product's name.
+
+## Attributes
+
+| Attribute | Property | |
+| --- | --- | --- |
+| `sku` | `sku` | A product's, parent's or variant's SKU. |
+| `sku-param` | `skuParam` | The name of a query parameter of the page's address that holds the SKU. `sku` wins when both are set. |
+| `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
+| `value` | `value` | Preselected options, as a query string: `color=Black&size=M`. |
+| `label` | `label` | The add button's text; the price follows it. Default: the store's saved button text, else "Add to cart". |
+| `heading-level` | `headingLevel` | The name's heading level. Default `1`. |
+| `currency`, `currency-cookie`, `lang` | `currency` | As for `foxy-product-link`. |
+| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. |
+
+## Styling
+
+The photos sit beside the details and stack when the element is narrow; so do the description and the details. The look's attributes and CSS variables are listed under `foxy-product-link`. Classes, besides `foxy-product-form`'s: `.foxy-product-page`, `.foxy-product-main`, `.foxy-product-gallery`, `.foxy-product-hero`, `.foxy-product-thumbs`, `.foxy-product-info`, `.foxy-product-option`, `.foxy-product-pill`, `.foxy-product-swatch`, `.foxy-product-stepper`, `.foxy-product-description`, `.foxy-product-details`.
+
+It doesn't set the page's `<title>` or meta description, and has no breadcrumbs: the catalog doesn't publish a collection's name or path.

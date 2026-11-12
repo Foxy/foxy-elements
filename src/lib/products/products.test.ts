@@ -10,11 +10,21 @@ import {
   type CatalogStub,
 } from "./fixtures";
 import {
+  cartFields,
+  invalidModifiers,
+  livePrice,
+  modifierValues,
+  offeredModifiers,
+  quantityBounds,
+} from "./choices";
+import { fetchLook, parseLook } from "./look";
+import { renderMarkdown } from "./markdown";
+import {
   hasOptionControls,
   isOneClick,
   optionKey,
   parseChoices,
-  settleChoices,
+  keepOffered,
   valueStates,
   variantFor,
 } from "./options";
@@ -84,6 +94,15 @@ describe("fetchProduct", () => {
     expect(first.next).toBe("/s/products?cursor=2");
     await fetchProducts(FIXTURE_STORE, {}, first.next);
     expect(stub.requests[1]).toBe("/s/products?cursor=2");
+  });
+
+  it("asks for each parent's variants when wanted, and remembers a parent that came with them", async () => {
+    stub = stubCatalog();
+    const page = await fetchProducts(FIXTURE_STORE, { variants: true });
+    expect(stub.requests).toEqual(["/s/products?zoom=variants"]);
+    expect(page.products[0]._embedded?.variants).toHaveLength(6);
+    await fetchProduct(FIXTURE_STORE, "TEE-ORG");
+    expect(stub.requests).toHaveLength(1);
   });
 });
 
@@ -157,13 +176,13 @@ describe("options", () => {
     );
   });
 
-  it("replaces a choice the earlier ones rule out with the first available", () => {
-    expect(settleChoices(teeParent, {})).toEqual({ color: "Black", size: "S" });
-    expect(settleChoices(teeParent, { color: "natural", size: "S" })).toEqual({
-      color: "Natural",
-      size: "M",
-    });
-    expect(settleChoices(teeParent, { color: "Moss" })).toEqual({ color: "Moss", size: "S" });
+  it("drops a choice that is ruled out or sold out, and never chooses for the shopper", () => {
+    expect(keepOffered(teeParent, {})).toEqual({});
+    expect(keepOffered(teeParent, { color: "natural", size: "L" })).toEqual({ color: "Natural", size: "L" });
+    // S doesn't come in Natural; M is sold out in Black; Moss is sold out altogether.
+    expect(keepOffered(teeParent, { color: "Natural", size: "S" })).toEqual({ color: "Natural" });
+    expect(keepOffered(teeParent, { color: "Black", size: "M" })).toEqual({ color: "Black" });
+    expect(keepOffered(teeParent, { color: "Moss", size: "S" })).toEqual({ size: "S" });
   });
 
   it("finds the variant for a full set of choices, case-insensitively", () => {
@@ -188,5 +207,135 @@ describe("options", () => {
     expect(isOneClick(teeParent)).toBe(false);
     expect(isOneClick(engravedMug)).toBe(false);
     expect(isOneClick({ ...teeParent, variant_count: 0, _embedded: undefined })).toBe(true);
+  });
+});
+
+describe("choices", () => {
+  const state = { choices: { color: "Black", size: "2XL" }, variantSku: null, modifiers: { gift_wrap: "Yes" }, quantity: 1 };
+  const naturalLarge = { ...state, choices: { color: "Natural", size: "L" } };
+  const names = (modifiers: Array<{ name: string }>) => modifiers.map(({ name }) => name);
+
+  it("offers the parent's modifiers until a variant is chosen, then the variant's", () => {
+    expect(names(offeredModifiers(teeParent, { ...state, choices: { color: "Natural" } }))).toEqual(["gift_wrap"]);
+    expect(names(offeredModifiers(teeParent, state))).toEqual(["gift_wrap"]);
+    expect(names(offeredModifiers(teeParent, naturalLarge))).toEqual(["monogram"]);
+  });
+
+  it("never sends a modifier the chosen variant doesn't declare", () => {
+    expect(cartFields(teeParent, { ...naturalLarge, modifiers: { gift_wrap: "Yes", monogram: "JF" } })).toEqual([
+      ["sku", "TEE-ORG"],
+      ["color", "Natural"],
+      ["size", "L"],
+      ["monogram", "JF"],
+    ]);
+  });
+
+  it("starts an optional choice on its first value, a required one empty, and keeps what was entered", () => {
+    const modifiers = engravedMug.definition.modifiers!;
+    expect(modifierValues(modifiers)).toEqual({ gift_wrap: "No" });
+    expect(modifierValues(modifiers, { gift_wrap: "Yes", engraving: "Joey", monogram: "JF" })).toEqual({
+      engraving: "Joey",
+      gift_wrap: "Yes",
+    });
+    expect(modifierValues([{ ...modifiers[1], required: true }])).toEqual({});
+  });
+
+  it("adds modifier amounts in the shopper's currency", () => {
+    expect(livePrice(teeParent, state, null)).toEqual({ price: 31.45, listPrice: null });
+    expect(livePrice(teeParent, state, "EUR")).toEqual({ price: 29, listPrice: null });
+    expect(livePrice(teeParent, { ...state, choices: { color: "Black" } }, null)).toBeNull();
+  });
+
+  it("leaves out empty modifiers and a quantity of one", () => {
+    expect(cartFields(engravedMug, { ...state, modifiers: { engraving: "  ", gift_wrap: "Yes" } })).toEqual([
+      ["sku", "MUG-ENM-ENGRAVE"],
+      ["gift_wrap", "Yes"],
+    ]);
+  });
+
+  it("checks what the cart would refuse", () => {
+    expect(invalidModifiers(engravedMug, { ...state, modifiers: {} })).toEqual(new Map([["engraving", "required"]]));
+    expect(
+      invalidModifiers(engravedMug, { ...state, modifiers: { engraving: "A name longer than twenty" } }),
+    ).toEqual(new Map([["engraving", "too-long"]]));
+  });
+
+  it("bounds the quantity by the product's limits and its stock", () => {
+    expect(quantityBounds(plainMug)).toEqual({ min: 1, max: 3 });
+    expect(quantityBounds(engravedMug)).toEqual({ min: 1, max: Infinity });
+    expect(
+      quantityBounds({ ...plainMug, stock_level: 40, definition: { quantity_min: 2, quantity_max: 12 } }),
+    ).toEqual({ min: 2, max: 12 });
+  });
+});
+
+describe("the store's look", () => {
+  it("keeps only values of the shape the contract allows", () => {
+    expect(
+      parseLook({
+        low_stock_threshold: 3,
+        text_color: "#1a2737",
+        button_color: "#0057d9cc",
+        button_text_color: "#FFF",
+        button_radius: 999,
+        button_text: " Add to bag ",
+        font: "system",
+        custom_css: "foxy-product-form h2 { letter-spacing: 0.02em; }",
+      }),
+    ).toEqual({
+      lowStockThreshold: 3,
+      textColor: "#1a2737",
+      buttonColor: "#0057d9cc",
+      buttonTextColor: "#FFF",
+      buttonRadius: 999,
+      buttonText: "Add to bag",
+      font: "system",
+      customCss: "foxy-product-form h2 { letter-spacing: 0.02em; }",
+    });
+
+    const nothing = parseLook(null);
+    expect(
+      parseLook({
+        low_stock_threshold: -1,
+        text_color: "red",
+        button_color: "var(--x)",
+        button_text_color: "#12",
+        button_radius: 1000,
+        button_text: "Add\tnow",
+        font: "toString",
+        custom_css: 12,
+      }),
+    ).toEqual(nothing);
+    expect(nothing.lowStockThreshold).toBe(5);
+  });
+
+  it("is fetched once per store, from beside its catalog", async () => {
+    stub = stubCatalog();
+    stub.look = { low_stock_threshold: 2, button_text: "Add to bag" };
+    const [a, b] = await Promise.all([fetchLook(FIXTURE_STORE), fetchLook(FIXTURE_STORE)]);
+    expect(a).toBe(b);
+    expect(a.buttonText).toBe("Add to bag");
+    expect(a.lowStockThreshold).toBe(2);
+  });
+});
+
+describe("renderMarkdown", () => {
+  const html = (source: string) => {
+    const holder = document.createElement("div");
+    holder.append(renderMarkdown(source));
+    return holder.innerHTML;
+  };
+
+  it("renders the Markdown a description uses", () => {
+    expect(html("A **bold** and *soft* `code`.\n\n# Fit\n\n1. One\n2. Two")).toBe(
+      "<p>A <strong>bold</strong> and <em>soft</em> <code>code</code>.</p><h2>Fit</h2><ol><li>One</li><li>Two</li></ol>",
+    );
+  });
+
+  it("drops raw HTML and any link that isn't https", () => {
+    expect(html('<b onclick="x()">Hi</b> [a](http://x.example) [b](https://x.example/p) [c](javascript:alert(1))')).toBe(
+      '<p>Hi a <a href="https://x.example/p" rel="noopener nofollow">b</a> c</p>',
+    );
+    expect(html("1 < 2 and <script>alert(1)</script>")).toBe("<p>1 &lt; 2 and alert(1)</p>");
   });
 });

@@ -1,37 +1,50 @@
 import "../foxy-product-tile/element";
 import { fetchProducts, resolveStoreDomain, type CatalogQuery } from "@/lib/products/catalog";
+import { loadLook } from "@/lib/products/element-base";
 import { ensureStyles, whenParsed } from "@/lib/products/light-dom";
+import { LOOK_ATTRIBUTES, syncLookAttributes } from "@/lib/products/look";
 import { format, messages } from "@/lib/products/messages";
 import { resolveLocale } from "@/lib/products/price";
 import type { CatalogProduct } from "@/lib/products/types";
 
-const QUERY_ATTRIBUTES = ["store", "collection", "tag", "in-stock", "sort", "limit"];
-const TILE_ATTRIBUTES = ["product-href", "quick-add", "heading-level", "lang"];
+const QUERY_ATTRIBUTES = ["store", "collection", "tag", "in-stock", "sort", "limit", "variant-prices"];
+const TILE_ATTRIBUTES = ["product-href", "quick-add", "heading-level", "lang", "show-count", "show-sort"];
+
+const SORTS = [
+  ["name", messages.sortName],
+  ["price", messages.sortPriceAscending],
+  ["-price", messages.sortPriceDescending],
+  ["-date_created", messages.sortNewest],
+] as const;
 
 /**
  * A grid of `foxy-product-tile`s from the public catalog's list: by
- * collection or tag, sorted, with "Load more" for the next page. Hidden
- * products aren't listed by the catalog. Renders in light DOM, like the
- * tiles.
+ * collection or tag, sorted, with "Load more" for the next page. It lists
+ * products and the parents of variants; hidden products aren't listed by
+ * the catalog. Renders in light DOM, like the tiles.
  */
 export class ProductCollectionElement extends HTMLElement {
   #products: CatalogProduct[] = [];
+  #total = 0;
+  #lookStore = "";
   #next: string | null = null;
   #loading = false;
   #failed = false;
   #request = 0;
   #started = false;
   #fallback: Node[] | null = null;
+  #toolbar = document.createElement("div");
   #list = document.createElement("ul");
   #more = document.createElement("div");
   #status = document.createElement("p");
 
   static get observedAttributes(): string[] {
-    return [...QUERY_ATTRIBUTES, ...TILE_ATTRIBUTES];
+    return [...QUERY_ATTRIBUTES, ...TILE_ATTRIBUTES, ...Object.keys(LOOK_ATTRIBUTES)];
   }
 
   constructor() {
     super();
+    this.#toolbar.className = "foxy-product-toolbar";
     this.#list.className = "foxy-product-grid";
     this.#more.className = "foxy-product-more";
     this.#status.className = "foxy-product-status";
@@ -84,12 +97,44 @@ export class ProductCollectionElement extends HTMLElement {
     this.setAttribute("product-href", value);
   }
 
+  /**
+   * Asks the catalog for each parent's variants with the list, so a tile
+   * shows the range of their prices. Without it a parent's tile shows the
+   * parent's own price.
+   */
+  get variantPrices(): boolean {
+    return this.hasAttribute("variant-prices");
+  }
+
+  set variantPrices(value: boolean) {
+    this.toggleAttribute("variant-prices", value);
+  }
+
+  /** Shows how many products the list has, above it. */
+  get showCount(): boolean {
+    return this.hasAttribute("show-count");
+  }
+
+  set showCount(value: boolean) {
+    this.toggleAttribute("show-count", value);
+  }
+
+  /** Shows a "Sort by" control, which sets `sort`. */
+  get showSort(): boolean {
+    return this.hasAttribute("show-sort");
+  }
+
+  set showSort(value: boolean) {
+    this.toggleAttribute("show-sort", value);
+  }
+
   get products(): CatalogProduct[] {
     return [...this.#products];
   }
 
   connectedCallback(): void {
     ensureStyles(this);
+    syncLookAttributes(this);
     whenParsed(() => {
       if (!this.isConnected || this.#started) return;
       this.#fallback ??= [...this.childNodes];
@@ -103,6 +148,10 @@ export class ProductCollectionElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string): void {
+    if (name in LOOK_ATTRIBUTES) {
+      syncLookAttributes(this);
+      return;
+    }
     if (!this.#started) return;
     if (QUERY_ATTRIBUTES.includes(name)) this.#reload();
     else this.#renderTiles();
@@ -116,11 +165,13 @@ export class ProductCollectionElement extends HTMLElement {
       inStock: inStock === null ? undefined : inStock !== "false",
       sort: this.sort || undefined,
       limit: this.limit ?? undefined,
+      variants: this.variantPrices,
     };
   }
 
   #reload(): void {
     this.#products = [];
+    this.#total = 0;
     this.#next = null;
     this.#list.replaceChildren();
     void this.#loadPage(null);
@@ -132,6 +183,11 @@ export class ProductCollectionElement extends HTMLElement {
       console.warn("[Foxy] foxy-product-collection needs a store attribute or a 2.0 loader.js on the page.");
       return;
     }
+    if (store !== this.#lookStore) {
+      this.#lookStore = store;
+      // The tiles inherit the variables; the look's text is theirs to read.
+      loadLook(this, store, () => {});
+    }
     const request = ++this.#request;
     this.#loading = true;
     this.#failed = false;
@@ -141,13 +197,14 @@ export class ProductCollectionElement extends HTMLElement {
       const page = await fetchProducts(store, this.#query(), next);
       if (request !== this.#request) return;
       this.#products.push(...page.products);
+      this.#total = page.total;
       this.#next = page.next;
       const first = this.#list.children.length;
       this.#appendTiles(page.products);
       if (next) {
         // "Load more" goes away while loading, so focus moves to what it loaded.
         queueMicrotask(() =>
-          this.#list.children[first]?.querySelector<HTMLElement>(".foxy-product-tile-name a, a.foxy-product-button[href]")?.focus(),
+          this.#list.children[first]?.querySelector<HTMLElement>(".foxy-product-name a, a.foxy-product-button[href]")?.focus(),
         );
       }
     } catch (error) {
@@ -196,9 +253,39 @@ export class ProductCollectionElement extends HTMLElement {
     this.#render();
   }
 
+  #renderToolbar(locale: string): void {
+    const loaded = !this.#failed && this.#products.length > 0;
+    let count = this.#toolbar.querySelector<HTMLElement>(".foxy-product-count");
+    if (this.showCount && loaded) {
+      if (!count) {
+        count = document.createElement("p");
+        count.className = "foxy-product-count";
+        this.#toolbar.prepend(count);
+      }
+      count.textContent = format(locale, messages.count, { count: this.#total });
+    } else count?.remove();
+
+    // Kept across renders, so choosing a sort doesn't take the focus away.
+    let sort = this.#toolbar.querySelector<HTMLElement>(".foxy-product-sort");
+    if (!this.showSort) sort?.remove();
+    else if (!sort) {
+      sort = document.createElement("label");
+      sort.className = "foxy-product-sort";
+      const select = document.createElement("select");
+      select.className = "foxy-product-input";
+      for (const [value, message] of SORTS) select.append(new Option(format(locale, message), value));
+      select.addEventListener("change", () => (this.sort = select.value));
+      sort.append(format(locale, messages.sortBy), select);
+      this.#toolbar.append(sort);
+    }
+    const select = sort?.querySelector("select");
+    if (select) select.value = this.sort || "-date_created";
+  }
+
   #render(): void {
     const locale = resolveLocale(this);
     this.setAttribute("aria-busy", String(this.#loading));
+    this.#renderToolbar(locale);
 
     this.#status.textContent = this.#failed
       ? format(locale, messages.loadFailed)
@@ -210,17 +297,24 @@ export class ProductCollectionElement extends HTMLElement {
     if (this.#next && !this.#loading) {
       const button = document.createElement("button");
       button.type = "button";
+      button.className = "foxy-product-button foxy-product-button-secondary";
       button.textContent = format(locale, messages.loadMore);
       const next = this.#next;
       button.addEventListener("click", () => void this.#loadPage(next));
-      this.#more.append(button);
+      const showing = document.createElement("p");
+      showing.className = "foxy-product-showing";
+      showing.textContent = format(locale, messages.showing, {
+        shown: this.#products.length,
+        total: this.#total,
+      });
+      this.#more.append(button, showing);
     }
 
     const showFallback = Boolean(this.#loading && !this.#products.length && this.#fallback?.length);
     if (showFallback) {
       this.replaceChildren(...(this.#fallback ?? []), this.#status, this.#more);
     } else if (this.#list.parentNode !== this) {
-      this.replaceChildren(this.#list, this.#status, this.#more);
+      this.replaceChildren(this.#toolbar, this.#list, this.#status, this.#more);
     }
   }
 }

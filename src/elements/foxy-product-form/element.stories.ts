@@ -16,7 +16,7 @@ function render(attributes: Record<string, string | true>): HTMLElement {
 }
 
 const sent = (canvas: HTMLElement) =>
-  [...new FormData(canvas.querySelector<HTMLFormElement>("foxy-product-form form")!)].map(([k, v]) => `${k}=${v}`);
+  [...new FormData(canvas.querySelector<HTMLFormElement>("foxy-product-form form[action]")!)].map(([k, v]) => `${k}=${v}`);
 
 const meta = {
   title: "foxy-product-form",
@@ -25,7 +25,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Options, modifiers and quantity for one product. The catalog answers from fixtures: a tee whose Black comes in S, M (sold out) and 2XL, Natural only in M and L, and Moss only in S, sold out.",
+          "Options, modifiers and quantity for one product. The catalog answers from fixtures: a tee whose Black comes in S, M (sold out) and 2XL, Natural only in M and L, and Moss only in S, sold out. Natural L has a monogram in place of the gift wrap the others inherit.",
       },
     },
   },
@@ -39,20 +39,39 @@ type Story = StoryObj;
 export const ParentWithOptions: Story = {
   render: () => render({ sku: "TEE-ORG", "show-quantity": true }),
   play: async ({ canvasElement }) => {
-    await waitFor(() => expect(sent(canvasElement)).toEqual(["sku=TEE-ORG", "color=Black", "size=S", "gift_wrap=No"]));
+    await waitFor(() =>
+      expect(canvasElement.querySelector("button[type=submit]")?.textContent).toBe("Choose a colour"),
+    );
+    await expect(sent(canvasElement)).toEqual(["sku=TEE-ORG", "gift_wrap=No"]);
   },
 };
 
 export const Preselected: Story = {
-  render: () => render({ sku: "TEE-ORG", value: "color=Natural&size=L" }),
+  render: () => render({ sku: "TEE-ORG", value: "color=Black&size=2XL", "show-quantity": true }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(sent(canvasElement)).toEqual(["sku=TEE-ORG", "color=Black", "size=2XL", "gift_wrap=No"]),
+    );
+  },
 };
 
-export const SoldOutCombination: Story = {
-  render: () => render({ sku: "TEE-ORG", value: "color=Moss" }),
+export const VariantWithItsOwnModifiers: Story = {
+  render: () => render({ sku: "TEE-ORG", value: "color=Natural&size=L" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(sent(canvasElement)).toEqual(["sku=TEE-ORG", "color=Natural", "size=L"]));
+  },
 };
 
 export const RequiredModifier: Story = {
   render: () => render({ sku: "MUG-ENM-ENGRAVE" }),
+};
+
+export const LowStock: Story = {
+  render: () => render({ sku: "MUG-ENM-WHT", "show-quantity": true }),
+};
+
+export const SoldOut: Story = {
+  render: () => render({ sku: "COF-HUILA-340" }),
 };
 
 export const OtherCurrency: Story = {
@@ -64,4 +83,9 @@ export const VariantsWithoutOptions: Story = {
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(sent(canvasElement)).toEqual(["sku=SOCK-WOOL-S"]));
   },
+};
+
+export const Look: Story = {
+  render: () =>
+    render({ sku: "MUG-ENM-WHT", "button-color": "#2B4C7E", "button-radius": "8", "text-color": "#2B4C7E", label: "Add to bag" }),
 };

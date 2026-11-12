@@ -59,21 +59,117 @@ export const messages = defineMessages({
     id: "product_quantity_decrease",
     defaultMessage: "Decrease quantity",
   },
-  optional: {
-    id: "product_optional",
-    defaultMessage: "{label} (optional)",
+  optionalHint: {
+    id: "product_optional_hint",
+    defaultMessage: "(optional)",
+  },
+  optionalHintPrice: {
+    id: "product_optional_hint_price",
+    defaultMessage: "(optional, +{price})",
+  },
+  requiredHint: {
+    id: "product_required_hint",
+    defaultMessage: "(required)",
+  },
+  requiredHintPrice: {
+    id: "product_required_hint_price",
+    defaultMessage: "(required, +{price})",
   },
   modifierPrice: {
     id: "product_modifier_price",
     defaultMessage: "+{price}",
   },
-  noChoice: {
-    id: "product_no_choice",
-    defaultMessage: "None",
+  valuePrice: {
+    id: "product_value_price",
+    defaultMessage: "{label} · {price}",
   },
   choose: {
     id: "product_choose",
     defaultMessage: "Choose…",
+  },
+  chooseA: {
+    id: "product_choose_a",
+    defaultMessage: "Choose a {option}",
+  },
+  chooseAn: {
+    id: "product_choose_an",
+    defaultMessage: "Choose an {option}",
+  },
+  chooseTwo: {
+    id: "product_choose_two",
+    defaultMessage: "Choose {first} and {second}",
+  },
+  addWithPrice: {
+    id: "product_add_with_price",
+    defaultMessage: "{label} · {price}",
+  },
+  onlyLeft: {
+    id: "product_only_left",
+    defaultMessage: "Only {count} left",
+  },
+  inStock: {
+    id: "product_in_stock",
+    defaultMessage: "In stock",
+  },
+  upTo: {
+    id: "product_up_to",
+    defaultMessage: "Up to {max} characters",
+  },
+  counter: {
+    id: "product_counter",
+    defaultMessage: "{count} / {max}",
+  },
+  showPhoto: {
+    id: "product_show_photo",
+    defaultMessage: "Show photo {number}",
+  },
+  details: {
+    id: "product_details",
+    defaultMessage: "Details",
+  },
+  brand: {
+    id: "product_brand",
+    defaultMessage: "Brand",
+  },
+  sku: {
+    id: "product_sku",
+    defaultMessage: "SKU",
+  },
+  gtin: {
+    id: "product_gtin",
+    defaultMessage: "GTIN",
+  },
+  mpn: {
+    id: "product_mpn",
+    defaultMessage: "MPN",
+  },
+  count: {
+    id: "product_count",
+    defaultMessage: "{count, plural, one {# product} other {# products}}",
+  },
+  showing: {
+    id: "product_showing",
+    defaultMessage: "Showing {shown} of {total}",
+  },
+  sortBy: {
+    id: "product_sort_by",
+    defaultMessage: "Sort by",
+  },
+  sortName: {
+    id: "product_sort_name",
+    defaultMessage: "Name",
+  },
+  sortPriceAscending: {
+    id: "product_sort_price_ascending",
+    defaultMessage: "Price, low to high",
+  },
+  sortPriceDescending: {
+    id: "product_sort_price_descending",
+    defaultMessage: "Price, high to low",
+  },
+  sortNewest: {
+    id: "product_sort_newest",
+    defaultMessage: "Newest",
   },
   required: {
     id: "product_required",

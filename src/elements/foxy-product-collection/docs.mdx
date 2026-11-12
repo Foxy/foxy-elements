@@ -10,12 +10,16 @@ A grid of `foxy-product-tile`s from the public catalog's list, a page at a time,
 ```html
 <script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-products.js"></script>
 
-<foxy-product-collection store="example.foxycart.com" collection="12" sort="price" product-href="/shop/{sku}">
+<foxy-product-collection store="example.foxycart.com" collection="12" sort="price" product-href="/product?sku={sku}">
   <p>Loading the shop…</p>
 </foxy-product-collection>
 ```
 
-The catalog lists standalone products and parents, and leaves out hidden products and variants. Whatever is inside the tag shows until the first page arrives.
+The catalog lists products and the parents of variants. Variants, templates and hidden products never appear. Whatever is inside the tag shows until the first page arrives.
+
+## Parents and their prices
+
+By default the list carries each parent **without its variants**, and a parent's tile shows the parent's own price. Add `variant-prices` and the element asks the catalog for the variants too (`zoom=variants`), so each parent's tile shows the range of its variants' prices, such as "$24.95 – $26.95". That makes the list bigger, which is why it's something to ask for. Either way the grid makes one request a page, not one a tile.
 
 ## Attributes
 
@@ -27,12 +31,16 @@ The catalog lists standalone products and parents, and leaves out hidden product
 | `in-stock` | — | Only products in stock; `in-stock="false"` only those out of stock. |
 | `sort` | `sort` | `price`, `name` or `date_created`, with `-` first for descending. Default `-date_created`. |
 | `limit` | `limit` | Products a page, at most 100. Default 20. |
-| `product-href` | `productHref` | Each tile's `href`, such as `/shop/{sku}`. |
+| `variant-prices` | `variantPrices` | Loads each parent's variants with the list, for its price range. |
+| `show-count` | `showCount` | Shows "12 products" above the grid. |
+| `show-sort` | `showSort` | Shows a "Sort by" control: Name; Price, low to high; Price, high to low; Newest. Choosing one sets `sort`. |
+| `product-href` | `productHref` | Each tile's `href`, such as `/product?sku={sku}`. |
 | `quick-add`, `heading-level` | | Passed to every tile. |
 | `currency`, `currency-cookie`, `lang` | | Inherited by the tiles from this element. |
+| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look, inherited by the tiles; see `foxy-product-link`. |
 
-Changing a query attribute starts the list over. The `products` property holds what has loaded so far. While a page loads, the element has `aria-busy="true"`; after "Load more", focus moves to the first product it loaded. An empty or failed list says so in a status message.
+Changing a query attribute starts the list over. The `products` property holds what has loaded so far. While a page loads, the element has `aria-busy="true"`; after "Load more", focus moves to the first product it loaded, and "Showing 20 of 48" sits under the button. An empty or failed list says so in a status message.
 
 ## Styling
 
-`--foxy-product-tile-width` sets the narrowest a column gets (default `14rem`), and `--space-md` the gap. Classes: `.foxy-product-grid`, `.foxy-product-status`, `.foxy-product-more`.
+`--foxy-product-tile-width` sets the narrowest a column gets (default `220px`), and `--foxy-product-tile-aspect` the tiles' image shape (`1 / 1` here). The rest of the look is listed under `foxy-product-link`. Classes: `.foxy-product-toolbar`, `.foxy-product-count`, `.foxy-product-sort`, `.foxy-product-grid`, `.foxy-product-status`, `.foxy-product-more`, `.foxy-product-showing`.

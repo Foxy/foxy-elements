@@ -5,11 +5,11 @@ import * as ProductFormStories from "./element.stories";
 
 # foxy-product-form
 
-Everything a shopper chooses for one catalog product before adding it: a parent's options, the product's modifiers, and quantity.
+Everything a shopper chooses for one catalog product before adding it, in a card: its brand, name, price and stock, a parent's options, the chosen variant's modifiers, and quantity.
 
 ```html
 <script data-cfasync="false" src="https://cdn.foxycart.com/example.foxycart.com/loader.js" async defer></script>
-<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-product-form.js"></script>
+<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-products.js"></script>
 
 <foxy-product-form sku="TEE-ORG" show-quantity>
   <a href="https://example.foxycart.com/cart?sku=TEE-ORG-S-BLK">Buy the small black tee</a>
@@ -18,7 +18,7 @@ Everything a shopper chooses for one catalog product before adding it: a parent'
 
 ## How it adds
 
-The controls are design-system components in shadow DOM. What the cart is sent lives in a hidden `<form action="https://<store>/cart" method="post">` in the element's light DOM, and the add button submits that form with `requestSubmit()`. Foxy 2.0's `foxycart.js` listens for `submit` on `body` and takes over any form whose `action` contains the store's domain followed by `/cart`, so the add opens 2.0's sidecart. A `submit` event never leaves shadow DOM, which is why the form isn't there. Without 2.0's JavaScript, the browser posts the form to the cart page.
+Everything renders in light DOM. The visible controls sit in a form without an `action`. What the cart is sent is a second, hidden `<form action="https://<store>/cart" method="post">` of hidden inputs, a child of the element, which the add button submits with `requestSubmit()`. Foxy 2.0's `foxycart.js` listens for `submit` on `body` and takes over any form whose `action` contains the store's domain followed by `/cart`, so the add opens 2.0's sidecart. Without 2.0's JavaScript, the browser posts the form to the cart page.
 
 The form sends only what the cart accepts for a catalog product:
 
@@ -26,37 +26,47 @@ The form sends only what the cart accepts for a catalog product:
 | --- | --- |
 | Parent with options | `sku=<parent>` and one field per option, such as `color=Black&size=M`. The cart picks the variant. |
 | Parent whose variants have no option values | `sku=<variant>`, chosen from a list of the variants by name |
-| Standalone, or a variant | `sku=<sku>` |
-| Any of them | Each modifier with a value, by its name, and `quantity` when it's more than 1 |
+| A product without variants, or a variant | `sku=<sku>` |
+| Any of them | Each of the chosen product's modifiers that has a value, by its name, and `quantity` when it's more than 1 |
 
 Whatever is inside the tag shows until the product has loaded, and stays if it can't.
 
 ## Options
 
-One group per option, in declared order. Each option only offers the values that exist with the choices made for the options before it:
+One drop-down per option, in declared order (`foxy-product-page` shows the same options as buttons and swatches). Nothing is chosen for the shopper: the price shows the range of the variants' prices and the button says what is missing ("Choose a size", then "Choose a colour"), until every option has a value. Then the price is the chosen variant's and the button reads "Add to cart · $24.95".
 
-- a value no variant has with those choices is left out (**missing**); hidden variants count as missing;
-- a value whose variants are all out of stock is shown disabled, marked "sold out".
+Each option only offers the values that exist with the choices made for the options before it:
 
-A value with a `color` or `image` shows it as a swatch. When an earlier choice rules out a later one, the later option moves to its first available value. The price is the chosen variant's, plus the chosen modifiers' amounts.
+- a value no variant has with those choices is left out; hidden variants count as not existing;
+- a value whose variants are all out of stock is shown, marked "(sold out)", and can't be chosen.
+
+A later choice that an earlier one rules out is cleared, and the shopper chooses it again. `value` preselects options the same way: a value that doesn't exist or is sold out is ignored.
 
 ## Modifiers
 
-A text modifier is a text field with its `max_length`; a select modifier is a select, with a "None" choice when it isn't required, and its first value preselected. Amounts show beside their labels. A required modifier left empty stops the add with a message; the cart checks again.
+The form offers the **chosen variant's** modifiers, because the cart checks an add against the variant's own list, which can add to or remove from its parent's. Until a variant is chosen, it shows what the parent declares. What the shopper already entered is kept for modifiers the new variant still has.
+
+- A text modifier is a text field with its `max_length`, a count of characters used, and "(optional)" or "(required)" beside its label, with its amount: "(optional, +$6.00)".
+- A choice is a drop-down. An optional one starts on its first declared value; the element never adds a "None" of its own, so a merchant who wants one declares it as a value. A required one starts on "Choose…".
+- A required modifier left empty stops the add with "Fill this in to add it to the cart."; the cart checks again.
+
+## Quantity and stock
+
+With `show-quantity`, a number field from the product's `quantity_min` (else 1) up to the lower of its `quantity_max` and its stock. It is left out when only one can be bought. Under the price: "Sold out", or "Only 3 left" at or below the store's low-stock threshold (5 unless the store saved another).
 
 ## Attributes
 
 | Attribute | Property | |
 | --- | --- | --- |
-| `sku` | `sku` | Required. A standalone, parent or variant SKU. |
+| `sku` | `sku` | Required. A product's, parent's or variant's SKU. |
 | `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
 | `value` | `value` | Preselected options, as a query string: `color=Black&size=M`. Changing it starts the choices over. |
-| `show-quantity` | `showQuantity` | Shows quantity controls. |
-| `label` | `label` | The add button's text. Default "Add to cart". |
-| `currency`, `currency-cookie` | `currency` | As for `foxy-product-link`. |
-| `lang` | `lang` | The language of its text and prices. |
-| `theme-*` | `theme*` | The same theme attributes as the other design-system elements. |
+| `show-quantity` | `showQuantity` | Shows the quantity field. |
+| `label` | `label` | The add button's text; the price follows it. Default: the store's saved button text, else "Add to cart". |
+| `heading-level` | `headingLevel` | The name's heading level. Default `2`. |
+| `currency`, `currency-cookie`, `lang` | `currency` | As for `foxy-product-link`. |
+| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. |
 
 ## Styling
 
-`::part(form)`, `::part(price)` and `::part(button)`, plus the `theme-*` attributes, or the matching CSS variables on an ancestor.
+The look's attributes and CSS variables are listed under `foxy-product-link`. Classes: `.foxy-product-form` (the card), `.foxy-product-summary`, `.foxy-product-brand`, `.foxy-product-name`, `.foxy-product-price`, `.foxy-product-note`, `.foxy-product-controls`, `.foxy-product-field`, `.foxy-product-field-label`, `.foxy-product-hint`, `.foxy-product-input`, `.foxy-product-counter`, `.foxy-product-error`, `.foxy-product-add` (the button, also `.foxy-product-button`).

@@ -3,4 +3,5 @@
 export { ProductCollectionElement } from "../foxy-product-collection/element";
 export { ProductFormElement } from "../foxy-product-form/element";
 export { ProductLinkElement } from "../foxy-product-link/element";
+export { ProductPageElement } from "../foxy-product-page/element";
 export { ProductTileElement } from "../foxy-product-tile/element";

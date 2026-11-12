@@ -23,6 +23,7 @@
     "./foxy-product-collection": "./dist/npm/foxy-product-collection.js",
     "./foxy-product-form": "./dist/npm/foxy-product-form.js",
     "./foxy-product-link": "./dist/npm/foxy-product-link.js",
+    "./foxy-product-page": "./dist/npm/foxy-product-page.js",
     "./foxy-product-tile": "./dist/npm/foxy-product-tile.js",
     "./foxy-products": "./dist/npm/foxy-products.js",
     "./foxy-side-cart-trigger": "./dist/npm/foxy-side-cart-trigger.js"

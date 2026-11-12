@@ -5,7 +5,7 @@ const IN_STOCK = "https://schema.org/InStock";
 const OUT_OF_STOCK = "https://schema.org/OutOfStock";
 
 /**
- * schema.org `Product` for one tile. Search engines want a currency with a
+ * schema.org `Product` for a tile or a product page. Search engines want a currency with a
  * price, so the offer is left out when the currency isn't known. A parent
  * gets an `AggregateOffer` over its variants' prices.
  */

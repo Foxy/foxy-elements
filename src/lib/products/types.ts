@@ -63,8 +63,12 @@ export interface ProductDefinition {
   brand?: string;
   gtin?: string;
   mpn?: string;
+  /** Facts shown to shoppers, never sent to the cart. */
+  properties?: Record<string, string | string[]>;
   options?: ProductOptionDefinition[];
   modifiers?: ProductModifier[];
+  quantity_min?: number;
+  quantity_max?: number;
   translations?: Record<string, ProductTranslation>;
 }
 
@@ -76,6 +80,8 @@ export interface CatalogProduct {
   display_name?: string | null;
   display_price?: number | null;
   is_in_stock: boolean;
+  /** Units left; `null` when the product doesn't track stock. */
+  stock_level?: number | null;
   hidden?: boolean;
   option_values?: Record<string, string> | null;
   variant_count?: number;

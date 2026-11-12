@@ -1,5 +1,6 @@
 import { clearCatalogCache } from "./catalog";
-import type { CatalogProduct } from "./types";
+import { clearLookCache } from "./look";
+import type { CatalogProduct, ProductModifier } from "./types";
 
 /** The store domain every fixture is served from. */
 export const FIXTURE_STORE = "demo-goods.foxycart.com";
@@ -12,8 +13,13 @@ const teeDefinition = {
   gtin: "00850006493014",
   price: "24.95",
   prices: { EUR: "22.95" },
-  images: [{ src: `${IMAGE}/tee-black.jpg`, alt: "Black organic cotton tee", width: 1200, height: 1200 }],
-  description: "Heavyweight 6.1 oz organic cotton, garment dyed.",
+  images: [
+    { src: `${IMAGE}/tee-black.jpg`, alt: "Black organic cotton tee", width: 1200, height: 1200 },
+    { src: `${IMAGE}/tee-black-back.jpg`, alt: "Black organic cotton tee, back", width: 1200, height: 1200 },
+  ],
+  description:
+    "Our everyday tee in **heavyweight 6.1 oz organic cotton**, garment dyed.\n\n## Care\n\n- Machine wash cold\n- Hang to dry\n\n| Size | Chest (in) |\n|------|-----------|\n| S | 38 |\n| M | 41 |\n\nSee the [size guide](https://shop.example.com/sizes).",
+  properties: { Material: "Organic cotton", "Made in": ["Portugal", "Spain"] },
   translations: { fr_FR: { name: "T-shirt en coton bio" } },
   options: [
     {
@@ -44,25 +50,36 @@ const teeDefinition = {
   ],
 };
 
+const monogram: ProductModifier = {
+  name: "monogram",
+  label: "Monogram",
+  type: "text",
+  max_length: 3,
+  price_mod: "5.00",
+};
+
 function teeVariant(
   sku: string,
   color: string,
   size: string,
-  inStock: boolean,
+  stock: number,
   price = "24.95",
   eur = "22.95",
+  modifiers: ProductModifier[] = teeDefinition.modifiers,
 ): CatalogProduct {
   return {
     sku,
     product_type: "variant",
     display_name: `Organic Cotton Tee - ${size} / ${color}`,
-    is_in_stock: inStock,
+    is_in_stock: stock > 0,
+    stock_level: stock,
     option_values: { color, size },
     definition: {
       ...teeDefinition,
       name: `Organic Cotton Tee - ${size} / ${color}`,
       price,
       prices: { EUR: eur },
+      modifiers,
     },
     _links: { add_to_cart: { href: `https://${FIXTURE_STORE}/cart?sku=${sku}` } },
   };
@@ -71,7 +88,9 @@ function teeVariant(
 /**
  * A parent with two options. Black comes in S, M and 2XL (M sold out);
  * Natural only in M and L; Moss in S only, sold out. So for Natural, S and
- * 2XL are missing; for Moss, everything is sold out or missing.
+ * 2XL are missing; for Moss, everything is sold out or missing. Every
+ * variant inherits the gift wrap modifier except Natural L, which has a
+ * monogram in its place.
  */
 export const teeParent: CatalogProduct = {
   sku: "TEE-ORG",
@@ -84,12 +103,12 @@ export const teeParent: CatalogProduct = {
   _links: { self: { href: "/s/products/TEE-ORG" } },
   _embedded: {
     variants: [
-      teeVariant("TEE-ORG-BLK-S", "Black", "S", true),
-      teeVariant("TEE-ORG-BLK-M", "Black", "M", false),
-      teeVariant("TEE-ORG-BLK-2XL", "Black", "2XL", true, "26.95", "24.80"),
-      teeVariant("TEE-ORG-NAT-M", "Natural", "M", true),
-      teeVariant("TEE-ORG-NAT-L", "Natural", "L", true),
-      teeVariant("TEE-ORG-MOS-S", "Moss", "S", false),
+      teeVariant("TEE-ORG-BLK-S", "Black", "S", 17),
+      teeVariant("TEE-ORG-BLK-M", "Black", "M", 0),
+      teeVariant("TEE-ORG-BLK-2XL", "Black", "2XL", 9, "26.95", "24.80"),
+      teeVariant("TEE-ORG-NAT-M", "Natural", "M", 4),
+      teeVariant("TEE-ORG-NAT-L", "Natural", "L", 12, "24.95", "22.95", [monogram]),
+      teeVariant("TEE-ORG-MOS-S", "Moss", "S", 0),
     ],
   },
 };
@@ -125,6 +144,7 @@ export const plainMug: CatalogProduct = {
   display_name: "Enamel Camp Mug, White",
   display_price: 16.4,
   is_in_stock: true,
+  stock_level: 3,
   definition: {
     name: "Enamel Camp Mug, White",
     brand: "Foxy Goods",
@@ -142,6 +162,7 @@ export const soldOutBeans: CatalogProduct = {
   display_name: "Huila Single Origin, 340 g",
   display_price: 17.25,
   is_in_stock: false,
+  stock_level: 0,
   definition: {
     name: "Huila Single Origin, 340 g",
     price: "17.25",
@@ -180,16 +201,19 @@ export function listed(product: CatalogProduct): CatalogProduct {
 
 export interface CatalogStub {
   requests: string[];
+  /** What the store's look endpoint answers; unset, a store with nothing saved. */
+  look?: Record<string, unknown>;
   restore(): void;
 }
 
 /**
  * Answers the catalog's URLs for `FIXTURE_STORE` from fixtures:
- * `/s/products/<sku>` and `/s/products` (two products a page). Anything else
- * goes to the real `fetch`.
+ * `/s/products/<sku>`, `/s/products` (two products a page) and the store's
+ * look. Anything else goes to the real `fetch`.
  */
 export function stubCatalog(products: CatalogProduct[] = fixtureProducts): CatalogStub {
   clearCatalogCache();
+  clearLookCache();
   const realFetch = window.fetch;
   const requests: string[] = [];
   const json = (body: unknown, status = 200) =>
@@ -201,6 +225,9 @@ export function stubCatalog(products: CatalogProduct[] = fixtureProducts): Catal
   window.fetch = async (input, init) => {
     const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
     if (url.host !== FIXTURE_STORE) return realFetch(input, init);
+    if (url.pathname === "/s/products/store/settings") {
+      return json(stub.look ?? { low_stock_threshold: 5 });
+    }
     requests.push(url.pathname + url.search);
 
     const single = /^\/s\/products\/(.+)$/.exec(url.pathname);
@@ -212,7 +239,8 @@ export function stubCatalog(products: CatalogProduct[] = fixtureProducts): Catal
     if (url.pathname === "/s/products") {
       const listedProducts = products.filter((p) => p.product_type !== "variant");
       const start = Number(url.searchParams.get("cursor") ?? 0);
-      const page = listedProducts.slice(start, start + 2).map(listed);
+      const zoomed = url.searchParams.get("zoom") === "variants";
+      const page = listedProducts.slice(start, start + 2).map((p) => (zoomed ? p : listed(p)));
       const next = start + 2 < listedProducts.length ? `/s/products?cursor=${start + 2}` : null;
       return json({
         total_items: listedProducts.length,
@@ -224,11 +252,14 @@ export function stubCatalog(products: CatalogProduct[] = fixtureProducts): Catal
     return json({ message: "Not found." }, 404);
   };
 
-  return {
+  const stub: CatalogStub = {
     requests,
     restore() {
       window.fetch = realFetch;
       clearCatalogCache();
+      clearLookCache();
+      document.querySelectorAll("style[data-foxy-store-css]").forEach((style) => style.remove());
     },
   };
+  return stub;
 }

@@ -98,6 +98,8 @@ export interface CatalogQuery {
   inStock?: boolean;
   sort?: string;
   limit?: number;
+  /** Embeds each listed parent's variants (`zoom=variants`), for its price range. */
+  variants?: boolean;
 }
 
 /**
@@ -120,6 +122,7 @@ export async function fetchProducts(
     if (query.inStock !== undefined) params.set("in_stock", String(query.inStock));
     if (query.sort) params.set("sort", query.sort);
     if (query.limit) params.set("limit", String(query.limit));
+    if (query.variants) params.set("zoom", "variants");
     const search = params.toString();
     url = `https://${store}/s/products${search ? `?${search}` : ""}`;
   }
@@ -132,8 +135,8 @@ export async function fetchProducts(
 
   const products = body._embedded?.["fx:products"] ?? [];
   for (const product of products) {
-    // A listed parent carries no variants, so it isn't cached as if it did.
-    if (product.product_type !== "parent") {
+    // A parent listed without its variants isn't cached as if it had them.
+    if (product.product_type !== "parent" || product._embedded?.variants) {
       productCache.set(`${store}\n${product.sku}`, Promise.resolve(product));
     }
   }
@@ -145,7 +148,7 @@ export async function fetchProducts(
   };
 }
 
-async function getJson<T>(url: string): Promise<T> {
+export async function getJson<T>(url: string): Promise<T> {
   const response = await fetch(url, {
     credentials: "omit",
     headers: { Accept: "application/json" },

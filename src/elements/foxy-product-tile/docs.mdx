@@ -5,23 +5,27 @@ import * as ProductTileStories from "./element.stories";
 
 # foxy-product-tile
 
-One product in a grid: its first image, name, price, and either a one-click add or a link to the merchant's own page for the product. `foxy-product-collection` lays these out; a tile also works on its own.
+One product in a grid: its first image, brand, name, price, stock, and either a one-click add or a link to the merchant's own page for the product. `foxy-product-collection` lays these out; a tile also works on its own.
 
 ```html
-<foxy-product-tile sku="MUG-ENM-WHT" href="/shop/{sku}"></foxy-product-tile>
+<foxy-product-tile sku="MUG-ENM-WHT" href="/product?sku={sku}"></foxy-product-tile>
 ```
 
-Everything renders in light DOM: the add link, so 2.0's `foxycart.js` takes it over (see `foxy-product-link`), and the text, so search engines read it. Each tile also carries schema.org `Product` data in a `<script type="application/ld+json">`, with an `Offer` (or, for a parent, an `AggregateOffer` over its variants) once the currency is known.
+Everything renders in light DOM: the add link, so 2.0's `foxycart.js` takes it over (see `foxy-product-link`), and the text, so search engines read it. Each tile also carries schema.org `Product` data in a `<script type="application/ld+json">`, with an `Offer` (or, for a parent with its variants, an `AggregateOffer`) once the currency is known.
 
 ## What it offers
 
 | Product | Action |
 | --- | --- |
-| Standalone or a variant, in stock, no required modifier | "Add to cart", adding in one click |
-| Parent, or a required modifier | "Choose options", linking to `href` |
-| Sold out | A "Sold out" badge; "View product" linking to `href`, or a disabled "Sold out" without one |
+| Without choices, or a variant, in stock | "Add to cart" (or the store's saved button text), adding in one click |
+| With options | "Choose size and colour" (its options' names; "Choose options" for three), linking to `href`. It never adds: the 2.0 cart can't ask for the options. |
+| With a required modifier | "Choose options", linking to `href` |
+| Sold out | "Sold out", which isn't a link, and "Sold out" under the price. The name still links to `href`. |
+| `quick-add="never"` | "View product", linking to `href` |
 
-A parent shows the range of its variants' prices. A listed parent comes without its variants, so the tile fetches it once by SKU for the range.
+Under the price it says "Only 3 left" when stock is at or below the store's low-stock threshold.
+
+A parent with its variants shows the range of their prices. A tile given a `sku` loads them; a tile handed a `product` without them, as a collection does unless it has `variant-prices`, shows the parent's own price.
 
 ## Attributes
 
@@ -33,9 +37,10 @@ A parent shows the range of its variants' prices. A listed parent comes without 
 | `quick-add` | `quickAdd` | `never` always links to `href`. Default `auto`. |
 | `heading-level` | `headingLevel` | The name's heading level. Default `3`. |
 | `currency`, `currency-cookie`, `lang` | | As for `foxy-product-link`. The name shows in the `lang`'s translation when the catalog has one. |
+| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. |
 
 The `product` property takes a catalog product directly; the collection uses it so a grid makes one request.
 
 ## Styling
 
-The same CSS variables as `foxy-product-link`, plus `--border-default`, `--border-radius-md`, `--background-surface` and `--background-page`. Classes: `.foxy-product-tile`, `.foxy-product-tile-media`, `.foxy-product-tile-name`, `.foxy-product-badge`, `.foxy-product-price`, `.foxy-product-button`.
+The look's attributes and CSS variables are listed under `foxy-product-link`; `--foxy-product-tile-aspect` sets the image's shape. Classes: `.foxy-product-tile`, `.foxy-product-tile-media`, `.foxy-product-tile-body`, `.foxy-product-brand`, `.foxy-product-name`, `.foxy-product-tile-price`, `.foxy-product-price`, `.foxy-product-note`, `.foxy-product-tile-action`, `.foxy-product-button` (with `.foxy-product-button-secondary` when it links to the page).

@@ -40,6 +40,16 @@ export const Default: Story = {
   },
 };
 
+export const WithVariantPricesCountAndSort: Story = {
+  beforeEach: () => stubCatalog().restore,
+  render: () => render({ "variant-prices": "", "show-count": "", "show-sort": "" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(canvasElement.querySelector(".foxy-product-price")?.textContent).toBe("$24.95 – $26.95"),
+    );
+  },
+};
+
 export const Empty: Story = {
   beforeEach: () => stubCatalog([]).restore,
   render: () => render(),

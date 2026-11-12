@@ -20,7 +20,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "A link styled as a button that adds one product by SKU. These stories answer the public catalog from fixtures; the link itself is the real element.",
+          "A link that adds one product by SKU, as a button or as text. These stories answer the public catalog and the store's look from fixtures; the link itself is the real element.",
       },
     },
   },
@@ -40,14 +40,22 @@ export const Default: Story = {
 };
 
 export const WithPrice: Story = {
-  render: () => render({ sku: "MUG-ENM-WHT", "show-price": true, currency: "USD" }),
+  render: () => render({ sku: "MUG-ENM-WHT", currency: "USD" }),
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(canvasElement.querySelector("s")?.textContent).toBe("$18.90"));
   },
 };
 
+export const OwnText: Story = {
+  render: () => render({ sku: "MUG-ENM-WHT", label: "Get the mug" }),
+};
+
+export const TextLink: Story = {
+  render: () => render({ sku: "MUG-ENM-WHT", appearance: "text", label: "Add a mug", "show-price": true, currency: "USD" }),
+};
+
 export const OtherCurrency: Story = {
-  render: () => render({ sku: "MUG-ENM-WHT", "show-price": true, currency: "EUR", lang: "de-DE" }),
+  render: () => render({ sku: "MUG-ENM-WHT", currency: "EUR", lang: "de-DE" }),
 };
 
 export const BuyNow: Story = {
@@ -61,16 +69,27 @@ export const SoldOut: Story = {
   },
 };
 
-export const ParentKeepsFallback: Story = {
+export const ParentCannotBeAdded: Story = {
   render: () =>
     render({ sku: "TEE-ORG" }, `<a href="#tee">Choose a size and colour</a>`),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelector("a")?.getAttribute("href")).toBe("#tee"));
+  },
 };
 
-export const Themed: Story = {
-  render: () => {
-    const element = render({ sku: "MUG-ENM-WHT", "show-price": true, currency: "USD" });
-    element.style.setProperty("--background-button-primary", "#0b5d3b");
-    element.style.setProperty("--border-radius-sm", "999px");
-    return element;
+export const LookFromAttributes: Story = {
+  render: () =>
+    render({ sku: "MUG-ENM-WHT", currency: "USD", "button-color": "#0b5d3b", "button-radius": "999", font: "serif" }),
+};
+
+export const LookFromTheStore: Story = {
+  beforeEach: () => {
+    const stub = stubCatalog();
+    stub.look = { button_color: "#0057d9", button_radius: 6, button_text: "Add to bag", font: "system" };
+    return stub.restore;
+  },
+  render: () => render({ sku: "MUG-ENM-WHT", currency: "USD" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelector(".foxy-product-label")?.textContent).toBe("Add to bag"));
   },
 };

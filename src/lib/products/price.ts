@@ -148,18 +148,33 @@ export function formatPrice(
   }
 }
 
+function translation(
+  product: CatalogProduct,
+  locale: string,
+  field: "name" | "description",
+): string | undefined {
+  const translations = product.definition.translations;
+  if (!translations) return undefined;
+  const wanted = locale.toLowerCase().replace(/_/g, "-");
+  const base = wanted.split("-")[0];
+  const keys = Object.keys(translations);
+  const key =
+    keys.find((k) => k.toLowerCase().replace(/_/g, "-") === wanted) ??
+    keys.find((k) => k.toLowerCase().split(/[-_]/)[0] === base);
+  return (key && translations[key]?.[field]) || undefined;
+}
+
 /** The product's name in the shopper's language, when the catalog has it. */
 export function productName(product: CatalogProduct, locale: string): string {
-  const translations = product.definition.translations;
-  if (translations) {
-    const wanted = locale.toLowerCase().replace(/_/g, "-");
-    const base = wanted.split("-")[0];
-    const keys = Object.keys(translations);
-    const key =
-      keys.find((k) => k.toLowerCase().replace(/_/g, "-") === wanted) ??
-      keys.find((k) => k.toLowerCase().split(/[-_]/)[0] === base);
-    const name = key ? translations[key]?.name : undefined;
-    if (name) return name;
-  }
-  return product.definition.name ?? product.display_name ?? product.sku;
+  return (
+    translation(product, locale, "name") ??
+    product.definition.name ??
+    product.display_name ??
+    product.sku
+  );
+}
+
+/** The product's description (Markdown), in the shopper's language when the catalog has it. */
+export function productDescription(product: CatalogProduct, locale: string): string {
+  return translation(product, locale, "description") ?? product.definition.description ?? "";
 }

@@ -5,34 +5,38 @@ import * as ProductLinkStories from "./element.stories";
 
 # foxy-product-link
 
-A link, styled as a button, that adds one catalog product to the cart by its SKU. Use it for a standalone product, or for one variant of a parent. A parent, or a product with a required modifier, needs `foxy-product-form`.
+A link that adds one catalog product to the cart by its SKU, as a button or as plain text. Point it at a product without choices, or at one variant.
 
 ```html
 <script data-cfasync="false" src="https://cdn.foxycart.com/example.foxycart.com/loader.js" async defer></script>
-<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-product-link.js"></script>
+<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-products.js"></script>
 
-<foxy-product-link sku="MUG-ENM-WHT" show-price>
-  <a href="https://example.foxycart.com/cart?sku=MUG-ENM-WHT">Buy the mug</a>
+<foxy-product-link sku="TEE-ORG-S-BLK">
+  <a href="https://example.foxycart.com/cart?sku=TEE-ORG-S-BLK">Buy the small black tee</a>
 </foxy-product-link>
 ```
 
 It renders a real `<a href="https://<store>/cart?sku=…" rel="nofollow">` in light DOM, not shadow DOM. Foxy 2.0's `foxycart.js` listens for clicks on `body` and takes over any link whose URL contains the store's domain followed by `/cart`, so the add opens 2.0's sidecart. Without 2.0's JavaScript, the link opens the cart page. A link inside shadow DOM would be missed, because the click reaches `body` with the element, not the link, as its target.
 
-Whatever you put inside the tag shows until the link renders, and again when the product can't be bought in one click.
+Whatever you put inside the tag shows until the link renders, and again when the product can't be added by a link.
+
+**A parent's SKU can't be added.** The 2.0 cart has nowhere to choose options, so a link has to name a variant. On a parent's SKU the element renders only the content inside the tag and warns in the console, naming a variant to use. A product with a required modifier is treated the same way; both need `foxy-product-form` or `foxy-product-page`.
 
 ## Attributes
 
 | Attribute | Property | |
 | --- | --- | --- |
-| `sku` | `sku` | Required. The product's SKU. Hidden products work too. |
+| `sku` | `sku` | Required. The SKU of a product without choices, or of a variant. Hidden products work too. |
 | `store` | `store` | The store's domain, such as `example.foxycart.com`. Defaults to the domain 2.0's `loader.js` was loaded for. |
 | `quantity` | `quantity` | Units to add. Default `1`. |
-| `label` | `label` | The button text. Default "Add to cart". |
+| `label` | `label` | The link's text. Default: the store's saved button text, else "Add to cart". |
+| `show-price` | `showPrice` | Whether the price follows the text ("Add to cart · $16.40"), with the list price struck through when it's higher. Unset, the price shows unless you wrote your own `label`. `show-price` turns it on with a `label`; `show-price="false"` turns it off. |
+| `appearance` | `appearance` | `text` for a plain text link. Default: a button. |
 | `checkout` | `checkout` | Adds `cart=checkout`, so the shopper goes straight to checkout. |
-| `show-price` | `showPrice` | Shows the price, with the list price struck through when it's higher. |
 | `currency` | `currency` | The currency to show the price in. See below. |
 | `currency-cookie` | — | The name of a cookie holding the currency, for a merchant's own currency switcher. |
-| `lang` | `lang` | The language of the label and price. Defaults to the nearest `lang`, then `en-US`. |
+| `lang` | `lang` | The language of the text and price. Defaults to the nearest `lang`, then `en-US`. |
+| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look. See below. |
 
 The `product` property holds the catalog's product once it has loaded, or `null` when the store has no such SKU.
 
@@ -40,7 +44,8 @@ The `product` property holds the catalog's product once it has loaded, or `null`
 
 | Product | Shows |
 | --- | --- |
-| Standalone, or a variant, in stock | The link |
+| Before the catalog answers | The link already, without a price |
+| A product without choices, or a variant, in stock | The link |
 | Out of stock | "Sold out", without an `href`, so nothing adds it |
 | Parent with variants, or a required modifier | The content inside the tag, and a `[Foxy]` warning in the console |
 | Unknown SKU, or the catalog can't be read | The link without a price; the cart has the last word |
@@ -49,16 +54,54 @@ The `product` property holds the catalog's product once it has loaded, or `null`
 
 The price shows in the first of: a `currency` attribute on the element or any ancestor; the cookie a `currency-cookie` attribute names; the 2.0 cart session's currency, which follows its template set. The amount is the product's price for that currency when it sets one (`prices`), otherwise its store-currency `price`. A store that converts currencies converts that amount in the cart, so the shown amount can differ from the charged one until the catalog says which currency it's in. Without any currency, the price shows as a plain amount.
 
-## Styling
+## The look
 
-The defaults are design-system tokens, behind the same CSS variables the other elements' `theme-*` attributes set. Set them on the element or any ancestor:
+All five product elements (`foxy-product-link`, `-form`, `-page`, `-tile`, `-collection`) look like the Foxy 2.0 cart by default, and take their look from three places. The first that sets a value wins:
+
+1. **An attribute on the element, or a CSS variable** on it or any ancestor.
+2. **The store's saved look**, set in the admin under Storefront elements. Each element fetches it once per page from `https://<store>/s/products/store/settings`, so a change there reaches snippets already on a site. If it can't be fetched, the defaults apply.
+3. **The default.**
+
+| Attribute | CSS variable | Store setting | Default |
+| --- | --- | --- | --- |
+| `font` | `--foxy-product-font` | Font | `"Helvetica Neue", Helvetica, Arial, sans-serif` |
+| `text-color` | `--foxy-product-text-color` | Product text colour (name and price) | `#333333` name, `#1A1A1A` price |
+| `button-color` | `--foxy-product-button-color` | Button colour | `#3F8A2E` |
+| `button-text-color` | `--foxy-product-button-text-color` | Button text colour | `#FFFFFF` |
+| `button-radius` | `--foxy-product-button-radius` | Button corners | `0` (a bare number is pixels) |
+| `label` | — | Button text | "Add to cart" |
+| `accent-color` | `--foxy-product-accent-color` | — | `#666666`: a chosen option, the current photo, a text link, focus rings |
+
+`font` takes `inherit` (the page's font), `system`, `serif`, or any `font-family` value.
+
+More variables, with no attribute:
+
+| CSS variable | Default | Used for |
+| --- | --- | --- |
+| `--foxy-product-body-color` | `#1A1A1A` | Labels and other text |
+| `--foxy-product-muted-color` | `#666666` | Brand, hints, counts |
+| `--foxy-product-description-color` | `#4D4D4D` | The page's description |
+| `--foxy-product-surface-color` | `#FFFFFF` | Cards, fields |
+| `--foxy-product-panel-color` | `#F5F5F5` | Image placeholders, quantity buttons |
+| `--foxy-product-header-color` | `#F9F9F9` | Table headers, a sold-out option |
+| `--foxy-product-border-color` | `#D5D5D5` | Options, secondary buttons |
+| `--foxy-product-field-border-color` | `#CCCCCC` | Text fields and selects |
+| `--foxy-product-divider-color` | `#E4E4E4` | Table rows, thumbnails |
+| `--foxy-product-disabled-color`, `--foxy-product-disabled-text-color` | `#E4E4E4`, `#555555` | A button that can't add |
+| `--foxy-product-notice-color` | `#C4283A` | Sold out, required, errors |
+| `--foxy-product-success-color` | `#2F6B22` | In stock, "Only 3 left" |
+| `--foxy-product-radius` | `0` | Photos |
+| `--foxy-product-tile-width` | `220px` | The narrowest a collection's column gets |
+| `--foxy-product-tile-aspect` | `4 / 5` (`1 / 1` in a collection) | A tile's image |
 
 ```css
-foxy-product-link {
-  --background-button-primary: #0b5d3b;
-  --border-radius-sm: 999px;
-  --font-body: 400 1rem/1.5 Georgia, serif;
+foxy-product-collection {
+  --foxy-product-button-color: #0b5d3b;
+  --foxy-product-button-radius: 999px;
+  --foxy-product-font: Georgia, serif;
 }
 ```
 
-For anything else, style `foxy-product-link a.foxy-product-button`, `.foxy-product-label` and `.foxy-product-price`. The rules are written to beat a theme's bare `a` styles, so match their specificity or add to it.
+**Your own CSS.** Everything renders in light DOM, so the page's CSS reaches it, and every part has a `foxy-product-…` class. The elements' own rules start with the element's name so that a theme's `button`, `label` or `a` styles don't undo them; start yours the same way, as in `foxy-product-tile .foxy-product-price { font-weight: 600 }`. In the store's saved CSS that is enough, because it is added to the page after the elements' own stylesheet. In a stylesheet of the page's own, a rule that sets something the elements also set needs one more selector in front, such as `body foxy-product-tile .foxy-product-price`. The store's saved CSS is added to the page as it is; it isn't scoped to the elements.
+
+These replace the design-system variables the elements read before (`--background-button-primary`, `--border-radius-sm`, `--font-body` and the rest), and `foxy-product-form`'s `theme-*` attributes and `::part()`s.

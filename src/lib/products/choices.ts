@@ -1,13 +1,13 @@
-import { amountIn, productPrice } from "@/lib/products/price";
+import { amountIn, productPrice } from "./price";
 import {
   hasOptionControls,
   productModifiers,
   productOptions,
   variantFor,
-} from "@/lib/products/options";
-import type { CatalogProduct, ProductModifier } from "@/lib/products/types";
+} from "./options";
+import type { CatalogProduct, ProductModifier } from "./types";
 
-export interface FormState {
+export interface PurchaseState {
   /** Option name to chosen value, for a parent with option controls. */
   choices: Record<string, string>;
   /** The chosen variant's SKU, for a parent listed by variant name. */
@@ -17,10 +17,13 @@ export interface FormState {
   quantity: number;
 }
 
-/** The product the shopper's choices add: the variant for a parent. */
+/**
+ * The product the shopper's choices add: the variant for a parent, once
+ * every option is chosen.
+ */
 export function chosenProduct(
   product: CatalogProduct,
-  state: FormState,
+  state: PurchaseState,
 ): CatalogProduct | undefined {
   if (product.product_type !== "parent" || !product._embedded?.variants?.length) {
     return product;
@@ -30,13 +33,45 @@ export function chosenProduct(
 }
 
 /**
+ * The modifiers to offer: the chosen variant's, because the cart checks an
+ * add against the variant's own list, which can add to or remove from its
+ * parent's. Until a variant is chosen, what the parent declares.
+ */
+export function offeredModifiers(
+  product: CatalogProduct,
+  state: PurchaseState,
+): ProductModifier[] {
+  return productModifiers(chosenProduct(product, state) ?? product);
+}
+
+/**
+ * Modifier values for a new list of modifiers: what the shopper already
+ * entered for those still offered, and the first declared value for an
+ * optional choice that has none.
+ */
+export function modifierValues(
+  modifiers: ProductModifier[],
+  previous: Record<string, string> = {},
+): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const modifier of modifiers) {
+    const kept = previous[modifier.name];
+    if (kept !== undefined) values[modifier.name] = kept;
+    else if (modifier.type === "select" && !modifier.required && modifier.values?.length) {
+      values[modifier.name] = modifier.values[0].value;
+    }
+  }
+  return values;
+}
+
+/**
  * What the cart is sent, in order. The cart accepts only `sku`, `quantity`,
- * a parent's option names and the product's declared modifiers for a
+ * a parent's option names and the chosen product's declared modifiers for a
  * catalog product, and refuses anything else; empty modifiers are left out.
  */
 export function cartFields(
   product: CatalogProduct,
-  state: FormState,
+  state: PurchaseState,
 ): Array<[string, string]> {
   const fields: Array<[string, string]> = [];
 
@@ -50,7 +85,7 @@ export function cartFields(
     fields.push(["sku", chosenProduct(product, state)?.sku ?? product.sku]);
   }
 
-  for (const { name } of productModifiers(product)) {
+  for (const { name } of offeredModifiers(product, state)) {
     const value = state.modifiers[name]?.trim();
     if (value) fields.push([name, value]);
   }
@@ -79,14 +114,14 @@ export function modifierAmount(
  */
 export function livePrice(
   product: CatalogProduct,
-  state: FormState,
+  state: PurchaseState,
   currency: string | null,
 ): { price: number; listPrice: number | null } | null {
   const chosen = chosenProduct(product, state);
   if (!chosen) return null;
   const { price, listPrice } = productPrice(chosen, currency);
   if (price === null) return null;
-  const extra = productModifiers(product).reduce(
+  const extra = productModifiers(chosen).reduce(
     (sum, modifier) => sum + modifierAmount(modifier, state.modifiers[modifier.name], currency),
     0,
   );
@@ -97,13 +132,13 @@ export function livePrice(
   };
 }
 
-/** The modifiers whose value the cart would refuse, with why. */
+/** The offered modifiers whose value the cart would refuse, with why. */
 export function invalidModifiers(
   product: CatalogProduct,
-  state: FormState,
+  state: PurchaseState,
 ): Map<string, "required" | "too-long"> {
   const invalid = new Map<string, "required" | "too-long">();
-  for (const modifier of productModifiers(product)) {
+  for (const modifier of offeredModifiers(product, state)) {
     const value = state.modifiers[modifier.name]?.trim() ?? "";
     if (modifier.required && !value) invalid.set(modifier.name, "required");
     else if (modifier.type === "text" && value.length > (modifier.max_length ?? 255)) {
@@ -111,4 +146,17 @@ export function invalidModifiers(
     }
   }
   return invalid;
+}
+
+/**
+ * The fewest and most units one add may ask for: the product's own limits,
+ * and no more than it has in stock.
+ */
+export function quantityBounds(product: CatalogProduct): { min: number; max: number } {
+  const { quantity_min, quantity_max } = product.definition;
+  const min = quantity_min && quantity_min > 0 ? Math.floor(quantity_min) : 1;
+  const limits = [quantity_max, product.stock_level].filter(
+    (limit): limit is number => typeof limit === "number" && limit > 0,
+  );
+  return { min, max: Math.max(min, Math.min(...limits, Infinity)) };
 }

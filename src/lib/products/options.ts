@@ -111,28 +111,25 @@ export function valueStates(
 }
 
 /**
- * Keeps each choice that is still offered given the earlier ones, and fills
- * any gap with the first available value (else the first sold-out one, so
- * the shopper sees that it's sold out rather than nothing).
+ * The choices a shopper can still have, in the options' order: each one
+ * whose value, with the choices kept before it, has a variant in stock.
+ * The rest are dropped, so the shopper chooses again; nothing is chosen for
+ * them.
  */
-export function settleChoices(
+export function keepOffered(
   product: CatalogProduct,
   choices: Record<string, string>,
 ): Record<string, string> {
-  const settled: Record<string, string> = {};
+  const kept: Record<string, string> = {};
   productOptions(product).forEach((option, index) => {
-    const states = valueStates(product, index, settled);
+    const states = valueStates(product, index, kept);
     const chosen = option.values.find(
       ({ value }) =>
-        same(choices[option.name], value) && states.get(value) !== "missing",
+        same(choices[option.name], value) && states.get(value) === "available",
     );
-    const fallback =
-      option.values.find(({ value }) => states.get(value) === "available") ??
-      option.values.find(({ value }) => states.get(value) === "sold-out");
-    const pick = chosen ?? fallback;
-    if (pick) settled[option.name] = pick.value;
+    if (chosen) kept[option.name] = chosen.value;
   });
-  return settled;
+  return kept;
 }
 
 /** The variant that has exactly these values, if there is one. */

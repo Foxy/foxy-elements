@@ -42,8 +42,13 @@ export const QuickAdd: Story = {
   },
 };
 
-export const ParentWithRange: Story = {
+export const ParentLinksToItsPage: Story = {
   render: () => render({ sku: "TEE-ORG" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(canvasElement.querySelector("a.foxy-product-button")?.textContent).toBe("Choose colour and size"),
+    );
+  },
 };
 
 export const RequiredModifier: Story = {
