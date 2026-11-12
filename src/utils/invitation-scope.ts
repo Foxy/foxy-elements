@@ -1,7 +1,12 @@
-import { COLLECTIONS, RESENDABLE } from './group-invitation-scopes';
+import { COLLECTIONS, RESENDABLE, isWriteOnly } from './group-invitation-scopes';
 
-/** Access level a single collection can be granted at. */
+/** Access level a single collection can be granted at. `WRITE_ONLY` collections have no `read`. */
 export type Level = 'none' | 'read' | 'full';
+
+/** The level the read preset gives a collection: `read`, or `none` for a `WRITE_ONLY` one. */
+export function readPresetLevel(collection: string): Level {
+  return isWriteOnly(collection) ? 'none' : 'read';
+}
 
 export type Selection = {
   /** `null` means nothing has been chosen yet, which the form's v8n rule rejects. */
@@ -34,11 +39,15 @@ export function parseScope(scope: string | undefined): Selection {
 
     // A write token means full access whether or not the read token is present. The API
     // treats write as implying read, so a lone write is still full access.
+    // A write-only collection's read token is not a grant the API knows, so it is left in
+    // `extra` rather than modelled as a level.
+    const hasRead = tokens.has(read) && !isWriteOnly(collection);
+
     if (tokens.has(write)) levels[collection] = 'full';
-    else if (tokens.has(read)) levels[collection] = 'read';
+    else if (hasRead) levels[collection] = 'read';
     else levels[collection] = 'none';
 
-    if (tokens.has(read)) known.add(read);
+    if (hasRead) known.add(read);
     if (tokens.has(write)) known.add(write);
   });
 
@@ -63,7 +72,7 @@ export function parseScope(scope: string | undefined): Selection {
   } else if (
     !resend.length &&
     !extra.length &&
-    COLLECTIONS.every(collection => levels[collection] === 'read')
+    COLLECTIONS.every(collection => levels[collection] === readPresetLevel(collection))
   ) {
     preset = 'read';
   } else {
@@ -87,9 +96,15 @@ export function serializeScope(selection: Selection): string {
     const level = selection.levels[collection] ?? 'none';
 
     // Full emits both tokens rather than write alone, so anything that still compares tokens
-    // literally, without write covering read, sees read access too.
-    if (level === 'full') tokens.push(`${collection}_read`, `${collection}_write`);
-    else if (level === 'read') tokens.push(`${collection}_read`);
+    // literally, without write covering read, sees read access too. A write-only collection
+    // has no read token to emit, and the API rejects one.
+    if (isWriteOnly(collection)) {
+      if (level === 'full') tokens.push(`${collection}_write`);
+    } else if (level === 'full') {
+      tokens.push(`${collection}_read`, `${collection}_write`);
+    } else if (level === 'read') {
+      tokens.push(`${collection}_read`);
+    }
   });
 
   RESENDABLE.forEach(collection => {
@@ -117,6 +132,7 @@ export function getGrantable(granterScope: string | undefined): Grantable {
 /** Whether the granter can give `collection` at `level`. */
 export function canGrantLevel(grantable: Grantable, collection: string, level: Level): boolean {
   if (level === 'none') return true;
+  if (level === 'read' && isWriteOnly(collection)) return false;
   if (grantable.storeFullAccess) return true;
 
   const hasWrite = grantable.tokens.has(`${collection}_write`);
@@ -135,13 +151,16 @@ export function canGrantResend(grantable: Grantable, collection: string): boolea
 }
 
 /**
- * Whether the "read-only access to everything" preset can be offered.
+ * Whether the "read-only access to everything" preset can be offered. A `WRITE_ONLY`
+ * collection has no read level, so the preset leaves it out.
  *
- * It is hidden unless the granter can deliver all 20 reads. Silently redefining it as
+ * It is hidden unless the granter can deliver every read. Silently redefining it as
  * "read-only on whatever I happen to be able to share" would make one preset mean different
  * things to different admins, which is a worse trap than an absent option — `Custom` covers
  * the gap.
  */
 export function canGrantReadPreset(grantable: Grantable): boolean {
-  return COLLECTIONS.every(collection => canGrantLevel(grantable, collection, 'read'));
+  return COLLECTIONS.every(collection =>
+    canGrantLevel(grantable, collection, readPresetLevel(collection))
+  );
 }

@@ -1,5 +1,5 @@
 import { expect } from '@open-wc/testing';
-import { COLLECTIONS } from './group-invitation-scopes';
+import { COLLECTIONS, isWriteOnly } from './group-invitation-scopes';
 import {
   parseScope,
   serializeScope,
@@ -9,7 +9,8 @@ import {
   canGrantReadPreset,
 } from './invitation-scope';
 
-const allReads = COLLECTIONS.map(collection => `${collection}_read`).join(' ');
+const readable = COLLECTIONS.filter(collection => !isWriteOnly(collection));
+const allReads = readable.map(collection => `${collection}_read`).join(' ');
 
 describe('utils/invitation-scope', () => {
   describe('parseScope', () => {
@@ -31,13 +32,24 @@ describe('utils/invitation-scope', () => {
       expect(parseScope('store_full_access').preset).to.equal('store');
     });
 
-    it('recognises exactly all 20 reads as the read preset', () => {
+    it('recognises exactly every read as the read preset', () => {
       expect(parseScope(allReads).preset).to.equal('read');
     });
 
-    it('does not treat all 20 reads plus anything else as the read preset', () => {
+    it('does not treat every read plus anything else as the read preset', () => {
       expect(parseScope(`${allReads} transactions_resend`).preset).to.equal('custom');
       expect(parseScope(`${allReads} customers_write`).preset).to.equal('custom');
+      expect(parseScope(`${allReads} customer_anonymizations_write`).preset).to.equal('custom');
+    });
+
+    it('reads a write-only collection as full or none, never read', () => {
+      expect(parseScope('customer_anonymizations_write').levels.customer_anonymizations).to.equal(
+        'full'
+      );
+
+      const selection = parseScope('customer_anonymizations_read');
+      expect(selection.levels.customer_anonymizations).to.equal('none');
+      expect(selection.extra).to.deep.equal(['customer_anonymizations_read']);
     });
 
     it('reads a write token as the full level', () => {
@@ -74,6 +86,18 @@ describe('utils/invitation-scope', () => {
       const selection = parseScope('');
       selection.levels.customers = 'full';
       expect(serializeScope(selection)).to.equal('customers_read customers_write');
+    });
+
+    it('emits only the write token for a write-only collection at the full level', () => {
+      const selection = parseScope('');
+      selection.levels.customer_anonymizations = 'full';
+      expect(serializeScope(selection)).to.equal('customer_anonymizations_write');
+    });
+
+    it('emits nothing for a write-only collection at the read level', () => {
+      const selection = parseScope('');
+      selection.levels.customer_anonymizations = 'read';
+      expect(serializeScope(selection)).to.equal('');
     });
 
     it('emits one token for the read level', () => {
@@ -114,6 +138,7 @@ describe('utils/invitation-scope', () => {
         'customers_read transactions_read transactions_write transactions_resend',
         'webhooks_resend taxes_resend',
         'customers_read user_full_access',
+        'customers_read customer_anonymizations_write',
       ];
 
       scopes.forEach(scope => {
@@ -158,6 +183,28 @@ describe('utils/invitation-scope', () => {
         .be.true;
     });
 
+    it('never grants a write-only collection at the read level', () => {
+      expect(canGrantLevel(getGrantable('store_full_access'), 'customer_anonymizations', 'read')).to
+        .be.false;
+      expect(
+        canGrantLevel(
+          getGrantable('customer_anonymizations_write'),
+          'customer_anonymizations',
+          'read'
+        )
+      ).to.be.false;
+    });
+
+    it('grants a write-only collection at full only with its write token or full store access', () => {
+      const can = (scope: string) =>
+        canGrantLevel(getGrantable(scope), 'customer_anonymizations', 'full');
+
+      expect(can('customer_anonymizations_write')).to.be.true;
+      expect(can('store_full_access')).to.be.true;
+      expect(can('customers_write')).to.be.false;
+      expect(can('customer_anonymizations_read')).to.be.false;
+    });
+
     it('lets write alone grant read-only', () => {
       expect(canGrantLevel(getGrantable('customers_write'), 'customers', 'read')).to.be.true;
     });
@@ -170,8 +217,7 @@ describe('utils/invitation-scope', () => {
     });
 
     it('offers the read preset only when every collection read is grantable', () => {
-      const allReads = COLLECTIONS.map(collection => `${collection}_read`).join(' ');
-      const allWrites = COLLECTIONS.map(collection => `${collection}_write`).join(' ');
+      const allWrites = readable.map(collection => `${collection}_write`).join(' ');
 
       expect(canGrantReadPreset(getGrantable(allReads))).to.be.true;
       expect(canGrantReadPreset(getGrantable(allWrites))).to.be.true;

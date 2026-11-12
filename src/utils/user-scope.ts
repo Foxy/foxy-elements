@@ -1,4 +1,4 @@
-import { COLLECTIONS } from './group-invitation-scopes';
+import { COLLECTIONS, isWriteOnly } from './group-invitation-scopes';
 
 /** `users` is not an invitation collection, but `user_full_access` grants it. */
 export type ScopeCollection = (typeof COLLECTIONS)[number] | 'users';
@@ -38,8 +38,9 @@ export function parseUserScope(scope: string | null | undefined): UserScope | nu
 
   return {
     canWrite,
-    // A write scope satisfies a read or resend check in the API.
-    canRead: c => canWrite(c) || tokens.has(`${c}_read`),
+    // A write scope satisfies a read or resend check in the API. A write-only collection has
+    // no read scope to lack, so a read check on it never hides anything.
+    canRead: c => isWriteOnly(c) || canWrite(c) || tokens.has(`${c}_read`),
     canResend: c => canWrite(c) || tokens.has(`${c}_resend`),
   };
 }

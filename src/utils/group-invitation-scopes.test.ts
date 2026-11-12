@@ -1,6 +1,12 @@
 import { expect } from '@open-wc/testing';
 
-import { COLLECTIONS, RESENDABLE, groupInvitationScopes } from './group-invitation-scopes';
+import {
+  COLLECTIONS,
+  RESENDABLE,
+  WRITE_ONLY,
+  groupInvitationScopes,
+  isWriteOnly,
+} from './group-invitation-scopes';
 
 describe('groupInvitationScopes', () => {
   it('groups read-only scopes', () => {
@@ -106,6 +112,20 @@ describe('groupInvitationScopes', () => {
     expect(groupInvitationScopes('   ')).to.deep.equal(empty);
   });
 
+  it('reports a write-only collection as full access', () => {
+    const groups = groupInvitationScopes('customer_anonymizations_write customers_read');
+
+    expect(groups.full).to.deep.equal(['customer_anonymizations']);
+    expect(groups.read).to.deep.equal(['customers']);
+  });
+
+  it('never reports a write-only collection as read-only', () => {
+    const groups = groupInvitationScopes('customer_anonymizations_read');
+
+    expect(groups.read).to.deep.equal([]);
+    expect(groups.full).to.deep.equal([]);
+  });
+
   it('accepts resend only on collections that support it', () => {
     // Only transactions, webhooks and taxes have a resend permission in the API.
     expect(groupInvitationScopes('customers_resend').resend).to.deep.equal([]);
@@ -114,8 +134,8 @@ describe('groupInvitationScopes', () => {
 });
 
 describe('exported collection lists', () => {
-  it('exports the 20 collections an invitation may grant', () => {
-    expect(COLLECTIONS).to.have.lengthOf(20);
+  it('exports the 21 collections an invitation may grant', () => {
+    expect(COLLECTIONS).to.have.lengthOf(21);
     expect(COLLECTIONS).to.include('transactions');
     expect(COLLECTIONS).to.include('user_invitations');
     expect(COLLECTIONS).to.include('reporting');
@@ -133,5 +153,15 @@ describe('exported collection lists', () => {
 
   it('exports the 3 resendable collections', () => {
     expect([...RESENDABLE]).to.deep.equal(['transactions', 'webhooks', 'taxes']);
+  });
+
+  it('exports the write-only collections, each also in COLLECTIONS', () => {
+    expect([...WRITE_ONLY]).to.deep.equal(['customer_anonymizations']);
+    WRITE_ONLY.forEach(collection => expect(COLLECTIONS).to.include(collection));
+  });
+
+  it('identifies write-only collections', () => {
+    expect(isWriteOnly('customer_anonymizations')).to.be.true;
+    expect(isWriteOnly('customers')).to.be.false;
   });
 });
