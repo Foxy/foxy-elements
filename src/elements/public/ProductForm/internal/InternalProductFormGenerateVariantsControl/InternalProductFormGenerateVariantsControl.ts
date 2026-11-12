@@ -16,18 +16,22 @@ export class InternalProductFormGenerateVariantsControl extends InternalControl 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      missing: { type: Number },
+      __showPattern: { attribute: false },
       __pattern: { attribute: false },
       __state: { attribute: false },
-      __created: { attribute: false },
       __error: { attribute: false },
     };
   }
 
+  /** How many combinations of the saved options have no variant yet. */
+  missing: number | null = null;
+
+  private __showPattern = false;
+
   private __pattern = '';
 
-  private __state: 'idle' | 'busy' | 'done' | 'fail' = 'idle';
-
-  private __created = 0;
+  private __state: 'idle' | 'busy' | 'fail' = 'idle';
 
   private __error = '';
 
@@ -40,17 +44,40 @@ export class InternalProductFormGenerateVariantsControl extends InternalControl 
     const locked = this.disabled || this.readonly || this.__state === 'busy';
     const count = combinationCount(options);
 
+    const dirty = !!form?.in({ idle: { snapshot: 'dirty' } });
+
     return html`
-      <div class="grid gap-s" data-testid="generate-variants">
-        <div>
-          <span class="text-l font-medium">${this.t('label')}</span>
-          <p class="text-s text-secondary leading-s">
-            ${this.t('helper_text', { count, limit: LIMITS.variants })}
-          </p>
-        </div>
+      <div
+        class="flex flex-wrap items-center rounded"
+        style="gap: 0.75rem; padding: 0.75rem 0.875rem; background: #fff6e5; color: #5e3b00"
+        data-testid="generate-variants"
+      >
+        <p class="text-s" style="flex: 1 1 20rem" data-testid="generate-missing">
+          ${this.t('missing', { count: this.missing ?? count, limit: LIMITS.variants })}
+        </p>
+        <button
+          type="button"
+          class="text-s text-primary"
+          style="height: 2.125rem; padding: 0 0.75rem"
+          data-testid="toggle-pattern"
+          aria-expanded=${this.__showPattern ? 'true' : 'false'}
+          @click=${() => (this.__showPattern = !this.__showPattern)}
+        >
+          ${this.t('pattern_toggle')}
+        </button>
+        <vaadin-button
+          theme="primary small"
+          data-testid="generate"
+          ?disabled=${locked || dirty}
+          @click=${() => this.__generate()}
+        >
+          ${this.t(this.__state === 'busy' ? 'button_busy' : 'button', {
+            count: this.missing ?? count,
+          })}
+        </vaadin-button>
 
         <vaadin-text-field
-          class="w-full"
+          style="flex-basis: 100%; max-width: 30rem"
           data-testid="sku-pattern"
           label=${this.t('pattern_label')}
           helper-text=${this.t('pattern_helper_text', {
@@ -58,6 +85,7 @@ export class InternalProductFormGenerateVariantsControl extends InternalControl 
             example: exampleSku(pattern, data?.sku ?? '', options),
           })}
           placeholder=${defaultPattern}
+          ?hidden=${!this.__showPattern}
           ?disabled=${locked}
           .value=${this.__pattern}
           @input=${(evt: Event) => {
@@ -66,27 +94,17 @@ export class InternalProductFormGenerateVariantsControl extends InternalControl 
         >
         </vaadin-text-field>
 
-        <div class="flex flex-wrap items-center" style="gap: 1rem">
-          <vaadin-button
-            theme="primary"
-            data-testid="generate"
-            ?disabled=${locked || form?.in({ idle: { snapshot: 'dirty' } })}
-            @click=${() => this.__generate()}
-          >
-            ${this.t(this.__state === 'busy' ? 'button_busy' : 'button')}
-          </vaadin-button>
-          ${form?.in({ idle: { snapshot: 'dirty' } })
-            ? html`<span class="text-s text-secondary">${this.t('save_first')}</span>`
-            : this.__state === 'done'
-            ? html`<span class="text-s text-success" data-testid="generate-result">
-                ${this.t(this.__created ? 'created' : 'created_none', { count: this.__created })}
-              </span>`
-            : this.__state === 'fail'
-            ? html`<span class="text-s text-error" data-testid="generate-result">
-                ${this.__error || this.t('error')}
-              </span>`
-            : ''}
-        </div>
+        ${dirty
+          ? html`<span class="text-s" style="flex-basis: 100%">${this.t('save_first')}</span>`
+          : this.__state === 'fail'
+          ? html`<span
+              class="text-s text-error"
+              style="flex-basis: 100%"
+              data-testid="generate-result"
+            >
+              ${this.__error || this.t('error')}
+            </span>`
+          : ''}
       </div>
     `;
   }
@@ -96,8 +114,8 @@ export class InternalProductFormGenerateVariantsControl extends InternalControl 
     if (!form) return;
     this.__state = 'busy';
     try {
-      this.__created = await form.generateVariants(this.__pattern || undefined);
-      this.__state = 'done';
+      await form.generateVariants(this.__pattern || undefined);
+      this.__state = 'idle';
     } catch (err) {
       this.__error = err instanceof Error ? err.message : '';
       this.__state = 'fail';

@@ -4,6 +4,9 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { ProductForm } from './ProductForm';
 import { Data } from './types';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { LitElement } from 'lit-element';
+
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -190,24 +193,34 @@ describe('ProductForm', () => {
         ? store.store_domain
         : `${store.store_domain}.foxycart.com`;
       const link = `https://${host}/cart?sku=${encodeURIComponent(element.data!.sku)}`;
-      const copy = (await getByTestId(element, 'cart-link'))?.querySelector(
-        'foxy-copy-to-clipboard'
-      );
+      const storefront = element.renderRoot.querySelector(
+        'foxy-internal-product-form-storefront-control'
+      ) as LitElement;
+      await storefront.updateComplete;
+      const builder = storefront.renderRoot.querySelector(
+        'foxy-internal-product-form-cart-link-control'
+      ) as LitElement;
+      await builder.updateComplete;
+      const copy = builder.renderRoot
+        .querySelector('[data-testid="cart-link"]')
+        ?.querySelector('foxy-copy-to-clipboard');
       expect(copy).to.have.attribute('text', link);
     });
 
-    it("offers no add-to-cart link for a parent, which can't be added", async () => {
+    it('offers no storefront elements for a template, which is never sold', async () => {
       const router = createRouter();
       const element = await fixture<ProductForm>(html`
         <foxy-product-form
-          href="https://demo.api/hapi/products/1"
+          href="https://demo.api/hapi/products/4"
           default-domain="foxycart.com"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-product-form>
       `);
       await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
-      expect(await getByTestId(element, 'cart-link')).to.not.exist;
+      await element.requestUpdate();
+      expect(element.renderRoot.querySelector('foxy-internal-product-form-storefront-control')).to
+        .not.exist;
     });
 
     it('creates a template when Template is chosen as the kind', async () => {
@@ -351,7 +364,7 @@ describe('ProductForm', () => {
   });
 
   describe('images', () => {
-    it('renders the description and images controls, and a variants list of product cards', async () => {
+    it('renders the description and images controls', async () => {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
       const root = element.renderRoot;
 
@@ -360,10 +373,6 @@ describe('ProductForm', () => {
       ).to.exist;
       expect(root.querySelector('foxy-internal-product-form-images-control[infer="images"]')).to
         .exist;
-
-      const variants = root.querySelector('foxy-internal-async-list-control[infer="variants"]');
-      expect(variants).to.have.attribute('item', 'foxy-product-card');
-      expect(variants).to.have.attribute('form', 'foxy-product-form');
     });
 
     it('uploads an image through fx:create_upload_url and a pre-signed PUT', async () => {
@@ -469,29 +478,6 @@ describe('ProductForm', () => {
     });
   });
 
-  it("offers to copy a variant's SKU from the variants list", async () => {
-    const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
-    const variants = element.renderRoot.querySelector(
-      'foxy-internal-async-list-control[infer="variants"]'
-    ) as HTMLElement & {
-      actions: { text: string; onClick: (data: unknown) => Promise<unknown> }[];
-    };
-    const [copy] = variants.actions;
-    expect(copy.text).to.equal('copy_button_text');
-
-    const clipboard = navigator.clipboard;
-    const written: string[] = [];
-    Object.defineProperty(navigator, 'clipboard', {
-      configurable: true,
-      value: { writeText: async (text: string) => void written.push(text) },
-    });
-    try {
-      await copy.onClick({ sku: 'TEE-ORG-M-BLK' });
-    } finally {
-      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: clipboard });
-    }
-    expect(written).to.deep.equal(['TEE-ORG-M-BLK']);
-  });
   describe('options, modifiers and links', () => {
     type Control = HTMLElement & {
       updateComplete: Promise<unknown>;
@@ -499,13 +485,19 @@ describe('ProductForm', () => {
       renderRoot: ShadowRoot;
     };
 
-    async function load(id: number, attrs = { defaultDomain: 'foxycart.com' }) {
+    async function load(
+      id: number,
+      attrs: { defaultDomain: string; storefrontScript?: string } = {
+        defaultDomain: 'foxycart.com',
+      }
+    ) {
       const router = createRouter();
       const element = await fixture<ProductForm>(html`
         <foxy-product-form
           href="https://demo.api/hapi/products/${id}"
           parent="https://demo.api/hapi/stores/0/products"
           default-domain=${attrs.defaultDomain}
+          storefront-script=${ifDefined(attrs.storefrontScript)}
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-product-form>
@@ -650,12 +642,14 @@ describe('ProductForm', () => {
       expect(element.errors).to.include('option-values:color:v8n_required');
     });
 
-    it("gives the variants list's form the parent, for a new variant's options", async () => {
+    it("gives a new variant's form the parent, for its options", async () => {
       const { element } = await load(1);
-      const list = element.renderRoot.querySelector(
-        'foxy-internal-async-list-control[infer="variants"]'
-      ) as HTMLElement & { formProps: Record<string, unknown> };
-      expect(list.formProps['.parentProduct']).to.equal(element.data);
+      const dialog = element.renderRoot.querySelector('#variant-dialog') as HTMLElement & {
+        props: Record<string, unknown>;
+      };
+      expect(dialog).to.have.attribute('form', 'foxy-product-form');
+      expect(dialog).to.have.attribute('parent', element.data!._links['fx:product_variants'].href);
+      expect(dialog.props['.parentProduct']).to.equal(element.data);
     });
 
     it('shows inherited modifiers, and removes, restores or overrides one by name', async () => {
@@ -709,7 +703,9 @@ describe('ProductForm', () => {
       name.dispatchEvent(new Event('change'));
       await settle(element, modifiers);
 
-      const type = byTestId(root, 'modifier-type')[3] as HTMLInputElement;
+      // Saved modifiers stay closed; only the new one's editor is open.
+      expect(byTestId(root, 'modifier-editor')).to.have.length(1);
+      const type = byTestId(root, 'modifier-type')[0] as HTMLInputElement;
       type.value = 'select';
       type.dispatchEvent(new Event('change'));
       const added = element.form.definition?.modifiers?.[3];
@@ -717,7 +713,7 @@ describe('ProductForm', () => {
       expect(element.errors).to.include('modifiers:v8n_invalid', 'a value is still empty');
 
       await settle(element, modifiers);
-      buttonsIn(byTestId(root, 'modifier-actions')[3], 'move_up_modifier')[0].click();
+      buttonsIn(byTestId(root, 'modifier-actions')[0], 'move_up_modifier')[0].click();
       expect(element.form.definition?.modifiers?.map(m => m.name)).to.deep.equal([
         'engraving',
         'recipient',
@@ -776,11 +772,11 @@ describe('ProductForm', () => {
 
     it('builds a link once every required modifier is filled in', async () => {
       const { element, router } = await load(0);
-      expect(await getByTestId(element, 'cart-link')).to.not.exist;
-      const builder = (await control(
-        element,
+      const storefront = (await control(element, 'foxy-internal-product-form-storefront-control'))!;
+      const builder = storefront.renderRoot.querySelector(
         'foxy-internal-product-form-cart-link-control'
-      )) as Control & { link?: string };
+      ) as Control & { link?: string };
+      await builder.updateComplete;
       expect(builder.link).to.be.undefined;
       expect(byTestId(builder.renderRoot, 'cart-link-incomplete')).to.have.length(1);
 
@@ -811,55 +807,109 @@ describe('ProductForm', () => {
       );
     });
 
-    it('links a parent by its SKU and option values, which pick the variant', async () => {
-      const { element } = await load(1);
-      const builder = (await control(
-        element,
-        'foxy-internal-product-form-cart-link-control'
-      )) as Control & { link?: string; options: unknown[]; modifiers: { name: string }[] };
-      expect(builder.modifiers.map(m => m.name)).to.deep.equal(['gift_wrap']);
+    it("has the merchant pick a variant for a parent's link or button, never the parent", async () => {
+      const { element } = await load(1, {
+        defaultDomain: 'foxycart.com',
+        storefrontScript: 'https://cdn.example/foxy-products.js',
+      });
+      const storefront = (await control(element, 'foxy-internal-product-form-storefront-control'))!;
+      const root = storefront.renderRoot;
+      const builder = () =>
+        root.querySelector('foxy-internal-product-form-cart-link-control') as
+          | (Control & { link?: string; sku: string; modifiers: { name: string }[] })
+          | null;
 
-      const color = byTestId(builder.renderRoot, 'choice-color')[0] as HTMLInputElement;
-      color.value = 'Natural';
-      color.dispatchEvent(new Event('change'));
-      expect(builder.link, 'every option needs a value').to.be.undefined;
-      const size = byTestId(builder.renderRoot, 'choice-size')[0] as HTMLInputElement;
-      size.value = '2XL';
-      size.dispatchEvent(new Event('change'));
-      expect(builder.link).to.match(/\/cart\?sku=TSHIRT&color=Natural&size=2XL$/);
+      expect(builder(), 'no link for the parent itself').to.not.exist;
+      expect(byTestId(root, 'storefront-pick-variant')).to.have.length(1);
+
+      const select = byTestId(root, 'variant-select')[0] as HTMLSelectElement;
+      expect(Array.from(select.options).map(o => o.value)).to.deep.equal([
+        '',
+        ...element.variants.map(v => v.sku),
+      ]);
+      select.value = 'TSHIRT-RED-L';
+      select.dispatchEvent(new Event('change'));
+      await settle(element, storefront);
+
+      expect(builder()!.sku).to.equal('TSHIRT-RED-L');
+      // An optional modifier is offered for prefill, and the link doesn't wait for it.
+      expect(builder()!.modifiers.map(m => m.name)).to.deep.equal(['gift_wrap']);
+      await builder()!.updateComplete;
+      expect(builder()!.link).to.match(/\/cart\?sku=TSHIRT-RED-L$/);
+
+      byTestId(root, 'kind-button')[0].click();
+      await settle(element, storefront);
+      expect(byTestId(root, 'snippet')[0].textContent).to.contain('<foxy-product-link store="');
+      expect(byTestId(root, 'snippet')[0].textContent).to.contain('sku="TSHIRT-RED-L"');
+
+      byTestId(root, 'kind-form')[0].click();
+      await settle(element, storefront);
+      const snippet = byTestId(root, 'snippet')[0].textContent!;
+      expect(snippet).to.contain(
+        '<script type="module" src="https://cdn.example/foxy-products.js">'
+      );
+      expect(snippet).to.contain('sku="TSHIRT" show-quantity></foxy-product-form>');
+      expect(byTestId(root, 'variant-select')).to.have.length(0);
+
+      byTestId(root, 'kind-page')[0].click();
+      await settle(element, storefront);
+      expect(byTestId(root, 'snippet')[0].textContent).to.contain('<foxy-product-page ');
     });
 
-    it('warns before saving a change that deletes the variants using a removed value', async () => {
-      const { element } = await load(1);
+    it('opens the prefill for a required modifier with the link, which waits for it', async () => {
+      const { element } = await load(0);
+      const storefront = (await control(element, 'foxy-internal-product-form-storefront-control'))!;
+      const builder = storefront.renderRoot.querySelector(
+        'foxy-internal-product-form-cart-link-control'
+      ) as Control & { link?: string };
+      await builder.updateComplete;
+      expect(byTestId(builder.renderRoot, 'choice-recipient')).to.have.length(1);
+      expect(builder.link).to.be.undefined;
+      // Without the script's URL only the link is offered.
+      expect(byTestId(storefront.renderRoot, 'kind-form')).to.have.length(0);
+    });
+
+    it('asks before saving a change that deletes the variants using a removed value', async () => {
+      const { element, router } = await load(1);
       const saved = element.data!.definition.options!;
       const [color, size] = saved;
       const withoutRed = { ...color, values: color.values.filter(v => v.value !== 'Red') };
       element.edit({ definition: { ...element.form.definition, options: [withoutRed, size] } });
       await element.requestUpdate();
 
-      const options = (await control(
-        element,
-        'foxy-internal-product-form-options-control'
-      )) as Control & {
-        variantsToDelete: string[];
-      };
-      expect(options.variantsToDelete).to.deep.equal(['TSHIRT-RED-L']);
-      expect(byTestId(options.renderRoot, 'delete-warning')).to.have.length(1);
+      expect(element.variantsToDelete.map(v => v.sku)).to.deep.equal(['TSHIRT-RED-L']);
       expect(element.errors).to.include('options:v8n_confirm_delete');
 
-      const confirm = byTestId(options.renderRoot, 'confirm-delete')[0] as HTMLInputElement;
-      confirm.checked = true;
-      confirm.dispatchEvent(new Event('change'));
-      expect(element.errors).to.not.include('options:v8n_confirm_delete');
+      const variants = (await control(element, 'foxy-internal-product-form-variants-control'))!;
+      await settle(element, variants);
+      const row = variants.renderRoot.querySelector('[data-sku="TSHIRT-RED-L"]')!;
+      expect(byTestId(row, 'variant-deleting')).to.have.length(1);
 
-      // Removing more asks again.
+      element.submit();
+      await element.requestUpdate();
+      expect(element.in({ idle: { snapshot: 'dirty' } }), 'nothing is saved yet').to.be.true;
+      const dialog = byTestId(element.renderRoot, 'delete-confirmation')[0];
+      expect(dialog.querySelector('[role="alertdialog"]')).to.exist;
+      expect(
+        byTestId(dialog, 'deleting').map(li => li.textContent!.replace(/\s+/g, ' ').trim())
+      ).to.have.length(1);
+      expect(byTestId(dialog, 'deleting')[0].textContent).to.contain('TSHIRT-RED-L');
+
+      // Going back saves nothing and keeps the edit.
+      byTestId(dialog, 'delete-cancel')[0].click();
+      await element.requestUpdate();
+      expect(byTestId(element.renderRoot, 'delete-confirmation')).to.have.length(0);
+      expect(element.errors).to.include('options:v8n_confirm_delete');
+
+      // Removing more lists more.
       element.edit({ definition: { ...element.form.definition, options: [withoutRed] } });
       await element.requestUpdate();
-      await settle(element, options);
-      expect(options.variantsToDelete).to.deep.equal(['TSHIRT-BLUE-S', 'TSHIRT-RED-L']);
-      expect(element.errors).to.include('options:v8n_confirm_delete');
+      expect(element.variantsToDelete.map(v => v.sku)).to.deep.equal([
+        'TSHIRT-BLUE-S',
+        'TSHIRT-RED-L',
+      ]);
 
-      // Adding values or changing labels deletes nothing.
+      // Adding values or changing labels deletes nothing, and saves without asking.
       element.edit({
         definition: {
           ...element.form.definition,
@@ -870,16 +920,149 @@ describe('ProductForm', () => {
         },
       });
       await element.requestUpdate();
+      expect(element.variantsToDelete).to.have.length(0);
       expect(element.errors).to.not.include('options:v8n_confirm_delete');
+
+      // Agreeing saves.
+      element.edit({ definition: { ...element.form.definition, options: [withoutRed, size] } });
+      element.submit();
+      await element.requestUpdate();
+      byTestId(element.renderRoot, 'delete-confirm')[0].click();
+      await waitUntil(() => element.in({ idle: { snapshot: 'clean' } }), '', { timeout: 5000 });
+      const product = await getTestData<Data>('https://demo.api/hapi/products/1', router);
+      expect(product.definition.options![0].values.map(v => v.value)).to.not.include('Red');
+    });
+
+    it("edits a variant's price and stock in the table, and saves them with the product", async () => {
+      const { element, router } = await load(1);
+      const variants = (await control(element, 'foxy-internal-product-form-variants-control'))!;
+      const rows = byTestId(variants.renderRoot, 'variant');
+      expect(rows.map(row => row.dataset.sku)).to.deep.equal(element.variants.map(v => v.sku));
+      expect(element.hasChanges).to.be.false;
+
+      const row = variants.renderRoot.querySelector('[data-sku="TSHIRT-RED-L"]')!;
+      const type = (testid: string, value: string) => {
+        const input = byTestId(row, testid)[0] as HTMLInputElement;
+        input.value = value;
+        input.dispatchEvent(new Event('input'));
+      };
+
+      type('variant-stock', '-3');
+      await settle(element, variants);
+      expect(byTestId(row, 'variant-stock')[0]).to.have.attribute('aria-invalid', 'true');
+      element.submit();
+      await settle(element, variants);
+      expect(byTestId(variants.renderRoot, 'variants-error')).to.have.length(1);
+
+      type('variant-stock', '37');
+      type('variant-price', '27.45');
+      expect(element.hasChanges).to.be.true;
+      element.submit();
+      await waitUntil(() => !element.hasChanges, '', { timeout: 5000 });
+
+      const href = element.variants.find(v => v.sku === 'TSHIRT-RED-L')!._links.self.href;
+      const variant = await getTestData<Data>(href, router);
+      expect(variant.stock_level).to.equal(37);
+      expect(variant.definition.price).to.equal('27.45');
+    });
+
+    it('discards unsaved changes to variants along with the product', async () => {
+      const { element } = await load(1);
+      const href = element.variants[0]._links.self.href;
+      element.editVariant(href, { stock: '5' });
+      element.edit({ sku: 'TSHIRT-2' });
+      expect(element.hasChanges).to.be.true;
+      element.discard();
+      expect(element.hasChanges).to.be.false;
+      expect(element.form.sku).to.equal('TSHIRT');
+    });
+
+    it("edits the rest of a variant in a side panel, and deletes it on save once that's agreed", async () => {
+      const { element, router } = await load(1);
+      const variants = (await control(element, 'foxy-internal-product-form-variants-control'))!;
+      const row = variants.renderRoot.querySelector('[data-sku="TSHIRT-BLUE-S"]')!;
+      byTestId(row, 'variant-open')[0].click();
+      await element.requestUpdate();
+
+      const panel = byTestId(element.renderRoot, 'variant-panel')[0];
+      expect(panel.querySelector('[role="dialog"]')).to.have.attribute('aria-modal', 'true');
+      const sku = byTestId(panel, 'panel-sku')[0] as HTMLInputElement;
+      expect(sku.value).to.equal('TSHIRT-BLUE-S');
+      sku.value = 'TSHIRT-BLU-S';
+      sku.dispatchEvent(new Event('input'));
+      expect(element.variantEdits[element.variants[0]._links.self.href] ?? {}).to.not.have.property(
+        'delete'
+      );
+
+      // Cancel puts back what the panel changed.
+      byTestId(panel, 'panel-cancel')[0].click();
+      await element.requestUpdate();
+      expect(element.hasChanges).to.be.false;
+      expect(byTestId(element.renderRoot, 'variant-panel')).to.have.length(0);
+
+      byTestId(row, 'variant-more')[0].click();
+      await element.requestUpdate();
+      byTestId(element.renderRoot, 'panel-delete')[0].click();
+      await settle(element, variants);
+      expect(element.variantsToDelete.map(v => v.sku)).to.deep.equal(['TSHIRT-BLUE-S']);
+      expect(byTestId(row, 'variant-undo')).to.have.length(1);
+
+      element.submit();
+      await element.requestUpdate();
+      expect(byTestId(element.renderRoot, 'deleting')[0].textContent).to.contain('TSHIRT-BLUE-S');
+      byTestId(element.renderRoot, 'delete-confirm')[0].click();
+      await waitUntil(() => element.variants.length === 1 && !element.hasChanges, '', {
+        timeout: 5000,
+      });
+      const left = await getTestData<any>(
+        'https://demo.api/hapi/products?inherit_from_id=1&product_type=variant',
+        router
+      );
+      expect(left._embedded['fx:products'].map((p: Data) => p.sku)).to.deep.equal(['TSHIRT-RED-L']);
+    });
+
+    it('lets a product with variants gain values but not options', async () => {
+      const options = async (id: number) =>
+        (await control((await load(id)).element, 'foxy-internal-product-form-options-control'))!;
+      const withVariants = await options(1);
+      expect(byTestId(withVariants.renderRoot, 'add-option')[0]).to.have.attribute('disabled');
+      expect(byTestId(withVariants.renderRoot, 'options-locked')).to.have.length(1);
+      const without = await options(0);
+      expect(byTestId(without.renderRoot, 'add-option')[0]).to.not.have.attribute('disabled');
+    });
+
+    it('keeps a removed value in sight, with how many variants go with it, until undone', async () => {
+      const { element } = await load(1);
+      const options = (await control(element, 'foxy-internal-product-form-options-control'))!;
+      const root = options.renderRoot;
+      expect(byTestId(root, 'option-editor'), 'saved options start closed').to.have.length(0);
+      expect(byTestId(root, 'value-chip').length).to.be.greaterThan(2);
+
+      byTestId(root, 'manage-option')[0].click();
+      await settle(element, options);
+      const used = byTestId(root, 'value-used-by').map(node => node.textContent!.trim());
+      expect(used).to.include('used_by');
+      expect(used).to.include('used_by_none');
+
+      const color = element.data!.definition.options![0];
+      const red = color.values.findIndex(v => v.value === 'Red');
+      buttonsIn(byTestId(root, 'value-actions')[red], 'remove')[0].click();
+      await settle(element, options);
+      expect(element.variantsToDelete.map(v => v.sku)).to.deep.equal(['TSHIRT-RED-L']);
+      expect(byTestId(root, 'removed-value')[0].textContent).to.contain('removed_used');
+
+      byTestId(root, 'undo-value')[0].click();
+      await settle(element, options);
+      expect(element.form.definition!.options![0].values.map(v => v.value)).to.deep.equal(
+        color.values.map(v => v.value)
+      );
+      expect(element.variantsToDelete).to.have.length(0);
     });
 
     it('adds variants only to a product with options', async () => {
-      const list = (element: ProductForm) =>
-        element.renderRoot.querySelector(
-          'foxy-internal-async-list-control[infer="variants"]'
-        ) as HTMLElement & { hideCreateButton: boolean };
-      expect(list((await load(0)).element).hideCreateButton).to.be.true;
-      expect(list((await load(1)).element).hideCreateButton).to.be.false;
+      const add = (element: ProductForm) => byTestId(element.renderRoot, 'add-variant');
+      expect(add((await load(0)).element)).to.have.length(0);
+      expect(add((await load(1)).element)).to.have.length(1);
     });
 
     it('fixes a new variant as a variant: no kind or template to choose', async () => {

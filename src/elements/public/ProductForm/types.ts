@@ -105,6 +105,8 @@ export interface ProductDefinition {
   meta_title?: string;
   meta_description?: string;
   weight?: number;
+  /** Stock at or below this is low for this product, in place of the store's number. */
+  low_stock_threshold?: number | null;
   /** Foxy billing/shipping category code (separate from Foxy Products taxonomy). */
   category_code?: string;
   subscription_frequency?: string;

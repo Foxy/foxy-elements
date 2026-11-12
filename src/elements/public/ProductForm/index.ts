@@ -15,10 +15,13 @@ import './internal/InternalProductFormOptionsControl/index';
 import './internal/InternalProductFormModifiersControl/index';
 import './internal/InternalProductFormGenerateVariantsControl/index';
 import './internal/InternalProductFormCartLinkControl/index';
+import './internal/InternalProductFormStorefrontControl/index';
+import './internal/InternalProductFormVariantsControl/index';
 
 import '../ProductStockRuleCard/index';
 import '../ProductStockRuleForm/index';
 import '../CopyToClipboard/index';
+import '../FormDialog/index';
 import '../ProductTagCard/index';
 import '../ProductCard/index';
 import '../ProductTagForm/index';

@@ -62,19 +62,32 @@ export class InternalProductFormImagesControl extends InternalControl {
               ${this.t('inherited', { count: inherited.length })}
             </p>`
           : ''}
-        ${images.map(
-          (image, index) => html`
-            <div class="flex items-start" style="gap: 0.75rem">
-              <img
-                class="h-l w-l object-cover rounded-s bg-contrast-5 flex-shrink-0"
-                src=${image.src}
-                alt=${image.alt ?? ''}
-              />
-              <div class="flex-1 min-w-0 grid gap-xs">
+        <div
+          class="grid gap-s"
+          style="grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr))"
+          data-testid="thumbnails"
+        >
+          ${images.map(
+            (image, index) => html`
+              <div
+                class="grid gap-xs border border-contrast-10 rounded p-xs"
+                style="align-content: start"
+                data-testid="image"
+              >
+                <img
+                  class="w-full object-cover rounded-s bg-contrast-5"
+                  style="aspect-ratio: 1"
+                  src=${image.src}
+                  alt=${image.alt ?? ''}
+                />
+                <span class="text-xs ${index === 0 ? 'font-medium' : 'text-secondary'}">
+                  ${index === 0 ? this.t('main') : this.t('position', { position: index + 1 })}
+                </span>
                 <vaadin-text-field
                   class="w-full"
+                  theme="small"
                   label=${this.t('alt_label')}
-                  helper-text=${this.t('alt_helper_text')}
+                  title=${this.t('alt_helper_text')}
                   .value=${image.alt ?? ''}
                   ?disabled=${locked}
                   @change=${(evt: Event) => {
@@ -83,23 +96,21 @@ export class InternalProductFormImagesControl extends InternalControl {
                   }}
                 >
                 </vaadin-text-field>
-                <div class="flex text-s" style="gap: 1rem">
-                  ${index === 0
-                    ? html`<span class="text-secondary">${this.t('main')}</span>`
-                    : html`
+                <div class="flex flex-wrap text-xs" style="gap: 0.25rem 0.75rem">
+                  ${index > 0
+                    ? html`
                         <button
                           class="text-primary"
+                          type="button"
                           ?disabled=${locked}
                           @click=${() =>
                             this.__setImages([image, ...images.filter((_, i) => i !== index)])}
                         >
                           ${this.t('make_main')}
                         </button>
-                      `}
-                  ${index > 0
-                    ? html`
                         <button
                           class="text-primary"
+                          type="button"
                           ?disabled=${locked}
                           @click=${() => this.__move(index, index - 1)}
                         >
@@ -111,6 +122,7 @@ export class InternalProductFormImagesControl extends InternalControl {
                     ? html`
                         <button
                           class="text-primary"
+                          type="button"
                           ?disabled=${locked}
                           @click=${() => this.__move(index, index + 1)}
                         >
@@ -120,6 +132,7 @@ export class InternalProductFormImagesControl extends InternalControl {
                     : ''}
                   <button
                     class="text-error"
+                    type="button"
                     ?disabled=${locked}
                     @click=${() => this.__setImages(images.filter((_, i) => i !== index))}
                   >
@@ -127,9 +140,9 @@ export class InternalProductFormImagesControl extends InternalControl {
                   </button>
                 </div>
               </div>
-            </div>
-          `
-        )}
+            `
+          )}
+        </div>
       </div>
     `;
   }

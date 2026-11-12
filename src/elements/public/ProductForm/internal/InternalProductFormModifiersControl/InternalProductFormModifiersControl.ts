@@ -32,13 +32,21 @@ export class InternalProductFormModifiersControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      inheritedFrom: { attribute: false },
       inherited: { attribute: false },
       optionNames: { attribute: false },
+      __managed: { attribute: false },
     };
   }
 
   /** The compiled modifiers of the product this one inherits from. */
   inherited: ProductModifier[] = [];
+
+  /** Where the inherited modifiers come from. */
+  inheritedFrom: 'parent' | 'template' = 'parent';
+
+  /** Whether each modifier's editor is open, by name, where the merchant chose. */
+  private __managed: Record<string, boolean> = {};
 
   /** Names of the product's options, which a modifier can't share. */
   optionNames: string[] = [];
@@ -58,22 +66,17 @@ export class InternalProductFormModifiersControl extends InternalControl {
 
     return html`
       <div class="grid gap-m">
-        <div>
-          <span class="text-l font-medium">${this.t('label')}</span>
-          <p class="text-s text-secondary leading-s">${this.t('helper_text')}</p>
-          ${error('modifiers')
-            ? html`<p class="text-s text-error" data-testid="modifiers-error">
-                ${error('modifiers')}
-              </p>`
-            : ''}
-        </div>
-
+        ${error('modifiers')
+          ? html`<p class="text-s text-error" data-testid="modifiers-error">
+              ${error('modifiers')}
+            </p>`
+          : ''}
         ${rows.map(row => {
           if (row.kind === 'inherited' || row.kind === 'removed') {
             return this.__renderInherited(row, locked);
           }
           if (row.kind === 'stale') return this.__renderStale(row, locked);
-          return this.__renderEditor(row, locked, error, ownRows);
+          return this.__renderEditor(row, locked, error, ownRows, errors);
         })}
 
         <div>
@@ -84,7 +87,61 @@ export class InternalProductFormModifiersControl extends InternalControl {
           >
             ${this.t('add_modifier')}
           </vaadin-button>
+          <span
+            class="text-s text-secondary"
+            style="margin-left: 0.5rem"
+            data-testid="modifiers-on"
+          >
+            ${this.t('on_count', {
+              count: rows.filter(row => row.kind !== 'removed' && row.kind !== 'stale').length,
+              limit: LIMITS.modifiers,
+            })}
+          </span>
         </div>
+      </div>
+    `;
+  }
+
+  private __renderSwitch(
+    on: boolean,
+    label: string,
+    testid: string,
+    locked: boolean,
+    toggle: () => void
+  ) {
+    return html`
+      <button
+        type="button"
+        role="switch"
+        class="relative flex-shrink-0 rounded-full ${on ? 'bg-primary' : 'bg-contrast-50'}"
+        style="width: 2.75rem; height: 1.5rem"
+        data-testid=${testid}
+        aria-checked=${on ? 'true' : 'false'}
+        aria-label=${label}
+        ?disabled=${locked}
+        @click=${toggle}
+      >
+        <span
+          class="absolute rounded-full bg-base shadow-xs"
+          style="top: 0.1875rem; left: ${on
+            ? '1.4375rem'
+            : '0.1875rem'}; width: 1.125rem; height: 1.125rem; transition: left 0.15s"
+        ></span>
+      </button>
+    `;
+  }
+
+  private __renderTitle(modifier: ProductModifier) {
+    return html`
+      <div class="flex-1 min-w-0 grid" style="gap: 0.1875rem; min-width: 14rem">
+        <p class="flex flex-wrap items-center font-semibold" style="gap: 0.5rem">
+          ${modifier.label || modifier.name || this.t('new_modifier')}
+          <span class="text-xs font-semibold rounded-full bg-contrast-10 px-xs">
+            ${this.t(modifier.type === 'select' ? 'type_badge_select' : 'type_badge_text')}
+          </span>
+          <span class="text-s font-normal text-secondary">${modifier.name}</span>
+        </p>
+        <p class="text-s text-secondary">${this.__summary(modifier)}</p>
       </div>
     `;
   }
@@ -112,55 +169,57 @@ export class InternalProductFormModifiersControl extends InternalControl {
     const removed = row.kind === 'removed';
     const ownIndex = row.kind === 'removed' ? row.ownIndex : -1;
 
+    const name = modifier.label || modifier.name;
+
     return html`
       <div
-        class="grid gap-xs border border-contrast-10 rounded p-m ${removed ? 'text-tertiary' : ''}"
+        class="flex flex-wrap items-center border border-contrast-10 rounded p-m ${removed
+          ? 'bg-contrast-5 text-secondary'
+          : ''}"
+        style="gap: 0.875rem"
         data-testid="modifier-inherited"
         data-name=${modifier.name}
       >
-        <div class="flex flex-wrap items-center" style="gap: 0.5rem">
-          <span class="font-medium">${modifier.label || modifier.name}</span>
-          <span class="text-s text-secondary">${modifier.name}</span>
-          <span class="text-s rounded-s bg-contrast-5 px-xs">
-            ${this.t(removed ? 'removed_badge' : 'inherited_badge')}
-          </span>
-        </div>
-        <p class="text-s text-secondary">${this.__summary(modifier)}</p>
-        <div class="flex flex-wrap text-s" style="gap: 1rem">
-          ${removed
-            ? html`
-                <button
-                  class="text-primary"
-                  type="button"
-                  data-testid="restore"
-                  ?disabled=${locked}
-                  @click=${() => this.__setOwn(this.__own.filter((_, i) => i !== ownIndex))}
-                >
-                  ${this.t('restore')}
-                </button>
-              `
-            : html`
-                <button
-                  class="text-primary"
-                  type="button"
-                  data-testid="override"
-                  ?disabled=${locked}
-                  @click=${() => this.__setOwn([...this.__own, structuredCopy(modifier)])}
-                >
-                  ${this.t('override')}
-                </button>
-                <button
-                  class="text-error"
-                  type="button"
-                  data-testid="remove-inherited"
-                  ?disabled=${locked}
-                  @click=${() =>
-                    this.__setOwn([...this.__own, { name: modifier.name, remove: true }])}
-                >
-                  ${this.t('remove_inherited')}
-                </button>
-              `}
-        </div>
+        ${this.__renderSwitch(
+          !removed,
+          this.t('switch_label', { name }),
+          removed ? 'restore' : 'remove-inherited',
+          locked,
+          () =>
+            this.__setOwn(
+              removed
+                ? this.__own.filter((_, i) => i !== ownIndex)
+                : [...this.__own, { name: modifier.name, remove: true }]
+            )
+        )}
+        ${this.__renderTitle(modifier)}
+        <span
+          class="text-xs rounded-full px-s ${removed
+            ? 'bg-contrast-10'
+            : 'bg-primary-10 text-primary'}"
+          style="padding-top: 0.1875rem; padding-bottom: 0.1875rem; white-space: nowrap"
+          data-testid="modifier-source"
+        >
+          ${removed ? this.t('removed_badge') : this.t(`inherited_badge_${this.inheritedFrom}`)}
+        </span>
+        ${removed
+          ? ''
+          : html`
+              <button
+                class="text-s rounded-s bg-contrast-10"
+                style="height: 2rem; padding: 0 0.625rem"
+                type="button"
+                data-testid="override"
+                aria-label=${this.t('manage_modifier', { name })}
+                ?disabled=${locked}
+                @click=${() => {
+                  this.__managed = { ...this.__managed, [modifier.name]: true };
+                  this.__setOwn([...this.__own, structuredCopy(modifier)]);
+                }}
+              >
+                ${this.t('manage')}
+              </button>
+            `}
       </div>
     `;
   }
@@ -186,32 +245,38 @@ export class InternalProductFormModifiersControl extends InternalControl {
     row: Row & { kind: 'own' | 'override' },
     locked: boolean,
     error: (path: string) => string | undefined,
-    ownRows: Row[]
+    ownRows: Row[],
+    errors: { path: string }[]
   ) {
     const modifier = row.modifier;
-    const path = `modifiers.${row.ownIndex}`;
+    const form = this.nucleon as ProductForm | null;
+    const isSaved = !!form?.data?.definition?.modifiers?.some(m => m.name === modifier.name);
+    // A new modifier, or one with a mistake in it, opens by itself.
+    const managed =
+      this.__managed[modifier.name] ??
+      (!isSaved || errors.some(e => e.path.startsWith(`modifiers.${row.ownIndex}`)));
+    const title = modifier.label || modifier.name;
     const isOverride = row.kind === 'override';
-    const set = (changed: ProductModifier) =>
-      this.__setOwn(this.__own.map((m, i) => (i === row.ownIndex ? changed : m)));
-    const values = modifier.values ?? [];
-    const setValues = (changed: ProductModifierValue[]) => set({ ...modifier, values: changed });
-    const types = [
-      { label: this.t('type_text'), value: 'text' },
-      { label: this.t('type_select'), value: 'select' },
-    ];
 
     return html`
       <div
-        class="grid gap-s border border-contrast-10 rounded p-m"
+        class="grid gap-s border rounded p-m ${managed ? 'border-primary' : 'border-contrast-10'}"
         data-testid=${isOverride ? 'modifier-override' : 'modifier'}
         data-name=${modifier.name}
       >
-        ${isOverride
-          ? html`
-              <div class="flex flex-wrap items-center justify-between" style="gap: 0.5rem">
-                <span class="text-s rounded-s bg-contrast-5 px-xs">
-                  ${this.t('override_badge')}
-                </span>
+        <div class="flex flex-wrap items-center" style="gap: 0.875rem">
+          ${this.__renderTitle(modifier)}
+          <span
+            class="text-xs rounded-full px-s ${isOverride ? '' : 'bg-success-10 text-success'}"
+            style="padding-top: 0.1875rem; padding-bottom: 0.1875rem; white-space: nowrap; ${isOverride
+              ? 'background: #fff6e5; color: #8a4b00'
+              : ''}"
+            data-testid="modifier-source"
+          >
+            ${this.t(isOverride ? 'override_badge' : 'own_badge')}
+          </span>
+          ${isOverride
+            ? html`
                 <button
                   class="text-s text-primary"
                   type="button"
@@ -221,10 +286,51 @@ export class InternalProductFormModifiersControl extends InternalControl {
                 >
                   ${this.t('use_inherited')}
                 </button>
-              </div>
-            `
-          : ''}
+              `
+            : ''}
+          <button
+            class="text-s rounded-s ${managed ? 'bg-primary-10 text-primary' : 'bg-contrast-10'}"
+            style="height: 2rem; padding: 0 0.625rem"
+            type="button"
+            data-testid="manage-modifier"
+            aria-expanded=${managed ? 'true' : 'false'}
+            aria-label=${this.t('manage_modifier', { name: title })}
+            @click=${() => (this.__managed = { ...this.__managed, [modifier.name]: !managed })}
+          >
+            ${this.t(managed ? 'done' : 'manage')}
+          </button>
+        </div>
 
+        ${managed ? this.__renderEditorFields(row, locked, error, ownRows) : ''}
+      </div>
+    `;
+  }
+
+  private __renderEditorFields(
+    row: Row & { kind: 'own' | 'override' },
+    locked: boolean,
+    error: (path: string) => string | undefined,
+    ownRows: Row[]
+  ) {
+    const modifier = row.modifier;
+    const path = `modifiers.${row.ownIndex}`;
+    const isOverride = row.kind === 'override';
+    const set = (changed: ProductModifier) => {
+      // The editor stays open under the modifier's new name.
+      if (changed.name !== modifier.name && modifier.name in this.__managed) {
+        this.__managed = { ...this.__managed, [changed.name]: this.__managed[modifier.name] };
+      }
+      this.__setOwn(this.__own.map((m, i) => (i === row.ownIndex ? changed : m)));
+    };
+    const values = modifier.values ?? [];
+    const setValues = (changed: ProductModifierValue[]) => set({ ...modifier, values: changed });
+    const types = [
+      { label: this.t('type_text'), value: 'text' },
+      { label: this.t('type_select'), value: 'select' },
+    ];
+
+    return html`
+      <div class="grid gap-s border-t border-contrast-10 pt-s" data-testid="modifier-editor">
         <div
           class="grid gap-s"
           style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"

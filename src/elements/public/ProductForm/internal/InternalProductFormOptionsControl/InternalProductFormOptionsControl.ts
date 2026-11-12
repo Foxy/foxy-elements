@@ -1,4 +1,4 @@
-import type { ProductOption, ProductOptionValue } from '../../types';
+import type { Data, ProductOption, ProductOptionValue } from '../../types';
 import type { ProductForm } from '../../ProductForm';
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { CatalogError } from '../../catalog';
@@ -19,19 +19,23 @@ export class InternalProductFormOptionsControl extends InternalControl {
     return {
       ...super.properties,
       modifierNames: { attribute: false },
-      variantsToDelete: { attribute: false },
-      deleteConfirmed: { type: Boolean, attribute: false },
+      savedOptions: { attribute: false },
+      variants: { attribute: false },
+      __managed: { attribute: false },
     };
   }
 
   /** Names of the product's compiled modifiers, which an option can't share. */
   modifierNames: string[] = [];
 
-  /** SKUs of the variants that saving would delete, because they use a removed value. */
-  variantsToDelete: string[] = [];
+  /** The options as saved, to tell which values an edit removes. */
+  savedOptions: ProductOption[] = [];
 
-  /** Whether the merchant agreed to delete them. */
-  deleteConfirmed = false;
+  /** The product's active variants, to tell how many use each value. */
+  variants: Data[] = [];
+
+  /** Whether each option's editor is open, by name, where the merchant chose. */
+  private __managed: Record<string, boolean> = {};
 
   renderControl(): TemplateResult {
     const options = this.__options;
@@ -45,59 +49,84 @@ export class InternalProductFormOptionsControl extends InternalControl {
     return html`
       <div class="grid gap-m">
         <div>
-          <span class="text-l font-medium">${this.t('label')}</span>
-          <p class="text-s text-secondary leading-s">${this.t('helper_text')}</p>
+          <h3 class="text-m font-semibold">${this.t('label')}</h3>
           ${error('options')
             ? html`<p class="text-s text-error" data-testid="options-error">${error('options')}</p>`
             : ''}
         </div>
 
-        ${this.variantsToDelete.length ? this.__renderDeleteWarning(locked) : ''}
         ${options.map((option, index) =>
-          this.__renderOption(option, index, options.length, locked, error)
+          this.__renderOption(option, index, options.length, locked, error, errors)
         )}
+        ${this.__renderRemovedOptions(options, locked)}
 
         <div>
           <vaadin-button
             data-testid="add-option"
-            ?disabled=${locked || options.length >= LIMITS.options}
+            ?disabled=${locked || options.length >= LIMITS.options || this.variants.length > 0}
             @click=${() => this.__setOptions([...options, { name: '', values: [{ value: '' }] }])}
           >
             ${this.t('add_option')}
           </vaadin-button>
+          <span
+            class="text-s text-secondary"
+            style="margin-left: 0.5rem"
+            data-testid="options-used"
+          >
+            ${this.t('used', { count: options.length, limit: LIMITS.options })}
+          </span>
           ${options.length >= LIMITS.options
             ? html`<p class="text-s text-secondary">${this.t('limit_reached')}</p>`
+            : this.variants.length > 0
+            ? html`<p class="text-s text-secondary" data-testid="options-locked">
+                ${this.t('has_variants')}
+              </p>`
             : ''}
         </div>
       </div>
     `;
   }
 
-  private __renderDeleteWarning(locked: boolean) {
-    const skus = this.variantsToDelete;
-    const shown = skus.slice(0, 5).join(', ') + (skus.length > 5 ? ', …' : '');
-    return html`
-      <div
-        class="grid gap-s rounded p-m bg-error-10 text-error"
-        role="alert"
-        data-testid="delete-warning"
-      >
-        <p class="text-s leading-s">
-          ${this.t('delete_warning', { count: skus.length, skus: shown })}
-        </p>
-        <vaadin-checkbox
-          data-testid="confirm-delete"
-          ?disabled=${locked}
-          .checked=${this.deleteConfirmed}
-          @change=${(evt: Event) => {
-            const checked = (evt.currentTarget as HTMLInputElement).checked;
-            this.dispatchEvent(new CustomEvent('confirm-delete', { detail: checked }));
-          }}
+  /** How many active variants have this value for this option. */
+  private __usedBy(option: string, value: string): number {
+    const wanted = value.toLowerCase();
+    return this.variants.filter(v => v.option_values?.[option]?.toLowerCase() === wanted).length;
+  }
+
+  /** A saved option the edit removes altogether, with the variants that go with it. */
+  private __renderRemovedOptions(options: ProductOption[], locked: boolean) {
+    const removed = this.savedOptions.filter(saved => !options.some(o => o.name === saved.name));
+    return removed.map(option => {
+      const used = this.variants.filter(v => v.option_values?.[option.name] !== undefined).length;
+      return html`
+        <div
+          class="flex flex-wrap items-center rounded p-m bg-error-10 text-s"
+          style="gap: 0.75rem"
+          data-testid="removed-option"
         >
-          ${this.t('delete_confirm', { count: skus.length })}
-        </vaadin-checkbox>
-      </div>
-    `;
+          <span class="flex-1" style="text-decoration: line-through">
+            ${option.label || option.name}
+          </span>
+          <span class="text-error">
+            ${used ? this.t('removed_used', { count: used }) : this.t('removed_unused')}
+          </span>
+          <button
+            class="text-primary font-medium"
+            type="button"
+            data-testid="undo-option"
+            ?disabled=${locked || options.length >= LIMITS.options}
+            @click=${() => {
+              const index = this.savedOptions.indexOf(option);
+              const restored = [...options];
+              restored.splice(Math.min(index, restored.length), 0, option);
+              this.__setOptions(restored);
+            }}
+          >
+            ${this.t('undo')}
+          </button>
+        </div>
+      `;
+    });
   }
 
   private __renderOption(
@@ -105,17 +134,101 @@ export class InternalProductFormOptionsControl extends InternalControl {
     index: number,
     count: number,
     locked: boolean,
-    error: (path: string) => string | undefined
+    error: (path: string) => string | undefined,
+    errors: CatalogError[]
   ) {
     const path = `options.${index}`;
     const values = option.values ?? [];
-    const setOption = (changed: ProductOption) =>
+    const saved = this.savedOptions.find(o => o.name === option.name);
+    const removedValues = (saved?.values ?? []).filter(
+      v => !values.some(kept => kept.value.toLowerCase() === v.value.toLowerCase())
+    );
+    // A new option, or one with a mistake in it, opens by itself.
+    const managed =
+      this.__managed[option.name] ?? (!saved || errors.some(e => e.path.startsWith(path)));
+    const swatch = (value: ProductOptionValue) =>
+      value.color && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value.color)
+        ? html`<span
+            class="inline-block rounded-full flex-shrink-0"
+            style="width: 0.75rem; height: 0.75rem; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2); background: ${value.color}"
+          ></span>`
+        : '';
+    return html`
+      <div
+        class="grid gap-s border rounded p-m ${managed ? 'border-primary' : 'border-contrast-10'}"
+        data-testid="option"
+      >
+        <div class="flex flex-wrap items-center" style="gap: 0.75rem">
+          <span class="font-semibold" style="min-width: 5.5rem" data-testid="option-title">
+            ${option.label || option.name || this.t('new_option')}
+          </span>
+          <div class="flex flex-wrap flex-1" style="gap: 0.375rem; min-width: 12rem">
+            ${values
+              .filter(value => value.value)
+              .map(
+                value => html`
+                  <span
+                    class="inline-flex items-center rounded-full bg-contrast-10 text-s"
+                    style="gap: 0.375rem; height: 1.625rem; padding: 0 0.625rem"
+                    data-testid="value-chip"
+                  >
+                    ${swatch(value)}${value.label || value.value}
+                  </span>
+                `
+              )}
+          </div>
+          <button
+            class="text-s rounded-s ${managed
+              ? 'bg-primary-10 text-primary'
+              : 'bg-contrast-10 text-body'}"
+            style="height: 2rem; padding: 0 0.625rem"
+            type="button"
+            data-testid="manage-option"
+            aria-expanded=${managed ? 'true' : 'false'}
+            aria-label=${this.t('manage_option', { option: option.label || option.name })}
+            @click=${() => (this.__managed = { ...this.__managed, [option.name]: !managed })}
+          >
+            ${this.t(managed ? 'done' : 'manage')}
+          </button>
+        </div>
+
+        ${managed
+          ? this.__renderOptionEditor(option, index, count, locked, error, removedValues)
+          : removedValues.length
+          ? html`<p class="text-s text-error" data-testid="removed-values-note">
+              ${this.t('removed_values', {
+                count: removedValues.length,
+                values: removedValues.map(v => v.label || v.value).join(', '),
+              })}
+            </p>`
+          : ''}
+      </div>
+    `;
+  }
+
+  private __renderOptionEditor(
+    option: ProductOption,
+    index: number,
+    count: number,
+    locked: boolean,
+    error: (path: string) => string | undefined,
+    removedValues: ProductOptionValue[]
+  ) {
+    const path = `options.${index}`;
+    const values = option.values ?? [];
+    const saved = this.savedOptions.find(o => o.name === option.name);
+    const setOption = (changed: ProductOption) => {
+      // The editor stays open under the option's new name.
+      if (changed.name !== option.name && option.name in this.__managed) {
+        this.__managed = { ...this.__managed, [changed.name]: this.__managed[option.name] };
+      }
       this.__setOptions(this.__options.map((v, i) => (i === index ? changed : v)));
+    };
     const setValue = (valueIndex: number, changed: ProductOptionValue) =>
       setOption({ ...option, values: values.map((v, i) => (i === valueIndex ? changed : v)) });
 
     return html`
-      <div class="grid gap-s border border-contrast-10 rounded p-m" data-testid="option">
+      <div class="grid gap-s border-t border-contrast-10 pt-s" data-testid="option-editor">
         <div
           class="grid gap-s"
           style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"
@@ -148,6 +261,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
           : ''}
         ${values.map((value, valueIndex) =>
           this.__renderValue(value, `${path}.values.${valueIndex}`, locked, error, {
+            usedBy: saved && value.value ? this.__usedBy(option.name, value.value) : null,
             index: valueIndex,
             length: values.length,
             onChange: changed => setValue(valueIndex, changed),
@@ -156,6 +270,37 @@ export class InternalProductFormOptionsControl extends InternalControl {
               setOption({ ...option, values: values.filter((_, i) => i !== valueIndex) }),
           })
         )}
+        ${removedValues.map(value => {
+          const used = this.__usedBy(option.name, value.value);
+          return html`
+            <div
+              class="flex flex-wrap items-center rounded p-s bg-error-10 text-s"
+              style="gap: 0.75rem"
+              data-testid="removed-value"
+            >
+              <span class="flex-1" style="text-decoration: line-through">
+                ${value.label || value.value}
+              </span>
+              <span class="text-error">
+                ${used ? this.t('removed_used', { count: used }) : this.t('removed_unused')}
+              </span>
+              <button
+                class="text-primary font-medium"
+                type="button"
+                data-testid="undo-value"
+                ?disabled=${locked || values.length >= LIMITS.values}
+                @click=${() => {
+                  const at = saved?.values.indexOf(value) ?? values.length;
+                  const restored = [...values];
+                  restored.splice(Math.min(at, restored.length), 0, value);
+                  setOption({ ...option, values: restored });
+                }}
+              >
+                ${this.t('undo')}
+              </button>
+            </div>
+          `;
+        })}
 
         <div class="flex flex-wrap items-center justify-between" style="gap: 1rem">
           <button
@@ -187,6 +332,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
     locked: boolean,
     error: (path: string) => string | undefined,
     list: {
+      usedBy: number | null;
       index: number;
       length: number;
       onChange: (value: ProductOptionValue) => void;
@@ -306,6 +452,11 @@ export class InternalProductFormOptionsControl extends InternalControl {
               value.image && onChange({ ...value, image: withField(value.image, 'alt', alt) }),
           })}
         </div>
+        ${list.usedBy === null
+          ? ''
+          : html`<span class="text-s text-secondary" data-testid="value-used-by">
+              ${list.usedBy ? this.t('used_by', { count: list.usedBy }) : this.t('used_by_none')}
+            </span>`}
         ${listActions({
           index: list.index,
           length: list.length,

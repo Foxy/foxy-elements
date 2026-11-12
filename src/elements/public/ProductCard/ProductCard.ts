@@ -6,7 +6,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { classMap } from '../../../utils/class-map';
+import { STOCK_COLORS } from '../ProductList/listing';
 import { html } from 'lit-html';
 
 const NS = 'product-card';
@@ -155,14 +155,8 @@ export class ProductCard extends Base<Data> {
         data-state=${state}
       >
         <span
-          class=${classMap({
-            'inline-block rounded-full': true,
-            'bg-success': state === 'in_stock',
-            'bg-warning': state === 'low_stock',
-            'bg-error': state === 'out_of_stock',
-            'bg-contrast-30': state === 'untracked',
-          })}
-          style="width: 0.5rem; height: 0.5rem"
+          class="inline-block rounded-full"
+          style="width: 0.5rem; height: 0.5rem; background: ${STOCK_COLORS[state]}"
         ></span>
         <foxy-i18n infer="" key="stock_${state}"></foxy-i18n>
       </span>

@@ -137,12 +137,10 @@
       "checked": "Hidden",
       "unchecked": "Listed"
     },
-    "cart-link": {
-      "label": "Add-to-cart link",
-      "failed_to_copy": "Failed to copy",
-      "click_to_copy": "Copy link",
-      "copying": "Copying…",
-      "done": "Copied"
+    "weight": {
+      "label": "Shipping weight",
+      "placeholder": "0",
+      "helper_text": "Used to work out shipping rates, in your store's weight unit."
     }
   },
   "option-values": {
@@ -171,10 +169,11 @@
     "alt_default": "Image of {{name}}",
     "main": "Main image, shown in the cart",
     "make_main": "Make main",
-    "move_up": "Move up",
-    "move_down": "Move down",
+    "move_up": "Move left",
+    "move_down": "Move right",
     "remove": "Remove",
-    "error_upload": "Couldn’t upload {{file}}. Try again, or use a JPEG, PNG, GIF, WebP or SVG."
+    "error_upload": "Couldn’t upload {{file}}. Try again, or use a JPEG, PNG, GIF, WebP or SVG.",
+    "position": "Image {{position}}"
   },
   "properties": {
     "label": "Properties",
@@ -188,13 +187,8 @@
   },
   "options": {
     "label": "Options",
-    "helper_text": "Choices that make variants, such as colour and size. Each combination is its own variant, with its own SKU and stock. Up to 3 options. Once variants exist, you can add values but not options, and removing a value or an option deletes the variants that use it.",
     "add_option": "Add an option",
     "limit_reached": "A product can have up to 3 options.",
-    "delete_warning": "Saving deletes {{count}} variant that uses a value or option removed here: {{- skus}}. Past orders keep them.",
-    "delete_warning_plural": "Saving deletes {{count}} variants that use a value or option removed here: {{- skus}}. Past orders keep them.",
-    "delete_confirm": "Delete this variant when I save",
-    "delete_confirm_plural": "Delete these {{count}} variants when I save",
     "name_label": "Name",
     "name_helper_text": "What a form sends, such as color. Lowercase letters, digits and underscores.",
     "option_label_label": "Label",
@@ -238,19 +232,31 @@
     "v8n_name_used_by_modifier": "A modifier already has this name.",
     "v8n_sku_code_invalid": "Letters and digits only, up to 20.",
     "v8n_color_invalid": "Use #rgb or #rrggbb, such as #1d1d1f.",
-    "v8n_image_invalid": "Must be an https URL."
+    "v8n_image_invalid": "Must be an https URL.",
+    "used": "{{count}} of {{limit}} used",
+    "has_variants": "This product has variants, so it can't gain an option: they would have no value for it. You can still add values.",
+    "new_option": "New option",
+    "manage": "Manage",
+    "done": "Done",
+    "manage_option": "Manage {{option}} values",
+    "removed_values": "Removed: {{values}}. Variants that use it are deleted when you save.",
+    "removed_values_plural": "Removed: {{values}}. Variants that use them are deleted when you save.",
+    "removed_used": "Removed. {{count}} variant is deleted when you save.",
+    "removed_used_plural": "Removed. {{count}} variants are deleted when you save.",
+    "removed_unused": "Removed when you save",
+    "undo": "Undo",
+    "used_by": "Used by {{count}} variant",
+    "used_by_plural": "Used by {{count}} variants",
+    "used_by_none": "No variant uses it yet"
   },
   "modifiers": {
-    "label": "Modifiers",
-    "helper_text": "Choices the shopper makes that are recorded on the cart item without making a variant or a SKU, such as engraving or gift wrap. Variants, and products using this as a template, get them too.",
     "add_modifier": "Add a modifier",
-    "inherited_badge": "Inherited",
-    "removed_badge": "Removed here",
-    "override_badge": "Overrides the inherited modifier of this name",
+    "removed_badge": "Off for this product",
+    "override_badge": "On · changed for this product",
     "override": "Change here",
     "remove_inherited": "Remove here",
     "restore": "Restore",
-    "use_inherited": "Use the inherited one",
+    "use_inherited": "Reset to the inherited one",
     "stale_removal": "Removes {{name}}, which isn't inherited. It does nothing.",
     "remove": "Remove",
     "name_label": "Name",
@@ -300,7 +306,18 @@
     "v8n_name_used_by_option": "An option already has this name.",
     "v8n_max_length_invalid": "A whole number from 1 to 1000.",
     "v8n_category_code_too_long": "Must be 50 characters or fewer.",
-    "v8n_type_required": "Choose a type."
+    "v8n_type_required": "Choose a type.",
+    "on_count": "{{count}} of {{limit}} on for this product",
+    "switch_label": "{{name}} on this product",
+    "new_modifier": "New modifier",
+    "type_badge_select": "Choice",
+    "type_badge_text": "Text",
+    "inherited_badge_parent": "On · from the parent",
+    "inherited_badge_template": "On · from the template",
+    "own_badge": "On · this product only",
+    "manage": "Manage",
+    "done": "Done",
+    "manage_modifier": "Manage {{name}}"
   },
   "stock": {
     "label": "Stock",
@@ -314,20 +331,11 @@
       "label": "Starting stock",
       "placeholder": "Leave blank for products that don't track stock",
       "helper_text": "Each product made from this template starts with this many. Nothing draws on the template's own stock."
-    }
-  },
-  "cart-link-builder": {
-    "label": "Add-to-cart link",
-    "helper_text": "Make the shopper's choices to get a link that adds this product with them. Uses the saved product.",
-    "required": "Required",
-    "optional": "Optional",
-    "leave_out": "Leave out",
-    "incomplete": "Choose a value for every option and fill in every required modifier to see the link.",
-    "copy": {
-      "failed_to_copy": "Failed to copy",
-      "click_to_copy": "Copy link",
-      "copying": "Copying…",
-      "done": "Copied"
+    },
+    "low-stock-threshold": {
+      "label": "Low-stock alert at",
+      "placeholder": "",
+      "helper_text": "This product counts as low at this many or fewer. Blank uses the number it inherits or your store's, shown here. 0 means it's never low."
     }
   },
   "stock-rules": {
@@ -574,686 +582,69 @@
     "total_items_plural": "{{ count }} tags"
   },
   "generate-variants": {
-    "label": "Generate variants",
-    "helper_text": "Creates a variant for each of the {{count}} combinations of the saved options that doesn't have one yet, with only its SKU and option values set: it inherits everything else. Up to {{limit}} variants.",
     "pattern_label": "SKU pattern",
     "pattern_helper_text": "Optional. {parent} is this product's SKU; {name} is an option value's SKU code. Default {{- pattern}}, giving {{- example}}.",
-    "button": "Generate variants",
-    "button_busy": "Generating…",
+    "button": "Create {{count}} variant",
+    "button_busy": "Creating…",
     "save_first": "Save your changes first.",
-    "created": "Created {{count}} variant.",
-    "created_plural": "Created {{count}} variants.",
-    "created_none": "Every combination already has a variant.",
-    "error": "Couldn't generate variants. Try again."
+    "error": "Couldn't generate variants. Try again.",
+    "missing": "{{count}} combination doesn't have a variant yet.",
+    "missing_plural": "{{count}} combinations don't have a variant yet.",
+    "pattern_toggle": "SKU pattern",
+    "button_plural": "Create {{count}} variants"
   },
   "variants": {
     "label": "Variants",
-    "helper_text": "Each version of this product a customer can buy, such as a size or colour. A variant inherits everything it doesn’t set. Variants come from options: add options, then generate the variants, or add one and choose its values.",
-    "delete_header": "Delete variant?",
-    "delete_message": "Customers can no longer buy this variant. Past orders keep it, and it can be restored through the API.",
-    "delete_confirm": "Delete",
-    "delete_cancel": "Cancel",
-    "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "previous": "Previous",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "page_number": "Page number:",
-      "select": "Select",
-      "create_button_text": "Add a variant",
-      "card": {
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No data",
-          "loading_error": "Unknown error"
-        },
-        "price": "{{amount, price}}",
-        "type_standalone": "Standalone",
-        "type_parent": "Parent",
-        "type_variant": "Variant",
-        "type_template": "Template",
-        "uses_template": "Uses a template",
-        "hidden": "Hidden",
-        "stock_in_stock": "In stock",
-        "stock_low_stock": "Low stock",
-        "stock_out_of_stock": "Out of stock",
-        "stock_untracked": "Untracked",
-        "copy_button_text": "Copy SKU",
-        "delete_button_text": "Delete"
-      }
-    },
-    "dialog": {
-      "close": "Close",
-      "cancel": "Cancel",
-      "header_update": "Variant",
-      "header_create": "New variant",
-      "save": "Save",
-      "undo_header": "Unsaved changes",
-      "undo_message": "You haven’t saved your changes. What would you like to do with them?",
-      "undo_cancel": "Review",
-      "undo_confirm": "Discard",
-      "product-form": {
-        "header": {
-          "title_existing": "Product",
-          "title_new": "New product",
-          "subtitle_standalone": "Standalone product",
-          "subtitle_parent": "Parent product with variants",
-          "subtitle_variant": "Variant",
-          "subtitle_template": "Template (not listed in catalog)",
-          "copy-id": {
-            "failed_to_copy": "Failed to copy",
-            "click_to_copy": "Copy ID",
-            "copying": "Copying...",
-            "done": "Copied to clipboard"
-          },
-          "copy-json": {
-            "failed_to_copy": "Failed to copy",
-            "click_to_copy": "Copy source as JSON",
-            "copying": "Copying...",
-            "done": "Copied to clipboard"
-          }
-        },
-        "inheritance_note_template": "Uses the template {{product}}. Empty fields show what it inherits from there.",
-        "inheritance_note_parent": "A variant of {{product}}. Empty fields show what it inherits from there.",
-        "general": {
-          "label": "General",
-          "helper_text": "Core product details.",
-          "kind": {
-            "label": "Kind",
-            "helper_text": "A template holds details shared by products that aren't variants of each other. It's never sold or listed in the catalog.",
-            "option_product": "Product",
-            "option_template": "Template"
-          },
-          "name": {
-            "label": "Name",
-            "placeholder": "e.g. Acme Widget",
-            "helper_text": "",
-            "v8n_required": "Required."
-          },
-          "sku": {
-            "label": "SKU",
-            "placeholder": "e.g. WIDGET-001",
-            "helper_text": "Unique within this store.",
-            "v8n_required": "Required.",
-            "v8n_too_long": "Must be 255 characters or fewer."
-          },
-          "price": {
-            "label": "Price",
-            "placeholder": "0.00",
-            "helper_text": "In the store's currency. Setting a price or list price here replaces all the pricing this product would inherit.",
-            "v8n_negative": "Must be zero or greater."
-          },
-          "list-price": {
-            "label": "List price",
-            "placeholder": "",
-            "helper_text": "The regular price, shown struck through beside a lower price. Never charged. Setting it here replaces all the pricing this product would inherit.",
-            "v8n_negative": "Must be zero or greater."
-          },
-          "template": {
-            "label": "Template",
-            "placeholder": "None",
-            "helper_text": "Inherit shared details, such as a description, weight or properties, from a template.",
-            "value": "{{label}}",
-            "value_busy": "Loading…",
-            "value_fail": "Unknown product",
-            "select": "Select",
-            "view": "View",
-            "clear": "Clear",
-            "dialog": {
-              "cancel": "Cancel",
-              "close": "Close",
-              "header": "Select a template",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "pagination": {
-                  "first": "First",
-                  "last": "Last",
-                  "next": "Next",
-                  "pagination": "{{from}}-{{to}} out of {{total}}",
-                  "previous": "Previous",
-                  "page_number": "Page number:",
-                  "select": "Select"
-                },
-                "card": {
-                  "spinner": {
-                    "loading_busy": "Loading",
-                    "loading_empty": "No data",
-                    "loading_error": "Unknown error"
-                  },
-                  "price": "{{amount, price}}",
-                  "type_standalone": "Standalone",
-                  "type_parent": "Parent",
-                  "type_variant": "Variant",
-                  "type_template": "Template",
-                  "uses_template": "Uses a template",
-                  "hidden": "Hidden",
-                  "stock_in_stock": "In stock",
-                  "stock_low_stock": "Low stock",
-                  "stock_out_of_stock": "Out of stock",
-                  "stock_untracked": "Untracked",
-                  "variant_count": "{{count}} variant",
-                  "variant_count_plural": "{{count}} variants"
-                }
-              }
-            }
-          },
-          "collection": {
-            "label": "Collection",
-            "placeholder": "Choose a collection",
-            "helper_text": "How the catalog is organised. Separate from item categories, which set tax and shipping.",
-            "value": "{{ resource.name }}",
-            "select": "Select",
-            "view": "View",
-            "clear": "Clear",
-            "dialog": {
-              "cancel": "Cancel",
-              "close": "Close",
-              "header": "Select a collection",
-              "selection": {
-                "label": "",
-                "helper_text": "",
-                "pagination": {
-                  "first": "First",
-                  "last": "Last",
-                  "next": "Next",
-                  "pagination": "{{from}}-{{to}} out of {{total}}",
-                  "previous": "Previous",
-                  "page_number": "Page number:",
-                  "select": "Select"
-                }
-              }
-            }
-          },
-          "hidden": {
-            "label": "Hidden from the catalog",
-            "helper_text": "Left out of the public catalog's lists, search and collections. It's still sold, and still loads by its SKU, such as from a link you share.",
-            "checked": "Hidden",
-            "unchecked": "Listed"
-          },
-          "cart-link": {
-            "label": "Add-to-cart link",
-            "failed_to_copy": "Failed to copy",
-            "click_to_copy": "Copy link",
-            "copying": "Copying…",
-            "done": "Copied"
-          }
-        },
-        "option-values": {
-          "label": "Option values",
-          "helper_text": "Which combination of its parent's options this variant is. Each variant needs a value for every option, and no two variants can share a combination.",
-          "option": {
-            "label": "",
-            "helper_text": "",
-            "placeholder": "Choose",
-            "v8n_required": "Choose a value."
-          }
-        },
-        "description": {
-          "label": "Description",
-          "placeholder": "What it is, what it’s made of, how to use it.",
-          "helper_text": "Markdown: **bold**, *italic*, lists, links and headings. Shown on product pages."
-        },
-        "images": {
-          "label": "Images",
-          "add": "Add images",
-          "uploading": "Uploading…",
-          "save_first": "Save the product to add images.",
-          "inherited": "Uses {{count}} image(s) from the product it inherits from. Add images here to replace them.",
-          "alt_label": "Alt text",
-          "alt_helper_text": "Describe the image for people who can’t see it, such as “Black tee, front, on a hanger”.",
-          "alt_default": "Image of {{name}}",
-          "main": "Main image, shown in the cart",
-          "make_main": "Make main",
-          "move_up": "Move up",
-          "move_down": "Move down",
-          "remove": "Remove",
-          "error_upload": "Couldn’t upload {{file}}. Try again, or use a JPEG, PNG, GIF, WebP or SVG."
-        },
-        "properties": {
-          "label": "Properties",
-          "helper_text": "Facts about the product for its page and catalog filters, such as Material: Organic cotton. They aren't added to the cart or the order. A choice the shopper makes is an option or a modifier.",
-          "v8n_too_long": "Too many properties to save. Remove some.",
-          "delete": "Delete",
-          "add_value": "Add value",
-          "option_name": "Property",
-          "rule": "Name",
-          "or": ""
-        },
-        "options": {
-          "label": "Options",
-          "helper_text": "Choices that make variants, such as colour and size. Each combination is its own variant, with its own SKU and stock. Up to 3 options. Once variants exist, you can add values but not options, and removing a value or an option deletes the variants that use it.",
-          "add_option": "Add an option",
-          "limit_reached": "A product can have up to 3 options.",
-          "delete_warning": "Saving deletes {{count}} variant that uses a value or option removed here: {{- skus}}. Past orders keep them.",
-          "delete_warning_plural": "Saving deletes {{count}} variants that use a value or option removed here: {{- skus}}. Past orders keep them.",
-          "delete_confirm": "Delete this variant when I save",
-          "delete_confirm_plural": "Delete these {{count}} variants when I save",
-          "name_label": "Name",
-          "name_helper_text": "What a form sends, such as color. Lowercase letters, digits and underscores.",
-          "option_label_label": "Label",
-          "option_label_helper_text": "What the shopper sees. The name if blank.",
-          "values_label": "Values, in display order",
-          "add_value": "Add a value",
-          "value_label": "Value",
-          "value_helper_text": "What a form sends and the order records.",
-          "value_display_label": "Label",
-          "value_display_helper_text": "What the shopper sees. The value if blank.",
-          "sku_code_label": "SKU code",
-          "sku_code_helper_text": "Its part of generated SKUs. Letters and digits, up to 20.",
-          "price_mod_label": "Price change",
-          "price_mod_helper_text": "Added to a variant's price unless the variant sets its own. Store currency; can be negative.",
-          "weight_mod_label": "Weight change",
-          "weight_mod_helper_text": "Added to a variant's weight unless it sets its own.",
-          "color_label": "Swatch colour",
-          "color_helper_text": "Such as #1d1d1f.",
-          "image_label": "Swatch image URL",
-          "image_helper_text": "An https URL. Shown in place of the colour.",
-          "image_alt_label": "Swatch image alt text",
-          "move_up": "Move up",
-          "move_down": "Move down",
-          "remove": "Remove",
-          "move_up_option": "Move option up",
-          "move_down_option": "Move option down",
-          "remove_option": "Remove option",
-          "v8n_too_many": "A product can have up to 3 options. Remove one.",
-          "v8n_name_required": "Required.",
-          "v8n_name_too_long": "Must be 50 characters or fewer.",
-          "v8n_name_invalid": "Use lowercase letters, digits and underscores only, such as gift_wrap.",
-          "v8n_name_reserved": "Foxy's cart already uses this name, or it starts with a digit. Choose another.",
-          "v8n_name_duplicate": "Another one already has this name.",
-          "v8n_label_too_long": "Must be 100 characters or fewer.",
-          "v8n_values_required": "Add at least one value.",
-          "v8n_values_too_many": "At most 100 values.",
-          "v8n_value_required": "Required.",
-          "v8n_value_too_long": "Must be 100 characters or fewer.",
-          "v8n_value_duplicate": "Another value is the same (ignoring case).",
-          "v8n_amount_invalid": "Enter a number, such as 2.50 or -1.",
-          "v8n_name_used_by_modifier": "A modifier already has this name.",
-          "v8n_sku_code_invalid": "Letters and digits only, up to 20.",
-          "v8n_color_invalid": "Use #rgb or #rrggbb, such as #1d1d1f.",
-          "v8n_image_invalid": "Must be an https URL."
-        },
-        "modifiers": {
-          "label": "Modifiers",
-          "helper_text": "Choices the shopper makes that are recorded on the cart item without making a variant or a SKU, such as engraving or gift wrap. Variants, and products using this as a template, get them too.",
-          "add_modifier": "Add a modifier",
-          "inherited_badge": "Inherited",
-          "removed_badge": "Removed here",
-          "override_badge": "Overrides the inherited modifier of this name",
-          "override": "Change here",
-          "remove_inherited": "Remove here",
-          "restore": "Restore",
-          "use_inherited": "Use the inherited one",
-          "stale_removal": "Removes {{name}}, which isn't inherited. It does nothing.",
-          "remove": "Remove",
-          "name_label": "Name",
-          "name_helper_text": "What a form sends, such as gift_wrap. Lowercase letters, digits and underscores.",
-          "modifier_label_label": "Label",
-          "modifier_label_helper_text": "What the shopper sees. The name if blank.",
-          "type_label": "Type",
-          "type_text": "Text",
-          "type_select": "Choice from a list",
-          "required_label": "Required: the shopper must fill it in",
-          "values_label": "Values, in display order",
-          "add_value": "Add a value",
-          "max_length_label": "Maximum length",
-          "max_length_helper_text": "Characters, up to 1000. 255 if blank.",
-          "price_mod_label": "Price change",
-          "price_mod_helper_text": "Added to the item's price when chosen. Store currency; can be negative.",
-          "text_price_mod_helper_text": "Added to the item's price when the shopper enters anything. Store currency.",
-          "weight_mod_label": "Weight change",
-          "weight_mod_helper_text": "Added to the item's weight.",
-          "value_label": "Value",
-          "value_helper_text": "What a form sends and the order records.",
-          "value_display_label": "Label",
-          "value_display_helper_text": "What the shopper sees. The value if blank.",
-          "category_code_label": "Item category code",
-          "category_code_helper_text": "Optional. Replaces the item's category, so tax and shipping follow it.",
-          "move_up": "Move up",
-          "move_down": "Move down",
-          "move_up_modifier": "Move modifier up",
-          "move_down_modifier": "Move modifier down",
-          "remove_modifier": "Remove modifier",
-          "summary_select": "Choice: {{- values}}",
-          "summary_text": "Text, up to {{count}} characters",
-          "summary_required": "Required",
-          "v8n_too_many": "A product can have up to 25 modifiers, inherited ones included.",
-          "v8n_name_required": "Required.",
-          "v8n_name_too_long": "Must be 50 characters or fewer.",
-          "v8n_name_invalid": "Use lowercase letters, digits and underscores only, such as gift_wrap.",
-          "v8n_name_reserved": "Foxy's cart already uses this name, or it starts with a digit. Choose another.",
-          "v8n_name_duplicate": "Another one already has this name.",
-          "v8n_label_too_long": "Must be 100 characters or fewer.",
-          "v8n_values_required": "Add at least one value.",
-          "v8n_values_too_many": "At most 100 values.",
-          "v8n_value_required": "Required.",
-          "v8n_value_too_long": "Must be 100 characters or fewer.",
-          "v8n_value_duplicate": "Another value is the same (ignoring case).",
-          "v8n_amount_invalid": "Enter a number, such as 2.50 or -1.",
-          "v8n_name_used_by_option": "An option already has this name.",
-          "v8n_max_length_invalid": "A whole number from 1 to 1000.",
-          "v8n_category_code_too_long": "Must be 50 characters or fewer.",
-          "v8n_type_required": "Choose a type."
-        },
-        "stock": {
-          "label": "Stock",
-          "helper_text": "Inventory tracking.",
-          "stock-level": {
-            "label": "Stock level",
-            "placeholder": "Leave blank to skip stock tracking",
-            "helper_text": "0 = out of stock. Blank = not tracked."
-          },
-          "stock-level-template": {
-            "label": "Starting stock",
-            "placeholder": "Leave blank for products that don't track stock",
-            "helper_text": "Each product made from this template starts with this many. Nothing draws on the template's own stock."
-          }
-        },
-        "cart-link-builder": {
-          "label": "Add-to-cart link",
-          "helper_text": "Make the shopper's choices to get a link that adds this product with them. Uses the saved product.",
-          "required": "Required",
-          "optional": "Optional",
-          "leave_out": "Leave out",
-          "incomplete": "Choose a value for every option and fill in every required modifier to see the link.",
-          "copy": {
-            "failed_to_copy": "Failed to copy",
-            "click_to_copy": "Copy link",
-            "copying": "Copying…",
-            "done": "Copied"
-          }
-        },
-        "stock-rules": {
-          "label": "Stock rules",
-          "helper_text": "Other stock this product takes when it's bought, such as a full pass taking a place on each day. Its own stock level, if it has one, still counts.",
-          "delete_header": "Remove stock rule?",
-          "delete_message": "Purchases will stop drawing on that product's stock.",
-          "delete_confirm": "Remove",
-          "delete_cancel": "Cancel",
-          "pagination": {
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "previous": "Previous",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "page_number": "Page number:",
-            "select": "Select",
-            "create_button_text": "Add a stock rule",
-            "card": {
-              "multiplier": "× {{count}}",
-              "multiplier_zero": "Doesn't count against stock",
-              "spinner": {
-                "loading_busy": "Loading",
-                "loading_empty": "No data",
-                "loading_error": "Unknown error"
-              },
-              "delete_button_text": "Remove"
-            }
-          },
-          "dialog": {
-            "close": "Close",
-            "cancel": "Cancel",
-            "header_update": "Stock rule",
-            "header_create": "New stock rule",
-            "save": "Save",
-            "undo_header": "Unsaved changes",
-            "undo_message": "You haven’t saved your changes. What would you like to do with them?",
-            "undo_cancel": "Review",
-            "undo_confirm": "Discard",
-            "product-stock-rule-form": {
-              "header": {
-                "title_existing": "Stock rule",
-                "title_new": "New stock rule",
-                "subtitle": "",
-                "copy-id": {
-                  "failed_to_copy": "Failed to copy",
-                  "click_to_copy": "Copy ID",
-                  "copying": "Copying...",
-                  "done": "Copied to clipboard"
-                },
-                "copy-json": {
-                  "failed_to_copy": "Failed to copy",
-                  "click_to_copy": "Copy source as JSON",
-                  "copying": "Copying...",
-                  "done": "Copied to clipboard"
-                }
-              },
-              "general": {
-                "label": "",
-                "helper_text": "",
-                "target": {
-                  "label": "Takes stock from",
-                  "placeholder": "Choose a product",
-                  "helper_text": "The product whose stock goes down when this one is bought. A template can't be chosen.",
-                  "value": "{{name}} ({{sku}})",
-                  "value_busy": "Loading…",
-                  "value_fail": "Unknown product",
-                  "select": "Select",
-                  "view": "View",
-                  "clear": "Clear",
-                  "v8n_required": "Required.",
-                  "dialog": {
-                    "cancel": "Cancel",
-                    "close": "Close",
-                    "header": "Select a product",
-                    "selection": {
-                      "label": "",
-                      "helper_text": "",
-                      "pagination": {
-                        "first": "First",
-                        "last": "Last",
-                        "next": "Next",
-                        "pagination": "{{from}}-{{to}} out of {{total}}",
-                        "previous": "Previous",
-                        "page_number": "Page number:",
-                        "select": "Select"
-                      },
-                      "card": {
-                        "spinner": {
-                          "loading_busy": "Loading",
-                          "loading_empty": "No data",
-                          "loading_error": "Unknown error"
-                        },
-                        "price": "{{amount, price}}",
-                        "type_standalone": "Standalone",
-                        "type_parent": "Parent",
-                        "type_variant": "Variant",
-                        "type_template": "Template",
-                        "uses_template": "Uses a template",
-                        "hidden": "Hidden",
-                        "stock_in_stock": "In stock",
-                        "stock_low_stock": "Low stock",
-                        "stock_out_of_stock": "Out of stock",
-                        "stock_untracked": "Untracked",
-                        "variant_count": "{{count}} variant",
-                        "variant_count_plural": "{{count}} variants"
-                      }
-                    }
-                  }
-                },
-                "multiplier": {
-                  "label": "Units per purchase",
-                  "placeholder": "1",
-                  "helper_text": "Units taken from the target product for each one bought. 0 counts against nothing.",
-                  "v8n_invalid": "Must be a whole number, 0 or more."
-                }
-              },
-              "timestamps": {
-                "date_created": "Created on",
-                "date_modified": "Last updated on",
-                "date": "{{value, date}}"
-              },
-              "create": {
-                "caption": "Create"
-              },
-              "delete": {
-                "delete": "Delete",
-                "cancel": "Cancel",
-                "delete_prompt": "Delete this stock rule? Rules can't be changed, so delete one and create it again to change it."
-              },
-              "submit": {
-                "caption": "Save changes"
-              },
-              "undo": {
-                "caption": "Undo"
-              },
-              "spinner": {
-                "loading_busy": "Loading",
-                "loading_empty": "No data",
-                "loading_error": "Unknown error"
-              }
-            }
-          },
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No tags yet",
-            "loading_error": "Unknown error"
-          },
-          "total_items": "{{ count }} tag",
-          "total_items_plural": "{{ count }} tags"
-        },
-        "tags": {
-          "label": "Tags",
-          "helper_text": "Free-form labels for filtering and search.",
-          "delete_header": "Remove tag?",
-          "delete_message": "Remove this tag from the product?",
-          "delete_confirm": "Remove",
-          "delete_cancel": "Cancel",
-          "pagination": {
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "previous": "Previous",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "page_number": "Page number:",
-            "select": "Select",
-            "create_button_text": "Add a tag",
-            "card": {
-              "spinner": {
-                "loading_busy": "Loading",
-                "loading_empty": "No data",
-                "loading_error": "Unknown error"
-              },
-              "delete_button_text": "Remove"
-            }
-          },
-          "dialog": {
-            "close": "Close",
-            "cancel": "Cancel",
-            "header_update": "Tag",
-            "header_create": "New tag",
-            "save": "Save",
-            "undo_header": "Unsaved changes",
-            "undo_message": "You haven’t saved your changes. What would you like to do with them?",
-            "undo_cancel": "Review",
-            "undo_confirm": "Discard",
-            "product-tag-form": {
-              "header": {
-                "title_existing": "Tag",
-                "title_new": "New tag",
-                "subtitle": "",
-                "copy-id": {
-                  "failed_to_copy": "Failed to copy",
-                  "click_to_copy": "Copy ID",
-                  "copying": "Copying...",
-                  "done": "Copied to clipboard"
-                },
-                "copy-json": {
-                  "failed_to_copy": "Failed to copy",
-                  "click_to_copy": "Copy source as JSON",
-                  "copying": "Copying...",
-                  "done": "Copied to clipboard"
-                }
-              },
-              "tag": {
-                "label": "Tag",
-                "placeholder": "e.g. bestseller",
-                "helper_text": "",
-                "v8n_required": "Required.",
-                "v8n_too_long": "Must be 255 characters or fewer."
-              },
-              "timestamps": {
-                "date_created": "Created on",
-                "date_modified": "Last updated on",
-                "date": "{{value, date}}"
-              },
-              "create": {
-                "caption": "Create"
-              },
-              "delete": {
-                "delete": "Delete",
-                "cancel": "Cancel",
-                "delete_prompt": "Are you sure?"
-              },
-              "submit": {
-                "caption": "Save changes"
-              },
-              "undo": {
-                "caption": "Undo"
-              },
-              "spinner": {
-                "loading_busy": "Loading",
-                "loading_empty": "No data",
-                "loading_error": "Unknown error"
-              }
-            }
-          },
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No tags yet",
-            "loading_error": "Unknown error"
-          },
-          "total_items": "{{ count }} tag",
-          "total_items_plural": "{{ count }} tags"
-        },
-        "generate-variants": {
-          "label": "Generate variants",
-          "helper_text": "Creates a variant for each of the {{count}} combinations of the saved options that doesn't have one yet, with only its SKU and option values set: it inherits everything else. Up to {{limit}} variants.",
-          "pattern_label": "SKU pattern",
-          "pattern_helper_text": "Optional. {parent} is this product's SKU; {name} is an option value's SKU code. Default {{- pattern}}, giving {{- example}}.",
-          "button": "Generate variants",
-          "button_busy": "Generating…",
-          "save_first": "Save your changes first.",
-          "created": "Created {{count}} variant.",
-          "created_plural": "Created {{count}} variants.",
-          "created_none": "Every combination already has a variant.",
-          "error": "Couldn't generate variants. Try again."
-        },
-        "timestamps": {
-          "date_created": "Created on",
-          "date_modified": "Last updated on",
-          "date": "{{value, date}}"
-        },
-        "create": {
-          "caption": "Create"
-        },
-        "delete": {
-          "delete": "Delete",
-          "cancel": "Cancel",
-          "delete_prompt": "Soft-delete this product? Restorable later by clearing deleted_at."
-        },
-        "submit": {
-          "caption": "Save changes"
-        },
-        "undo": {
-          "caption": "Undo"
-        },
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No data",
-          "loading_error": "Unknown error"
-        }
-      }
-    },
-    "spinner": {
-      "loading_busy": "Loading",
-      "loading_empty": "No variants yet",
-      "loading_error": "Unknown error"
-    },
-    "total_items": "{{ count }} variant",
-    "total_items_plural": "{{ count }} variants"
+    "count": "{{count}} variant",
+    "count_plural": "{{count}} variants",
+    "image": "Image",
+    "sku": "SKU",
+    "price": "Price",
+    "stock": "Stock",
+    "actions": "Actions",
+    "empty": "No variants yet. Create them from the options above, or add one.",
+    "empty_no_options": "Variants come from options. Add an option, save, then create its variants.",
+    "edit_variant": "Edit variant {{sku}}",
+    "more_for": "More for {{sku}}",
+    "price_for": "Price for {{sku}}",
+    "stock_for": "Stock for {{sku}}",
+    "price_inherited": "{{price}} inherited",
+    "weight_inherited": "{{weight}} from the product",
+    "stock_untracked": "Not tracked",
+    "deleted_on_save": "Deleted when you save",
+    "undo": "Undo",
+    "created": "Created {{count}} variant. It inherits its price and settings from this product until you change them.",
+    "created_plural": "Created {{count}} variants. They inherit their price and settings from this product until you change them.",
+    "created_none": "Every combination already has a variant.",
+    "add": "+ Add a variant",
+    "v8n_invalid": "Some variants have values that can't be saved. Fix the fields marked in red, then save.",
+    "v8n_sku": "Required, 255 characters or fewer.",
+    "v8n_price": "A number, 0 or more, such as 24.95.",
+    "v8n_stock": "A whole number, 0 or more.",
+    "v8n_weight": "A number, 0 or more.",
+    "save_failed": "Couldn't save {{sku}}; the changes after it weren't saved either.",
+    "panel_eyebrow": "Variant of {{name}}",
+    "panel_close": "Close",
+    "panel_sku": "SKU",
+    "panel_price": "Price",
+    "panel_price_help": "Leave blank to use the product's price.",
+    "panel_stock": "Stock",
+    "panel_weight": "Shipping weight",
+    "panel_own_image": "Has its own image",
+    "panel_product_image": "Uses the product image",
+    "panel_open_page": "Open this variant to edit its images and everything else",
+    "panel_delete": "Delete variant",
+    "panel_cancel": "Cancel",
+    "panel_done": "Done",
+    "confirm_title": "Saving deletes {{count}} variant",
+    "confirm_title_plural": "Saving deletes {{count}} variants",
+    "confirm_message": "These variants are deleted when you save, because an option or value they use was removed here or you chose to delete them. Their stock and settings go with them; past orders keep them. A variant created later for the same combination starts fresh.",
+    "confirm_untracked": "stock not tracked",
+    "confirm_no_stock": "no stock",
+    "confirm_in_stock": "{{count}} in stock",
+    "confirm_cancel": "Go back",
+    "confirm_button": "Delete {{count}} variant and save",
+    "confirm_button_plural": "Delete {{count}} variants and save"
   },
   "template-products": {
     "label": "Products using this template",
@@ -1318,5 +709,706 @@
     "loading_busy": "Loading",
     "loading_empty": "No data",
     "loading_error": "Unknown error"
+  },
+  "sections": {
+    "general": {
+      "title": "General",
+      "description": "Name, SKU, price, images and whether the catalog lists it. Variants inherit these unless they set their own.",
+      "listed": "Listed",
+      "hidden": "Hidden"
+    },
+    "inventory": {
+      "title": "Inventory",
+      "description": "How many you have, and when that counts as low. Change many products at once in Inventory.",
+      "untracked": "Not tracked",
+      "tracked": "Tracked",
+      "in_stock": "{{count}} in stock",
+      "out": "{{count}} out",
+      "low": "{{count}} low",
+      "variants_note": "Each variant holds its own stock: change the counts in the variants table under Options and variants. A number here is stock the product itself holds, which variants without their own draw on.",
+      "open_inventory": "Open Inventory"
+    },
+    "options": {
+      "title": "Options and variants",
+      "description": "Options make variants. Each combination of values is a variant with its own SKU, price and stock. Up to 3 options and 250 variants.",
+      "variant_count": "{{count}} variant",
+      "variant_count_plural": "{{count}} variants"
+    },
+    "modifiers": {
+      "title": "Modifiers",
+      "description": "What the shopper picks or types when adding to the cart, such as a gift message. Can be required and can add to the price or weight. The SKU stays the same. Up to 25."
+    },
+    "properties": {
+      "title": "Properties",
+      "description": "Fixed facts shown to shoppers, such as material or fit, and tags. Shoppers never choose them."
+    },
+    "storefront": {
+      "title": "Storefront elements",
+      "description": "Code for your site, or a link for email and social posts, that adds this product to the cart."
+    }
+  },
+  "variant-dialog": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "header_update": "Variant",
+    "header_create": "New variant",
+    "save": "Save",
+    "undo_header": "Unsaved changes",
+    "undo_message": "You haven’t saved your changes. What would you like to do with them?",
+    "undo_cancel": "Review",
+    "undo_confirm": "Discard",
+    "product-form": {
+      "header": {
+        "title_existing": "Product",
+        "title_new": "New product",
+        "subtitle_standalone": "Standalone product",
+        "subtitle_parent": "Parent product with variants",
+        "subtitle_variant": "Variant",
+        "subtitle_template": "Template (not listed in catalog)",
+        "copy-id": {
+          "failed_to_copy": "Failed to copy",
+          "click_to_copy": "Copy ID",
+          "copying": "Copying...",
+          "done": "Copied to clipboard"
+        },
+        "copy-json": {
+          "failed_to_copy": "Failed to copy",
+          "click_to_copy": "Copy source as JSON",
+          "copying": "Copying...",
+          "done": "Copied to clipboard"
+        }
+      },
+      "inheritance_note_template": "Uses the template {{product}}. Empty fields show what it inherits from there.",
+      "inheritance_note_parent": "A variant of {{product}}. Empty fields show what it inherits from there.",
+      "general": {
+        "label": "General",
+        "helper_text": "Core product details.",
+        "kind": {
+          "label": "Kind",
+          "helper_text": "A template holds details shared by products that aren't variants of each other. It's never sold or listed in the catalog.",
+          "option_product": "Product",
+          "option_template": "Template"
+        },
+        "name": {
+          "label": "Name",
+          "placeholder": "e.g. Acme Widget",
+          "helper_text": "",
+          "v8n_required": "Required."
+        },
+        "sku": {
+          "label": "SKU",
+          "placeholder": "e.g. WIDGET-001",
+          "helper_text": "Unique within this store.",
+          "v8n_required": "Required.",
+          "v8n_too_long": "Must be 255 characters or fewer."
+        },
+        "price": {
+          "label": "Price",
+          "placeholder": "0.00",
+          "helper_text": "In the store's currency. Setting a price or list price here replaces all the pricing this product would inherit.",
+          "v8n_negative": "Must be zero or greater."
+        },
+        "list-price": {
+          "label": "List price",
+          "placeholder": "",
+          "helper_text": "The regular price, shown struck through beside a lower price. Never charged. Setting it here replaces all the pricing this product would inherit.",
+          "v8n_negative": "Must be zero or greater."
+        },
+        "template": {
+          "label": "Template",
+          "placeholder": "None",
+          "helper_text": "Inherit shared details, such as a description, weight or properties, from a template.",
+          "value": "{{label}}",
+          "value_busy": "Loading…",
+          "value_fail": "Unknown product",
+          "select": "Select",
+          "view": "View",
+          "clear": "Clear",
+          "dialog": {
+            "cancel": "Cancel",
+            "close": "Close",
+            "header": "Select a template",
+            "selection": {
+              "label": "",
+              "helper_text": "",
+              "pagination": {
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "pagination": "{{from}}-{{to}} out of {{total}}",
+                "previous": "Previous",
+                "page_number": "Page number:",
+                "select": "Select"
+              },
+              "card": {
+                "spinner": {
+                  "loading_busy": "Loading",
+                  "loading_empty": "No data",
+                  "loading_error": "Unknown error"
+                },
+                "price": "{{amount, price}}",
+                "type_standalone": "Standalone",
+                "type_parent": "Parent",
+                "type_variant": "Variant",
+                "type_template": "Template",
+                "uses_template": "Uses a template",
+                "hidden": "Hidden",
+                "stock_in_stock": "In stock",
+                "stock_low_stock": "Low stock",
+                "stock_out_of_stock": "Out of stock",
+                "stock_untracked": "Untracked",
+                "variant_count": "{{count}} variant",
+                "variant_count_plural": "{{count}} variants"
+              }
+            }
+          }
+        },
+        "collection": {
+          "label": "Collection",
+          "placeholder": "Choose a collection",
+          "helper_text": "How the catalog is organised. Separate from item categories, which set tax and shipping.",
+          "value": "{{ resource.name }}",
+          "select": "Select",
+          "view": "View",
+          "clear": "Clear",
+          "dialog": {
+            "cancel": "Cancel",
+            "close": "Close",
+            "header": "Select a collection",
+            "selection": {
+              "label": "",
+              "helper_text": "",
+              "pagination": {
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "pagination": "{{from}}-{{to}} out of {{total}}",
+                "previous": "Previous",
+                "page_number": "Page number:",
+                "select": "Select"
+              }
+            }
+          }
+        },
+        "hidden": {
+          "label": "Hidden from the catalog",
+          "helper_text": "Left out of the public catalog's lists, search and collections. It's still sold, and still loads by its SKU, such as from a link you share.",
+          "checked": "Hidden",
+          "unchecked": "Listed"
+        },
+        "cart-link": {
+          "label": "Add-to-cart link",
+          "failed_to_copy": "Failed to copy",
+          "click_to_copy": "Copy link",
+          "copying": "Copying…",
+          "done": "Copied"
+        }
+      },
+      "option-values": {
+        "label": "Option values",
+        "helper_text": "Which combination of its parent's options this variant is. Each variant needs a value for every option, and no two variants can share a combination.",
+        "option": {
+          "label": "",
+          "helper_text": "",
+          "placeholder": "Choose",
+          "v8n_required": "Choose a value."
+        }
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "What it is, what it’s made of, how to use it.",
+        "helper_text": "Markdown: **bold**, *italic*, lists, links and headings. Shown on product pages."
+      },
+      "images": {
+        "label": "Images",
+        "add": "Add images",
+        "uploading": "Uploading…",
+        "save_first": "Save the product to add images.",
+        "inherited": "Uses {{count}} image(s) from the product it inherits from. Add images here to replace them.",
+        "alt_label": "Alt text",
+        "alt_helper_text": "Describe the image for people who can’t see it, such as “Black tee, front, on a hanger”.",
+        "alt_default": "Image of {{name}}",
+        "main": "Main image, shown in the cart",
+        "make_main": "Make main",
+        "move_up": "Move up",
+        "move_down": "Move down",
+        "remove": "Remove",
+        "error_upload": "Couldn’t upload {{file}}. Try again, or use a JPEG, PNG, GIF, WebP or SVG."
+      },
+      "properties": {
+        "label": "Properties",
+        "helper_text": "Facts about the product for its page and catalog filters, such as Material: Organic cotton. They aren't added to the cart or the order. A choice the shopper makes is an option or a modifier.",
+        "v8n_too_long": "Too many properties to save. Remove some.",
+        "delete": "Delete",
+        "add_value": "Add value",
+        "option_name": "Property",
+        "rule": "Name",
+        "or": ""
+      },
+      "options": {
+        "label": "Options",
+        "helper_text": "Choices that make variants, such as colour and size. Each combination is its own variant, with its own SKU and stock. Up to 3 options. Once variants exist, you can add values but not options, and removing a value or an option deletes the variants that use it.",
+        "add_option": "Add an option",
+        "limit_reached": "A product can have up to 3 options.",
+        "delete_warning": "Saving deletes {{count}} variant that uses a value or option removed here: {{- skus}}. Past orders keep them.",
+        "delete_warning_plural": "Saving deletes {{count}} variants that use a value or option removed here: {{- skus}}. Past orders keep them.",
+        "delete_confirm": "Delete this variant when I save",
+        "delete_confirm_plural": "Delete these {{count}} variants when I save",
+        "name_label": "Name",
+        "name_helper_text": "What a form sends, such as color. Lowercase letters, digits and underscores.",
+        "option_label_label": "Label",
+        "option_label_helper_text": "What the shopper sees. The name if blank.",
+        "values_label": "Values, in display order",
+        "add_value": "Add a value",
+        "value_label": "Value",
+        "value_helper_text": "What a form sends and the order records.",
+        "value_display_label": "Label",
+        "value_display_helper_text": "What the shopper sees. The value if blank.",
+        "sku_code_label": "SKU code",
+        "sku_code_helper_text": "Its part of generated SKUs. Letters and digits, up to 20.",
+        "price_mod_label": "Price change",
+        "price_mod_helper_text": "Added to a variant's price unless the variant sets its own. Store currency; can be negative.",
+        "weight_mod_label": "Weight change",
+        "weight_mod_helper_text": "Added to a variant's weight unless it sets its own.",
+        "color_label": "Swatch colour",
+        "color_helper_text": "Such as #1d1d1f.",
+        "image_label": "Swatch image URL",
+        "image_helper_text": "An https URL. Shown in place of the colour.",
+        "image_alt_label": "Swatch image alt text",
+        "move_up": "Move up",
+        "move_down": "Move down",
+        "remove": "Remove",
+        "move_up_option": "Move option up",
+        "move_down_option": "Move option down",
+        "remove_option": "Remove option",
+        "v8n_too_many": "A product can have up to 3 options. Remove one.",
+        "v8n_name_required": "Required.",
+        "v8n_name_too_long": "Must be 50 characters or fewer.",
+        "v8n_name_invalid": "Use lowercase letters, digits and underscores only, such as gift_wrap.",
+        "v8n_name_reserved": "Foxy's cart already uses this name, or it starts with a digit. Choose another.",
+        "v8n_name_duplicate": "Another one already has this name.",
+        "v8n_label_too_long": "Must be 100 characters or fewer.",
+        "v8n_values_required": "Add at least one value.",
+        "v8n_values_too_many": "At most 100 values.",
+        "v8n_value_required": "Required.",
+        "v8n_value_too_long": "Must be 100 characters or fewer.",
+        "v8n_value_duplicate": "Another value is the same (ignoring case).",
+        "v8n_amount_invalid": "Enter a number, such as 2.50 or -1.",
+        "v8n_name_used_by_modifier": "A modifier already has this name.",
+        "v8n_sku_code_invalid": "Letters and digits only, up to 20.",
+        "v8n_color_invalid": "Use #rgb or #rrggbb, such as #1d1d1f.",
+        "v8n_image_invalid": "Must be an https URL."
+      },
+      "modifiers": {
+        "label": "Modifiers",
+        "helper_text": "Choices the shopper makes that are recorded on the cart item without making a variant or a SKU, such as engraving or gift wrap. Variants, and products using this as a template, get them too.",
+        "add_modifier": "Add a modifier",
+        "inherited_badge": "Inherited",
+        "removed_badge": "Removed here",
+        "override_badge": "Overrides the inherited modifier of this name",
+        "override": "Change here",
+        "remove_inherited": "Remove here",
+        "restore": "Restore",
+        "use_inherited": "Use the inherited one",
+        "stale_removal": "Removes {{name}}, which isn't inherited. It does nothing.",
+        "remove": "Remove",
+        "name_label": "Name",
+        "name_helper_text": "What a form sends, such as gift_wrap. Lowercase letters, digits and underscores.",
+        "modifier_label_label": "Label",
+        "modifier_label_helper_text": "What the shopper sees. The name if blank.",
+        "type_label": "Type",
+        "type_text": "Text",
+        "type_select": "Choice from a list",
+        "required_label": "Required: the shopper must fill it in",
+        "values_label": "Values, in display order",
+        "add_value": "Add a value",
+        "max_length_label": "Maximum length",
+        "max_length_helper_text": "Characters, up to 1000. 255 if blank.",
+        "price_mod_label": "Price change",
+        "price_mod_helper_text": "Added to the item's price when chosen. Store currency; can be negative.",
+        "text_price_mod_helper_text": "Added to the item's price when the shopper enters anything. Store currency.",
+        "weight_mod_label": "Weight change",
+        "weight_mod_helper_text": "Added to the item's weight.",
+        "value_label": "Value",
+        "value_helper_text": "What a form sends and the order records.",
+        "value_display_label": "Label",
+        "value_display_helper_text": "What the shopper sees. The value if blank.",
+        "category_code_label": "Item category code",
+        "category_code_helper_text": "Optional. Replaces the item's category, so tax and shipping follow it.",
+        "move_up": "Move up",
+        "move_down": "Move down",
+        "move_up_modifier": "Move modifier up",
+        "move_down_modifier": "Move modifier down",
+        "remove_modifier": "Remove modifier",
+        "summary_select": "Choice: {{- values}}",
+        "summary_text": "Text, up to {{count}} characters",
+        "summary_required": "Required",
+        "v8n_too_many": "A product can have up to 25 modifiers, inherited ones included.",
+        "v8n_name_required": "Required.",
+        "v8n_name_too_long": "Must be 50 characters or fewer.",
+        "v8n_name_invalid": "Use lowercase letters, digits and underscores only, such as gift_wrap.",
+        "v8n_name_reserved": "Foxy's cart already uses this name, or it starts with a digit. Choose another.",
+        "v8n_name_duplicate": "Another one already has this name.",
+        "v8n_label_too_long": "Must be 100 characters or fewer.",
+        "v8n_values_required": "Add at least one value.",
+        "v8n_values_too_many": "At most 100 values.",
+        "v8n_value_required": "Required.",
+        "v8n_value_too_long": "Must be 100 characters or fewer.",
+        "v8n_value_duplicate": "Another value is the same (ignoring case).",
+        "v8n_amount_invalid": "Enter a number, such as 2.50 or -1.",
+        "v8n_name_used_by_option": "An option already has this name.",
+        "v8n_max_length_invalid": "A whole number from 1 to 1000.",
+        "v8n_category_code_too_long": "Must be 50 characters or fewer.",
+        "v8n_type_required": "Choose a type."
+      },
+      "stock": {
+        "label": "Stock",
+        "helper_text": "Inventory tracking.",
+        "stock-level": {
+          "label": "Stock level",
+          "placeholder": "Leave blank to skip stock tracking",
+          "helper_text": "0 = out of stock. Blank = not tracked."
+        },
+        "stock-level-template": {
+          "label": "Starting stock",
+          "placeholder": "Leave blank for products that don't track stock",
+          "helper_text": "Each product made from this template starts with this many. Nothing draws on the template's own stock."
+        }
+      },
+      "cart-link-builder": {
+        "label": "Add-to-cart link",
+        "helper_text": "Make the shopper's choices to get a link that adds this product with them. Uses the saved product.",
+        "required": "Required",
+        "optional": "Optional",
+        "leave_out": "Leave out",
+        "incomplete": "Choose a value for every option and fill in every required modifier to see the link.",
+        "copy": {
+          "failed_to_copy": "Failed to copy",
+          "click_to_copy": "Copy link",
+          "copying": "Copying…",
+          "done": "Copied"
+        }
+      },
+      "stock-rules": {
+        "label": "Stock rules",
+        "helper_text": "Other stock this product takes when it's bought, such as a full pass taking a place on each day. Its own stock level, if it has one, still counts.",
+        "delete_header": "Remove stock rule?",
+        "delete_message": "Purchases will stop drawing on that product's stock.",
+        "delete_confirm": "Remove",
+        "delete_cancel": "Cancel",
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "previous": "Previous",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "page_number": "Page number:",
+          "select": "Select",
+          "create_button_text": "Add a stock rule",
+          "card": {
+            "multiplier": "× {{count}}",
+            "multiplier_zero": "Doesn't count against stock",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No data",
+              "loading_error": "Unknown error"
+            },
+            "delete_button_text": "Remove"
+          }
+        },
+        "dialog": {
+          "close": "Close",
+          "cancel": "Cancel",
+          "header_update": "Stock rule",
+          "header_create": "New stock rule",
+          "save": "Save",
+          "undo_header": "Unsaved changes",
+          "undo_message": "You haven’t saved your changes. What would you like to do with them?",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard",
+          "product-stock-rule-form": {
+            "header": {
+              "title_existing": "Stock rule",
+              "title_new": "New stock rule",
+              "subtitle": "",
+              "copy-id": {
+                "failed_to_copy": "Failed to copy",
+                "click_to_copy": "Copy ID",
+                "copying": "Copying...",
+                "done": "Copied to clipboard"
+              },
+              "copy-json": {
+                "failed_to_copy": "Failed to copy",
+                "click_to_copy": "Copy source as JSON",
+                "copying": "Copying...",
+                "done": "Copied to clipboard"
+              }
+            },
+            "general": {
+              "label": "",
+              "helper_text": "",
+              "target": {
+                "label": "Takes stock from",
+                "placeholder": "Choose a product",
+                "helper_text": "The product whose stock goes down when this one is bought. A template can't be chosen.",
+                "value": "{{name}} ({{sku}})",
+                "value_busy": "Loading…",
+                "value_fail": "Unknown product",
+                "select": "Select",
+                "view": "View",
+                "clear": "Clear",
+                "v8n_required": "Required.",
+                "dialog": {
+                  "cancel": "Cancel",
+                  "close": "Close",
+                  "header": "Select a product",
+                  "selection": {
+                    "label": "",
+                    "helper_text": "",
+                    "pagination": {
+                      "first": "First",
+                      "last": "Last",
+                      "next": "Next",
+                      "pagination": "{{from}}-{{to}} out of {{total}}",
+                      "previous": "Previous",
+                      "page_number": "Page number:",
+                      "select": "Select"
+                    },
+                    "card": {
+                      "spinner": {
+                        "loading_busy": "Loading",
+                        "loading_empty": "No data",
+                        "loading_error": "Unknown error"
+                      },
+                      "price": "{{amount, price}}",
+                      "type_standalone": "Standalone",
+                      "type_parent": "Parent",
+                      "type_variant": "Variant",
+                      "type_template": "Template",
+                      "uses_template": "Uses a template",
+                      "hidden": "Hidden",
+                      "stock_in_stock": "In stock",
+                      "stock_low_stock": "Low stock",
+                      "stock_out_of_stock": "Out of stock",
+                      "stock_untracked": "Untracked",
+                      "variant_count": "{{count}} variant",
+                      "variant_count_plural": "{{count}} variants"
+                    }
+                  }
+                }
+              },
+              "multiplier": {
+                "label": "Units per purchase",
+                "placeholder": "1",
+                "helper_text": "Units taken from the target product for each one bought. 0 counts against nothing.",
+                "v8n_invalid": "Must be a whole number, 0 or more."
+              }
+            },
+            "timestamps": {
+              "date_created": "Created on",
+              "date_modified": "Last updated on",
+              "date": "{{value, date}}"
+            },
+            "create": {
+              "caption": "Create"
+            },
+            "delete": {
+              "delete": "Delete",
+              "cancel": "Cancel",
+              "delete_prompt": "Delete this stock rule? Rules can't be changed, so delete one and create it again to change it."
+            },
+            "submit": {
+              "caption": "Save changes"
+            },
+            "undo": {
+              "caption": "Undo"
+            },
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No data",
+              "loading_error": "Unknown error"
+            }
+          }
+        },
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No tags yet",
+          "loading_error": "Unknown error"
+        },
+        "total_items": "{{ count }} tag",
+        "total_items_plural": "{{ count }} tags"
+      },
+      "tags": {
+        "label": "Tags",
+        "helper_text": "Free-form labels for filtering and search.",
+        "delete_header": "Remove tag?",
+        "delete_message": "Remove this tag from the product?",
+        "delete_confirm": "Remove",
+        "delete_cancel": "Cancel",
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "previous": "Previous",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "page_number": "Page number:",
+          "select": "Select",
+          "create_button_text": "Add a tag",
+          "card": {
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No data",
+              "loading_error": "Unknown error"
+            },
+            "delete_button_text": "Remove"
+          }
+        },
+        "dialog": {
+          "close": "Close",
+          "cancel": "Cancel",
+          "header_update": "Tag",
+          "header_create": "New tag",
+          "save": "Save",
+          "undo_header": "Unsaved changes",
+          "undo_message": "You haven’t saved your changes. What would you like to do with them?",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard",
+          "product-tag-form": {
+            "header": {
+              "title_existing": "Tag",
+              "title_new": "New tag",
+              "subtitle": "",
+              "copy-id": {
+                "failed_to_copy": "Failed to copy",
+                "click_to_copy": "Copy ID",
+                "copying": "Copying...",
+                "done": "Copied to clipboard"
+              },
+              "copy-json": {
+                "failed_to_copy": "Failed to copy",
+                "click_to_copy": "Copy source as JSON",
+                "copying": "Copying...",
+                "done": "Copied to clipboard"
+              }
+            },
+            "tag": {
+              "label": "Tag",
+              "placeholder": "e.g. bestseller",
+              "helper_text": "",
+              "v8n_required": "Required.",
+              "v8n_too_long": "Must be 255 characters or fewer."
+            },
+            "timestamps": {
+              "date_created": "Created on",
+              "date_modified": "Last updated on",
+              "date": "{{value, date}}"
+            },
+            "create": {
+              "caption": "Create"
+            },
+            "delete": {
+              "delete": "Delete",
+              "cancel": "Cancel",
+              "delete_prompt": "Are you sure?"
+            },
+            "submit": {
+              "caption": "Save changes"
+            },
+            "undo": {
+              "caption": "Undo"
+            },
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No data",
+              "loading_error": "Unknown error"
+            }
+          }
+        },
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No tags yet",
+          "loading_error": "Unknown error"
+        },
+        "total_items": "{{ count }} tag",
+        "total_items_plural": "{{ count }} tags"
+      },
+      "generate-variants": {
+        "label": "Generate variants",
+        "helper_text": "Creates a variant for each of the {{count}} combinations of the saved options that doesn't have one yet, with only its SKU and option values set: it inherits everything else. Up to {{limit}} variants.",
+        "pattern_label": "SKU pattern",
+        "pattern_helper_text": "Optional. {parent} is this product's SKU; {name} is an option value's SKU code. Default {{- pattern}}, giving {{- example}}.",
+        "button": "Generate variants",
+        "button_busy": "Generating…",
+        "save_first": "Save your changes first.",
+        "created": "Created {{count}} variant.",
+        "created_plural": "Created {{count}} variants.",
+        "created_none": "Every combination already has a variant.",
+        "error": "Couldn't generate variants. Try again."
+      },
+      "timestamps": {
+        "date_created": "Created on",
+        "date_modified": "Last updated on",
+        "date": "{{value, date}}"
+      },
+      "create": {
+        "caption": "Create"
+      },
+      "delete": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "delete_prompt": "Soft-delete this product? Restorable later by clearing deleted_at."
+      },
+      "submit": {
+        "caption": "Save changes"
+      },
+      "undo": {
+        "caption": "Undo"
+      },
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_empty": "No data",
+        "loading_error": "Unknown error"
+      }
+    }
+  },
+  "storefront": {
+    "kind_label": "Type",
+    "kind_link": "Add-to-cart link",
+    "kind_button": "Buy button",
+    "kind_form": "Product form",
+    "kind_tile": "Tile",
+    "kind_page": "Full page",
+    "hint_link": "A plain URL for emails, texts and social posts. It adds one SKU to the cart.",
+    "hint_button": "One button on your site that adds one SKU.",
+    "hint_form": "Options, modifiers, quantity and the button.",
+    "hint_tile": "Photo, name, price and button, for a grid.",
+    "hint_page": "Everything about this product on one page.",
+    "variant_label_link": "Variant the link adds",
+    "variant_label_button": "Variant the button adds",
+    "variant_placeholder": "Choose a variant",
+    "pick_variant": "Choose a variant: the cart can't ask the shopper for options, so a link or a button adds one variant.",
+    "no_variants": "This product has options but no variants yet. Create its variants, then come back for a link.",
+    "look_note": "Uses your store's look",
+    "look_link": "Customize in Storefront elements",
+    "copy-code": {
+      "click_to_copy": "Copy code",
+      "copying": "Copying…",
+      "done": "Copied",
+      "failed_to_copy": "Failed to copy"
+    },
+    "cart-link-builder": {
+      "label": "Add-to-cart link",
+      "helper_text": "Make the shopper's choices to get a link that adds this product with them. Uses the saved product.",
+      "required": "Required",
+      "optional": "Optional",
+      "leave_out": "Leave out",
+      "incomplete": "Choose a value for every option and fill in every required modifier to see the link.",
+      "copy": {
+        "failed_to_copy": "Failed to copy",
+        "click_to_copy": "Copy link",
+        "copying": "Copying…",
+        "done": "Copied"
+      }
+    }
   }
 }
