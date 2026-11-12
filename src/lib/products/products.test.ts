@@ -17,6 +17,7 @@ import {
   offeredModifiers,
   quantityBounds,
 } from "./choices";
+import { stockNote } from "./light-dom";
 import { fetchLook, parseLook } from "./look";
 import { renderMarkdown } from "./markdown";
 import {
@@ -316,6 +317,33 @@ describe("the store's look", () => {
     expect(a).toBe(b);
     expect(a.buttonText).toBe("Add to bag");
     expect(a.lowStockThreshold).toBe(2);
+  });
+});
+
+describe("stockNote", () => {
+  // The mug has 3 left.
+  const withThreshold = (low_stock_threshold?: number | null) => ({
+    ...plainMug,
+    definition: { ...plainMug.definition, low_stock_threshold },
+  });
+  const said = (product: typeof plainMug, storeThreshold: number) =>
+    stockNote(product, storeThreshold, "en-US")?.text ?? null;
+
+  it("uses the store's threshold when the product sets none", () => {
+    expect(said(withThreshold(), 5)).toBe("Only 3 left");
+    expect(said(withThreshold(null), 5)).toBe("Only 3 left");
+    expect(said(withThreshold(), 2)).toBeNull();
+  });
+
+  it("lets a product's own threshold win, lower or higher than the store's", () => {
+    expect(said(withThreshold(2), 5)).toBeNull();
+    expect(said(withThreshold(3), 2)).toBe("Only 3 left");
+    // 0 means nothing is low for this product.
+    expect(said(withThreshold(0), 5)).toBeNull();
+  });
+
+  it("says sold out whatever the threshold", () => {
+    expect(said({ ...withThreshold(0), is_in_stock: false, stock_level: 0 }, 0)).toBe("Sold out");
   });
 });
 

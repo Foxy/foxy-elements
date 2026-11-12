@@ -255,15 +255,19 @@ export function renderPrice(
 
 /**
  * What to say about stock: sold out, or how few are left once that is at or
- * below the store's low-stock threshold. `null` when there's nothing to say.
+ * below the low-stock threshold: the product's own when it sets one (a
+ * variant's compiled definition carries its parent's), else the store's.
+ * `null` when there's nothing to say.
  */
 export function stockNote(
   product: CatalogProduct,
-  lowStock: number,
+  storeLowStock: number,
   locale: string,
 ): { text: string; tone: "notice" | "success" } | null {
   if (!product.is_in_stock) return { text: format(locale, messages.soldOut), tone: "notice" };
   const left = product.stock_level;
+  const own = product.definition.low_stock_threshold;
+  const lowStock = typeof own === "number" ? own : storeLowStock;
   if (typeof left === "number" && left > 0 && left <= lowStock) {
     return { text: format(locale, messages.onlyLeft, { count: left }), tone: "success" };
   }

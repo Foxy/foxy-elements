@@ -23,7 +23,7 @@ Everything renders in light DOM: the add link, so 2.0's `foxycart.js` takes it o
 | Sold out | "Sold out", which isn't a link, and "Sold out" under the price. The name still links to `href`. |
 | `quick-add="never"` | "View product", linking to `href` |
 
-Under the price it says "Only 3 left" when stock is at or below the store's low-stock threshold.
+Under the price it says "Only 3 left" when stock is at or below the low-stock threshold: the product's own low-stock threshold when it sets one (`low_stock_threshold` in its definition, which variants inherit), else the store's (5 unless the store saved another).
 
 A parent with its variants shows the range of their prices. A tile given a `sku` loads them; a tile handed a `product` without them, as a collection does unless it has `variant-prices`, shows the parent's own price.
 

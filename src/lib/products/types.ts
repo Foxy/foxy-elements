@@ -67,6 +67,8 @@ export interface ProductDefinition {
   properties?: Record<string, string | string[]>;
   options?: ProductOptionDefinition[];
   modifiers?: ProductModifier[];
+  /** This product's own low-stock threshold; unset, the store's applies. */
+  low_stock_threshold?: number | null;
   quantity_min?: number;
   quantity_max?: number;
   translations?: Record<string, ProductTranslation>;

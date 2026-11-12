@@ -52,7 +52,7 @@ The form offers the **chosen variant's** modifiers, because the cart checks an a
 
 ## Quantity and stock
 
-With `show-quantity`, a number field from the product's `quantity_min` (else 1) up to the lower of its `quantity_max` and its stock. It is left out when only one can be bought. Under the price: "Sold out", or "Only 3 left" at or below the store's low-stock threshold (5 unless the store saved another).
+With `show-quantity`, a number field from the product's `quantity_min` (else 1) up to the lower of its `quantity_max` and its stock. It is left out when only one can be bought. Under the price: "Sold out", or "Only 3 left" at or below the low-stock threshold: the product's own low-stock threshold when it sets one (`low_stock_threshold` in its definition, which variants inherit), else the store's (5 unless the store saved another).
 
 ## Attributes
 

@@ -4,9 +4,11 @@ import {
   FIXTURE_STORE,
   plainMug,
   stubCatalog,
+  teeParent,
   type CatalogStub,
 } from "@/lib/products/fixtures";
 import { listenLikeFoxy2 } from "@/lib/products/foxy2-test-utils";
+import type { CatalogProduct } from "@/lib/products/types";
 import "./element";
 
 let stub: CatalogStub | undefined;
@@ -105,6 +107,25 @@ describe("foxy-product-page", () => {
     expect(more.disabled).toBe(true);
     expect(sent(element)).toContain("quantity=4");
     expect(addButton(element).textContent).toBe("Add to cart · $99.80");
+  });
+
+  it("uses the chosen variant's own low-stock threshold over the store's", async () => {
+    const withThreshold = (sku: string, low_stock_threshold: number) => (v: CatalogProduct) =>
+      v.sku === sku ? { ...v, definition: { ...v.definition, low_stock_threshold } } : v;
+    stub = stubCatalog([
+      {
+        ...teeParent,
+        _embedded: {
+          // Natural M has 4 left, Black S has 17; the store's threshold is 5.
+          variants: teeParent._embedded!.variants!.map(withThreshold("TEE-ORG-NAT-M", 3)).map(withThreshold("TEE-ORG-BLK-S", 20)),
+        },
+      },
+    ]);
+    const element = await mount(`sku="TEE-ORG" value="color=Natural&size=M"`);
+    expect(text(element, ".foxy-product-note")).toBe("In stock");
+    await pick(element, "Colour", "Black");
+    await pick(element, "Size", "S");
+    expect(text(element, ".foxy-product-note")).toBe("Only 17 left");
   });
 
   it("switches to the chosen variant's modifiers", async () => {

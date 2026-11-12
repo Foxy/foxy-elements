@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   FIXTURE_STORE,
   listed,
+  plainMug,
   stubCatalog,
   teeParent,
   type CatalogStub,
@@ -47,6 +48,13 @@ describe("foxy-product-tile", () => {
     action(element)!.click();
     foxy2.stop();
     expect(foxy2.clicked).toEqual([action(element)]);
+  });
+
+  it("uses the product's own low-stock threshold over the store's", async () => {
+    // The mug has 3 left and the store's threshold is 5.
+    stub = stubCatalog([{ ...plainMug, definition: { ...plainMug.definition, low_stock_threshold: 2 } }]);
+    const element = await mount(`sku="MUG-ENM-WHT"`);
+    expect(element.querySelector(".foxy-product-note")).toBeNull();
   });
 
   it("links a parent to its page, with its price range", async () => {

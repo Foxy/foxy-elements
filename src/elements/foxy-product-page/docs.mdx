@@ -27,7 +27,7 @@ It renders in light DOM, so search engines read its text, with schema.org `Produ
 | Photos | `images` | The first is the main one. More than one adds thumbnails, which are buttons. A chosen variant with photos of its own shows those. |
 | Brand, name | `brand`, `name` | The name is the page's `<h1>`, in the `lang`'s translation when the catalog has one. |
 | Price | `price`, `list_price`, per-currency prices | For a parent, the range of its variants' prices until a variant is chosen; then that variant's, plus the chosen modifiers' amounts. A higher list price is struck through beside it. |
-| Stock | `is_in_stock`, `stock_level` | Once a variant is chosen: "In stock", "Only 3 left" at or below the store's low-stock threshold, or "Sold out". |
+| Stock | `is_in_stock`, `stock_level` | Once a variant is chosen: "In stock", "Only 3 left" at or below the low-stock threshold, or "Sold out". The threshold is the chosen variant's own when its definition sets `low_stock_threshold` (variants inherit their parent's), else the store's. |
 | Options | `options`, the variants | Buttons, or swatches with their names under them when a value has a `color` or `image`. A combination with no variant is left out; a sold-out one is shown, marked "(sold out)", and can't be chosen. Nothing is chosen for the shopper. |
 | Modifiers | the chosen variant's `modifiers` | As in `foxy-product-form`: the chosen variant's, an optional choice on its first value, no added "None". |
 | Quantity | `quantity_min`, `quantity_max`, stock | A stepper that stops at what's in stock. Left out when only one can be bought. |
