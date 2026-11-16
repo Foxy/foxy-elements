@@ -94,6 +94,12 @@
       "checked": "Yes",
       "unchecked": "No"
     },
+    "avalara-create-zero-tax-invoice": {
+      "label": "Commit zero-tax invoices",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
+    },
     "avalara-use-address-validation": {
       "label": "Validate customer addresses",
       "helper_text": "",
@@ -166,6 +172,12 @@
       "checked": "Yes",
       "unchecked": "No",
       "helper_text": ""
+    },
+    "taxjar-create-zero-tax-invoice": {
+      "label": "Commit zero-tax invoices",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
     }
   },
   "taxjar-category-to-product-tax-code-mappings": {
@@ -271,6 +283,12 @@
       "option_never": "Never",
       "placeholder": "Select",
       "helper_text": ""
+    },
+    "onesource-create-zero-tax-invoice": {
+      "label": "Audit zero-tax transactions",
+      "helper_text": "",
+      "checked": "Yes",
+      "unchecked": "No"
     }
   },
   "onesource-group-four": {

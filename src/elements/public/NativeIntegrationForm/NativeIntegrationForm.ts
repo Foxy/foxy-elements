@@ -418,6 +418,18 @@ export class NativeIntegrationForm extends Base<Data> {
         >
         </foxy-internal-switch-control>
 
+        ${this.__config?.create_invoice
+          ? html`
+              <foxy-internal-switch-control
+                json-template=${defaults.avalara}
+                json-path="create_zero_tax_invoice"
+                property="config"
+                infer="avalara-create-zero-tax-invoice"
+              >
+              </foxy-internal-switch-control>
+            `
+          : ''}
+
         <foxy-internal-switch-control
           json-template=${defaults.avalara}
           json-path="enable_colorado_delivery_fee"
@@ -461,6 +473,18 @@ export class NativeIntegrationForm extends Base<Data> {
           infer="taxjar-create-invoice"
         >
         </foxy-internal-switch-control>
+
+        ${this.__config?.create_invoice
+          ? html`
+              <foxy-internal-switch-control
+                json-template=${defaults.taxjar}
+                json-path="create_zero_tax_invoice"
+                property="config"
+                infer="taxjar-create-zero-tax-invoice"
+              >
+              </foxy-internal-switch-control>
+            `
+          : ''}
       </foxy-internal-summary-control>
 
       <foxy-internal-native-integration-form-code-map-control
@@ -536,6 +560,18 @@ export class NativeIntegrationForm extends Base<Data> {
           .options=${this.__onesourceAuditSettingsOptions}
         >
         </foxy-internal-select-control>
+
+        ${(this.__config?.audit_settings ?? 'never') !== 'never'
+          ? html`
+              <foxy-internal-switch-control
+                json-template=${defaults.onesource}
+                json-path="create_zero_tax_invoice"
+                property="config"
+                infer="onesource-create-zero-tax-invoice"
+              >
+              </foxy-internal-switch-control>
+            `
+          : ''}
 
         <foxy-internal-select-control
           json-template=${defaults.onesource}
