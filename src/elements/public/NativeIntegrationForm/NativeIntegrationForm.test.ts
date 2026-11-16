@@ -632,6 +632,41 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.have.attribute('property', 'config');
   });
 
+  it('renders a switch control for avalara create_zero_tax_invoice in avalara group two when create_invoice is on', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), create_invoice: true });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="avalara-group-two"] foxy-internal-switch-control[infer="avalara-create-zero-tax-invoice"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.avalara);
+    expect(control).to.have.attribute('json-path', 'create_zero_tax_invoice');
+    expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('hides the switch control for avalara create_zero_tax_invoice unless create_invoice is on', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'avalara';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.avalara), create_invoice: false });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="avalara-group-two"] foxy-internal-switch-control[infer="avalara-create-zero-tax-invoice"]'
+    );
+
+    expect(control).to.not.exist;
+  });
+
   it('renders a switch control for avalara enable_colorado_delivery_fee in avalara group two', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'avalara';
@@ -691,6 +726,41 @@ describe('NativeIntegrationForm', () => {
     expect(control).to.have.attribute('json-template', defaults.taxjar);
     expect(control).to.have.attribute('json-path', 'create_invoice');
     expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('renders a switch control for taxjar create_zero_tax_invoice in taxjar group one when create_invoice is on', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'taxjar';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.taxjar), create_invoice: true });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="taxjar-group-one"] foxy-internal-switch-control[infer="taxjar-create-zero-tax-invoice"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.taxjar);
+    expect(control).to.have.attribute('json-path', 'create_zero_tax_invoice');
+    expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('hides the switch control for taxjar create_zero_tax_invoice unless create_invoice is on', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'taxjar';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.taxjar), create_invoice: false });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="taxjar-group-one"] foxy-internal-switch-control[infer="taxjar-create-zero-tax-invoice"]'
+    );
+
+    expect(control).to.not.exist;
   });
 
   it('renders an internal control for taxjar tax code mappings', async () => {
@@ -889,6 +959,44 @@ describe('NativeIntegrationForm', () => {
       { value: 'auth_and_capture', label: 'option_auth_and_capture' },
       { value: 'never', label: 'option_never' },
     ]);
+  });
+
+  it('renders a switch control for onesource create_zero_tax_invoice in onesource group three when audit_settings is not never', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'onesource';
+    data.config = JSON.stringify({
+      ...JSON.parse(defaults.onesource),
+      audit_settings: 'capture_only',
+    });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="onesource-group-three"] foxy-internal-switch-control[infer="onesource-create-zero-tax-invoice"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.attribute('json-template', defaults.onesource);
+    expect(control).to.have.attribute('json-path', 'create_zero_tax_invoice');
+    expect(control).to.have.attribute('property', 'config');
+  });
+
+  it('hides the switch control for onesource create_zero_tax_invoice unless audit_settings is not never', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'onesource';
+    data.config = JSON.stringify({ ...JSON.parse(defaults.onesource), audit_settings: 'never' });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="onesource-group-three"] foxy-internal-switch-control[infer="onesource-create-zero-tax-invoice"]'
+    );
+
+    expect(control).to.not.exist;
   });
 
   it('renders a text control for onesource part number product option in onesource group four', async () => {

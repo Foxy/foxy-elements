@@ -20,6 +20,7 @@ export const onesource = JSON.stringify({
   product_order_priority: '',
   calling_system_number: '',
   external_company_id: '',
+  create_zero_tax_invoice: false,
   audit_settings: 'never',
   company_role: 'B',
   service_url: '',
@@ -40,6 +41,7 @@ export const avalara = JSON.stringify({
   enable_colorado_delivery_fee: false,
   address_validation_countries: [],
   use_address_validation: false,
+  create_zero_tax_invoice: false,
   create_invoice: false,
   company_code: '',
   service_url: '',
@@ -71,6 +73,7 @@ export const zapier = JSON.stringify({
 
 export const taxjar = JSON.stringify({
   category_to_product_tax_code_mappings: {},
+  create_zero_tax_invoice: false,
   create_invoice: false,
   api_token: '',
 });
