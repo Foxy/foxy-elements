@@ -11,6 +11,7 @@ import type { Data } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { Dialog } from '../../private/Dialog/Dialog';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { ignoreAccessDenied } from '../../../utils/ignore-access-denied';
 import { classMap } from '../../../utils/class-map';
@@ -30,6 +31,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       customerAddresses: { attribute: 'customer-addresses' },
       itemCategories: { attribute: 'item-categories' },
       localeCodes: { attribute: 'locale-codes' },
+      getProductPageHref: { attribute: false },
       coupons: {},
       store: {},
     };
@@ -53,6 +55,12 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
 
   /** Link to the `fx:locale_codes` property helper for currency formatting. */
   localeCodes: string | null = null;
+
+  /**
+   * Returns the URL of a product's page for its `self` link. With it, an item
+   * added from a Foxy product links to that product.
+   */
+  getProductPageHref: ((href: string) => string) | null = null;
 
   /** @deprecated Link to the collection of coupons that can be used with this item. */
   coupons: string | null = null;
@@ -97,10 +105,33 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   }
 
   renderHeaderActions(): TemplateResult {
-    if (!this.__downloadablePurchase) return html``;
+    const links = this.data?._links as Record<string, { href: string } | undefined> | undefined;
+    const productHref = links?.['fx:product']?.href;
+    const productPageHref = productHref ? this.getProductPageHref?.(productHref) : undefined;
+    const linkClass =
+      'text-primary font-medium cursor-pointer hover-underline rounded-sm focus-outline-none focus-ring-2 focus-ring-primary-50';
+
+    const productLink = productPageHref
+      ? html`
+          <a
+            data-testid="product-link"
+            class=${linkClass}
+            href=${productPageHref}
+            @click=${() => {
+              // The item is usually open in a dialog, which would stay over the product's page.
+              Dialog.openDialogs[0]?.hide();
+            }}
+          >
+            <foxy-i18n infer="actions product" key="label"></foxy-i18n>
+          </a>
+        `
+      : html``;
+
+    if (!this.__downloadablePurchase) return productLink;
     const downloadUrl = this.__downloadablePurchase?._links['fx:download_url'].href;
 
     return html`
+      ${productLink}
       <a
         data-testid="download-link"
         target="_blank"

@@ -35,6 +35,7 @@ export class Transaction extends Base<Data> {
       paymentGatewaysHelper: { attribute: 'payment-gateways-helper' },
       getSubscriptionPageHref: { attribute: false },
       getCustomerPageHref: { attribute: false },
+      getProductPageHref: { attribute: false },
       localeCodes: { attribute: 'locale-codes' },
     };
   }
@@ -51,6 +52,9 @@ export class Transaction extends Base<Data> {
   getSubscriptionPageHref: ((href: string) => string) | null = null;
 
   getCustomerPageHref: ((href: string) => string) | null = null;
+
+  /** Returns the URL of a product's page for its `self` link, for the link from an item to its product. */
+  getProductPageHref: ((href: string) => string) | null = null;
 
   private readonly __webhooksBulkActions = [
     {
@@ -359,6 +363,7 @@ export class Transaction extends Base<Data> {
             'item-categories': this.__storeLoader?.data?._links['fx:item_categories'].href,
             'locale-codes': this.localeCodes,
             'store': this.data?._links['fx:store'].href,
+            '.getProductPageHref': this.getProductPageHref,
           }}
         >
         </foxy-internal-async-list-control>

@@ -234,6 +234,35 @@ describe('ItemForm', () => {
     expect(renderHeaderMethod).to.have.been.called;
   });
 
+  it('links an item added from a Foxy product to that product, given its page', async () => {
+    const router = createRouter();
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/1"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    const link = () => element.renderRoot.querySelector('a[data-testid="product-link"]');
+    element.getProductPageHref = href => `/products/${href.split('/').pop()}`;
+    await element.requestUpdate();
+    expect(link()).to.not.exist;
+
+    const data = JSON.parse(JSON.stringify(element.data));
+    data._links['fx:product'] = { href: 'https://demo.api/hapi/products/5630' };
+    element.data = data;
+    await element.requestUpdate();
+    expect(link()).to.have.attribute('href', '/products/5630');
+
+    element.getProductPageHref = null;
+    await element.requestUpdate();
+    expect(link()).to.not.exist;
+  });
+
   it('does not render header actions when item has no downloadable purchase', async () => {
     const router = createRouter();
     // Use item 1 which doesn't have downloadable purchase by default

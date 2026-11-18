@@ -849,6 +849,7 @@ describe('Transaction', () => {
       'item-categories': 'https://demo.api/hapi/item_categories?store_id=0',
       'locale-codes': 'https://demo.api/hapi/property_helpers/7',
       'store': 'https://demo.api/hapi/stores/0',
+      '.getProductPageHref': null,
     });
   });
 
