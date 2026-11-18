@@ -16,7 +16,6 @@ import type { CatalogProduct, ProductImage } from "@/lib/products/types";
  * takes over.
  */
 export class ProductPageElement extends PurchaseElement {
-  protected readonly optionStyle = "pills";
   protected readonly quantityStyle = "stepper";
   protected readonly defaultHeadingLevel = 1;
   protected readonly saysInStock = true;
@@ -128,9 +127,16 @@ export class ProductPageElement extends PurchaseElement {
 
     const hero = document.createElement("div");
     hero.className = "foxy-product-hero";
-    const shown = productImage(images[this.#photo], false);
-    if (shown) hero.append(shown);
     const children: HTMLElement[] = [hero];
+    const buttons: HTMLButtonElement[] = [];
+    // Shows a photo without rebuilding the thumbnails, which would end the
+    // hover or take the focus that chose it.
+    const show = (index: number): void => {
+      this.#photo = index;
+      const shown = productImage(images[index], false);
+      hero.replaceChildren(...(shown ? [shown] : []));
+      buttons.forEach((button, at) => button.setAttribute("aria-current", String(at === index)));
+    };
 
     if (images.length > 1) {
       const thumbs = document.createElement("div");
@@ -139,22 +145,19 @@ export class ProductPageElement extends PurchaseElement {
         const button = document.createElement("button");
         button.type = "button";
         button.setAttribute("aria-label", format(this.locale, messages.showPhoto, { number: index + 1 }));
-        button.setAttribute("aria-current", String(index === this.#photo));
         const thumb = productImage(image, true);
         if (thumb) {
           // The button's label says which photo; the photo's own text would repeat the hero's.
           thumb.alt = "";
           button.append(thumb);
         }
-        button.addEventListener("click", () => {
-          this.#photo = index;
-          this.#renderGallery();
-          gallery.querySelectorAll("button")[index]?.focus();
-        });
+        for (const type of ["click", "focus", "pointerenter"]) button.addEventListener(type, () => show(index));
+        buttons.push(button);
         thumbs.append(button);
       });
       children.push(thumbs);
     }
+    show(this.#photo);
     gallery.replaceChildren(...children);
   }
 }

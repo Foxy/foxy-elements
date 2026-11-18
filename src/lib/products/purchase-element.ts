@@ -6,7 +6,7 @@ import { productName } from "./price";
 import { Purchase, type PurchaseSettings } from "./purchase";
 import type { CatalogProduct } from "./types";
 
-export const PURCHASE_ATTRIBUTES = [...SHARED_ATTRIBUTES, "value", "label", "heading-level"];
+export const PURCHASE_ATTRIBUTES = [...SHARED_ATTRIBUTES, "value", "label", "heading-level", "option-style"];
 
 /**
  * What the elements a shopper chooses and adds from share: the product's
@@ -19,7 +19,6 @@ export abstract class PurchaseElement extends ProductElement {
   #price: HTMLElement | null = null;
   #note: HTMLElement | null = null;
 
-  protected abstract readonly optionStyle: PurchaseSettings["optionStyle"];
   protected abstract readonly quantityStyle: PurchaseSettings["quantityStyle"];
   protected abstract readonly defaultHeadingLevel: number;
   /** Whether "In stock" is said, or only what's notable. */
@@ -40,6 +39,20 @@ export abstract class PurchaseElement extends ProductElement {
 
   set label(value: string) {
     this.setAttribute("label", value);
+  }
+
+  /**
+   * How a parent's options are offered: `buttons` (the default; swatches
+   * for values with a colour or photo), `rows` (a list, each value with its
+   * price) or `select` (drop-downs).
+   */
+  get optionStyle(): PurchaseSettings["optionStyle"] {
+    const style = this.getAttribute("option-style");
+    return style === "rows" || style === "select" ? style : "buttons";
+  }
+
+  set optionStyle(value: PurchaseSettings["optionStyle"]) {
+    this.setAttribute("option-style", value);
   }
 
   /** The name's heading level, 1–6. */

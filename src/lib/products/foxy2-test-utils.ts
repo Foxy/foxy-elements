@@ -1,5 +1,5 @@
 /**
- * Listens the way 2.0's `fc.client.js` does: jQuery's
+ * Listens the way 2.0's `foxycart.js` does: jQuery's
  * `$('body').on(type, selector, handler)`, which walks from `event.target`
  * up through `parentNode` to `body`, running the handler for each ancestor
  * matching the selector. It prevents the default, as 2.0 does when it takes

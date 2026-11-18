@@ -37,7 +37,7 @@ By default the list carries each parent **without its variants**, and a parent's
 | `product-href` | `productHref` | Each tile's `href`, such as `/product?sku={sku}`. |
 | `quick-add`, `heading-level` | | Passed to every tile. |
 | `currency`, `currency-cookie`, `lang` | | Inherited by the tiles from this element. |
-| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look, inherited by the tiles; see `foxy-product-link`. |
+| `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look, inherited by the tiles; see `foxy-product-link`. |
 
 Changing a query attribute starts the list over. The `products` property holds what has loaded so far. While a page loads, the element has `aria-busy="true"`; after "Load more", focus moves to the first product it loaded, and "Showing 20 of 48" sits under the button. An empty or failed list says so in a status message.
 

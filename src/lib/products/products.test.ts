@@ -69,6 +69,15 @@ describe("resolveStoreDomain", () => {
     document.head.append(script);
     expect(resolveStoreDomain(document.createElement("div"))).toBe("shop.example.com");
   });
+
+  it("completes a loader.js URL that names the store by its subdomain", () => {
+    const script = document.createElement("script");
+    script.dataset.test = "";
+    script.type = "text/plain";
+    script.src = "https://cdn.foxycart.com/demo-goods/loader.js";
+    document.head.append(script);
+    expect(resolveStoreDomain(document.createElement("div"))).toBe("demo-goods.foxycart.com");
+  });
 });
 
 describe("fetchProduct", () => {

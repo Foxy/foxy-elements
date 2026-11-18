@@ -36,7 +36,7 @@ Whatever you put inside the tag shows until the link renders, and again when the
 | `currency` | `currency` | The currency to show the price in. See below. |
 | `currency-cookie` | — | The name of a cookie holding the currency, for a merchant's own currency switcher. |
 | `lang` | `lang` | The language of the text and price. Defaults to the nearest `lang`, then `en-US`. |
-| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look. See below. |
+| `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look. See below. |
 
 The `product` property holds the catalog's product once it has loaded, or `null` when the store has no such SKU.
 
@@ -56,43 +56,67 @@ The price shows in the first of: a `currency` attribute on the element or any an
 
 ## The look
 
-All five product elements (`foxy-product-link`, `-form`, `-page`, `-tile`, `-collection`) look like the Foxy 2.0 cart by default, and take their look from three places. The first that sets a value wins:
+All five product elements (`foxy-product-link`, `-form`, `-page`, `-tile`, `-collection`) take their look from four places. The first that sets a value wins:
 
 1. **An attribute on the element, or a CSS variable** on it or any ancestor.
-2. **The store's saved look**, set in the admin under Storefront elements. Each element fetches it once per page from `https://<store>/s/products/store/settings`, so a change there reaches snippets already on a site. If it can't be fetched, the defaults apply.
-3. **The default.**
+2. **The store's saved look**, set in the admin under Storefront elements. Each element fetches it once per page from `https://<store>/s/products/store/settings`, so a change there reaches snippets already on a site. If it can't be fetched, the theme applies.
+3. **The element's `theme`.**
+4. **The default theme**, Bold.
 
-| Attribute | CSS variable | Store setting | Default |
+| `theme` | |
+| --- | --- |
+| (none) | Bold: near-black buttons, rounded corners, bordered cards, the page's font |
+| `plain` | The page's own colours and font, no cards: for a site that brings its own styling |
+| `foxy` | Foxy's purple under a rainbow bar |
+| `soft` | Blue, rounder, soft shadows |
+| `bookshop` | Navy, serif, square, uppercase buttons |
+| `market` | Warm, serif, pill buttons |
+| `cart` | The Foxy 2.0 cart: green, square, Helvetica |
+| `dark` | For a page with a dark background |
+
+A collection's `theme` reaches its tiles.
+
+| Attribute | CSS variable | Store setting | Default (Bold) |
 | --- | --- | --- | --- |
-| `font` | `--foxy-product-font` | Font | `"Helvetica Neue", Helvetica, Arial, sans-serif` |
-| `text-color` | `--foxy-product-text-color` | Product text colour (name and price) | `#333333` name, `#1A1A1A` price |
-| `button-color` | `--foxy-product-button-color` | Button colour | `#3F8A2E` |
+| `font` | `--foxy-product-font` | Font | `inherit` |
+| `text-color` | `--foxy-product-text-color` | Product text colour (name and price) | `#111827` |
+| `button-color` | `--foxy-product-button-color` | Button colour | `#111827` |
 | `button-text-color` | `--foxy-product-button-text-color` | Button text colour | `#FFFFFF` |
-| `button-radius` | `--foxy-product-button-radius` | Button corners | `0` (a bare number is pixels) |
+| `button-radius` | `--foxy-product-button-radius` | Button corners | `8px` (a bare number is pixels) |
 | `label` | — | Button text | "Add to cart" |
-| `accent-color` | `--foxy-product-accent-color` | — | `#666666`: a chosen option, the current photo, a text link, focus rings |
+| `accent-color` | `--foxy-product-accent-color` | — | `#111827`: a chosen option, the current photo, a text link, focus rings |
+| `tile-width` | `--foxy-product-tile-width` | — | The narrowest a collection's column gets (`220px`), and the widest a tile on its own gets (`280px`). A bare number is pixels |
+| `tile-gap` | `--foxy-product-grid-gap` | — | `24px`: the space between a collection's tiles |
+| `image-ratio` | `--foxy-product-tile-aspect` | — | A tile's image shape, width / height: `4 / 5`, or `1 / 1` in a collection |
 
 `font` takes `inherit` (the page's font), `system`, `serif`, or any `font-family` value.
 
-More variables, with no attribute:
+More variables, with no attribute. A theme is a set of these:
 
-| CSS variable | Default | Used for |
+| CSS variable | Default (Bold) | Used for |
 | --- | --- | --- |
-| `--foxy-product-body-color` | `#1A1A1A` | Labels and other text |
-| `--foxy-product-muted-color` | `#666666` | Brand, hints, counts |
-| `--foxy-product-description-color` | `#4D4D4D` | The page's description |
+| `--foxy-product-body-color` | `#1F2937` | Labels and other text |
+| `--foxy-product-muted-color` | `#6B7280` | Brand, hints, counts |
+| `--foxy-product-description-color` | `#4B5563` | The page's description |
 | `--foxy-product-surface-color` | `#FFFFFF` | Cards, fields |
-| `--foxy-product-panel-color` | `#F5F5F5` | Image placeholders, quantity buttons |
-| `--foxy-product-header-color` | `#F9F9F9` | Table headers, a sold-out option |
-| `--foxy-product-border-color` | `#D5D5D5` | Options, secondary buttons |
-| `--foxy-product-field-border-color` | `#CCCCCC` | Text fields and selects |
-| `--foxy-product-divider-color` | `#E4E4E4` | Table rows, thumbnails |
-| `--foxy-product-disabled-color`, `--foxy-product-disabled-text-color` | `#E4E4E4`, `#555555` | A button that can't add |
-| `--foxy-product-notice-color` | `#C4283A` | Sold out, required, errors |
-| `--foxy-product-success-color` | `#2F6B22` | In stock, "Only 3 left" |
-| `--foxy-product-radius` | `0` | Photos |
-| `--foxy-product-tile-width` | `220px` | The narrowest a collection's column gets |
+| `--foxy-product-panel-color` | `#F3F4F6` | Image placeholders, quantity buttons, a chosen row |
+| `--foxy-product-header-color` | `#F9FAFB` | Table headers, a sold-out option |
+| `--foxy-product-border-color` | `#D1D5DB` | Options, secondary buttons |
+| `--foxy-product-field-border-color` | `#D1D5DB` | Text fields and selects |
+| `--foxy-product-divider-color` | `#E5E7EB` | Table rows, thumbnails |
+| `--foxy-product-on-accent-color`, `--foxy-product-selected-color` | `#FFFFFF`, the accent | A chosen option button's text and fill |
+| `--foxy-product-disabled-color`, `--foxy-product-disabled-text-color`, `--foxy-product-disabled-opacity` | The button's own colours, `0.45` | A button that can't add yet: the button's colours, faded |
+| `--foxy-product-notice-color` | `#B91C1C` | Sold out, required, errors |
+| `--foxy-product-success-color` | `#15803D` | In stock, "Only 3 left" |
+| `--foxy-product-radius`, `--foxy-product-field-radius` | `8px` | Photos; fields, option rows and the quantity stepper |
+| `--foxy-product-card-border`, `--foxy-product-card-radius`, `--foxy-product-card-shadow`, `--foxy-product-card-padding` | `1px solid #E5E7EB`, `12px`, `none`, `24px` to `32px` | The card around a form, a tile and each panel of a page |
+| `--foxy-product-card-bar` | `none` | An image (a gradient) drawn 4px tall across the top of a card |
+| `--foxy-product-button-border`, `--foxy-product-button-font`, `--foxy-product-button-weight`, `--foxy-product-button-tracking`, `--foxy-product-button-transform` | `0`, `inherit`, `600`, `0`, `none` | The button's border, font, weight, letter spacing and case |
+| `--foxy-product-form-width` | `420px` | The widest a `foxy-product-form` gets |
+| `--foxy-product-photo-fit` | `contain` | How a page's main photo fills its square: `contain` or `cover` |
+| `--foxy-product-tile-width` | `220px` / `280px` | As `tile-width` above |
 | `--foxy-product-tile-aspect` | `4 / 5` (`1 / 1` in a collection) | A tile's image |
+| `--foxy-product-chevron` | A grey chevron | The arrow image on a drop-down |
 
 ```css
 foxy-product-collection {
@@ -103,5 +127,3 @@ foxy-product-collection {
 ```
 
 **Your own CSS.** Everything renders in light DOM, so the page's CSS reaches it, and every part has a `foxy-product-…` class. The elements' own rules start with the element's name so that a theme's `button`, `label` or `a` styles don't undo them; start yours the same way, as in `foxy-product-tile .foxy-product-price { font-weight: 600 }`. In the store's saved CSS that is enough, because it is added to the page after the elements' own stylesheet. In a stylesheet of the page's own, a rule that sets something the elements also set needs one more selector in front, such as `body foxy-product-tile .foxy-product-price`. The store's saved CSS is added to the page as it is; it isn't scoped to the elements.
-
-These replace the design-system variables the elements read before (`--background-button-primary`, `--border-radius-sm`, `--font-body` and the rest), and `foxy-product-form`'s `theme-*` attributes and `::part()`s.

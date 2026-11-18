@@ -11,7 +11,7 @@ import {
   type PurchaseState,
 } from "./choices";
 import { productImage } from "./light-dom";
-import { format, messages, type MessageDescriptor } from "./messages";
+import { chooseMessage, format, messages, type MessageDescriptor } from "./messages";
 import {
   hasOptionControls,
   keepOffered,
@@ -20,7 +20,7 @@ import {
   type ProductOption,
 } from "./options";
 import { formatPrice, productPrice } from "./price";
-import type { CatalogProduct, ProductModifier } from "./types";
+import type { CatalogProduct, OptionValue, ProductModifier } from "./types";
 
 export interface PurchaseSettings {
   store: string;
@@ -28,9 +28,9 @@ export interface PurchaseSettings {
   currency: string | null;
   /** The add button's text; the price follows it. */
   label: string;
-  /** Options as buttons and swatches, or as drop-downs. */
-  optionStyle: "pills" | "select";
-  quantityStyle: "stepper" | "input" | "none";
+  /** Options as buttons and swatches, as a list of rows with prices, or as drop-downs. */
+  optionStyle: "buttons" | "rows" | "select";
+  quantityStyle: "stepper" | "none";
 }
 
 let instances = 0;
@@ -145,14 +145,20 @@ export class Purchase {
 
     if (hasOptionControls(product)) {
       productOptions(product).forEach((option, index) => {
+        const style = this.#settings.optionStyle;
         children.push(
-          this.#settings.optionStyle === "select"
+          style === "select"
             ? this.#optionSelect(option, index)
-            : this.#optionPills(option, index),
+            : style === "rows"
+              ? this.#optionRows(option, index)
+              : this.#optionPills(option, index),
         );
       });
     } else if (product._embedded?.variants?.length) {
-      children.push(this.#variantSelect(product._embedded.variants));
+      const variants = product._embedded.variants;
+      children.push(
+        this.#settings.optionStyle === "rows" ? this.#variantRows(variants) : this.#variantSelect(variants),
+      );
     }
 
     for (const modifier of offeredModifiers(product, this.state)) {
@@ -192,41 +198,137 @@ export class Purchase {
 
   #optionStates(option: ProductOption, index: number) {
     const states = valueStates(this.product, index, this.state.choices);
+    const photos = this.#valuePhotos(option);
     return option.values
       .filter(({ value }) => states.get(value) !== "missing")
-      .map((value) => ({ ...value, soldOut: states.get(value.value) === "sold-out" }));
+      .map((value) => ({
+        ...value,
+        image: value.image ?? photos.get(value.value),
+        soldOut: states.get(value.value) === "sold-out",
+      }));
+  }
+
+  /**
+   * Photos for an option's values, taken from the variants: each value's
+   * is the first photo of a variant that has it. Only when every value
+   * gets a different photo that isn't the product's, which is what says the
+   * photos follow this option (a colour) and not another (a size).
+   */
+  #valuePhotos(option: ProductOption): Map<string, OptionValue["image"]> {
+    const shared = this.product.definition.images?.[0]?.src;
+    const photos = new Map<string, OptionValue["image"]>();
+    for (const { value } of option.values) {
+      const photo = (this.product._embedded?.variants ?? []).find(
+        (variant) => variant.option_values?.[option.name]?.toLowerCase() === value.toLowerCase(),
+      )?.definition.images?.[0];
+      if (photo && photo.src !== shared) photos.set(value, photo);
+    }
+    const distinct = new Set([...photos.values()].map((photo) => photo!.src)).size;
+    return photos.size === option.values.length && distinct === photos.size ? photos : new Map();
+  }
+
+  /** A fieldset of visually hidden radios, each followed by the label `build` returns for it. */
+  #radios<T>(
+    name: string,
+    legend: HTMLElement,
+    groupClass: string,
+    items: T[],
+    item: (value: T) => { checked: boolean; disabled: boolean; choose: () => void; label: HTMLLabelElement },
+  ): HTMLFieldSetElement {
+    const set = el("fieldset", "foxy-product-option");
+    const group = el("div", groupClass);
+    items.forEach((value, index) => {
+      const { checked, disabled, choose, label } = item(value);
+      const radio = el("input", "foxy-product-radio");
+      radio.type = "radio";
+      // No field of this name reaches the cart: these controls sit in a
+      // form without an action, and the cart form is built apart.
+      radio.name = `${this.#id}-${name}`;
+      radio.id = `${this.#id}-${name}-${index}`;
+      radio.checked = checked;
+      radio.disabled = disabled;
+      radio.addEventListener("change", choose);
+      label.htmlFor = radio.id;
+      group.append(radio, label);
+    });
+    set.append(legend, group);
+    return set;
+  }
+
+  /** One row of a list: a photo or colour when there is one, the name, and what it costs. */
+  #row(text: string, media: { image?: OptionValue["image"]; color?: string }, price: string): HTMLLabelElement {
+    const label = el("label", "foxy-product-row");
+    const image = productImage(media.image, true);
+    if (image || media.color) {
+      const holder = el("span", "foxy-product-row-media");
+      holder.setAttribute("aria-hidden", "true");
+      if (image) {
+        image.alt = "";
+        holder.append(image);
+      } else {
+        // Set as a property, so a value that isn't a colour is ignored.
+        holder.style.backgroundColor = media.color!;
+      }
+      label.append(holder);
+    }
+    label.append(el("span", "foxy-product-row-label", text));
+    if (price) label.append(el("span", "foxy-product-row-price", price));
+    return label;
+  }
+
+  #optionRows(option: ProductOption, index: number): HTMLElement {
+    const values = this.#optionStates(option, index);
+    const prices = values.map(({ value }) => this.#valuePrice(option, value));
+    const showPrices = prices.every((price) => price !== null);
+    return this.#radios(option.name, el("legend", undefined, option.label), "foxy-product-rows", values, (value) => ({
+      checked: value.value === this.state.choices[option.name],
+      disabled: value.soldOut,
+      choose: () => this.#choose(option.name, value.value),
+      label: this.#row(
+        value.soldOut ? this.#t(messages.valueSoldOut, { label: value.label }) : value.label,
+        value,
+        showPrices ? this.#money(prices[values.indexOf(value)]!) : "",
+      ),
+    }));
+  }
+
+  #variantRows(variants: CatalogProduct[]): HTMLElement {
+    return this.#radios("variant", el("legend", undefined, this.#t(messages.variant)), "foxy-product-rows", variants, (variant) => {
+      const name = variant.definition.name ?? variant.display_name ?? variant.sku;
+      const { price } = productPrice(variant, this.#settings.currency);
+      return {
+        checked: variant.sku === this.state.variantSku,
+        disabled: !variant.is_in_stock,
+        choose: () => {
+          this.state.variantSku = variant.sku;
+          this.#settle();
+          this.render();
+        },
+        label: this.#row(
+          variant.is_in_stock ? name : this.#t(messages.valueSoldOut, { label: name }),
+          {},
+          price === null ? "" : this.#money(price),
+        ),
+      };
+    });
   }
 
   #optionPills(option: ProductOption, index: number): HTMLElement {
-    const set = el("fieldset", "foxy-product-option");
     const legend = el("legend", undefined, `${option.label} `);
     const values = this.#optionStates(option, index);
     const chosen = values.find(({ value }) => value === this.state.choices[option.name]);
     legend.append(el("span", "foxy-product-hint", chosen?.label ?? ""));
-
-    const group = el("div", "foxy-product-values");
     const swatches = values.some(({ color, image }) => color || image);
-    if (swatches) group.dataset.swatches = "";
 
-    values.forEach((value, valueIndex) => {
-      const radio = el("input", "foxy-product-radio");
-      radio.type = "radio";
-      // No `form` field of this name reaches the cart: these controls sit
-      // in a form without an action, and the cart form is built apart.
-      radio.name = `${this.#id}-${option.name}`;
-      radio.id = `${this.#id}-${option.name}-${valueIndex}`;
-      radio.checked = value === chosen;
-      radio.disabled = value.soldOut;
-      radio.addEventListener("change", () => this.#choose(option.name, value.value));
-
+    const set = this.#radios(option.name, legend, "foxy-product-values", values, (value) => {
       const text = value.soldOut ? this.#t(messages.valueSoldOut, { label: value.label }) : value.label;
       const label = el("label", swatches ? "foxy-product-swatch" : "foxy-product-pill");
-      label.htmlFor = radio.id;
       if (swatches) {
         const ring = el("span", "foxy-product-swatch-ring");
         const dot = el("span", "foxy-product-swatch-dot");
         ring.setAttribute("aria-hidden", "true");
-        const image = productImage(value.image, true);
+        // A colour says more than a photo at this size, so it comes first.
+        const image = value.color ? null : productImage(value.image, true);
         if (image) {
           image.alt = "";
           dot.append(image);
@@ -239,10 +341,14 @@ export class Purchase {
       } else {
         label.textContent = text;
       }
-      group.append(radio, label);
+      return {
+        checked: value === chosen,
+        disabled: value.soldOut,
+        choose: () => this.#choose(option.name, value.value),
+        label,
+      };
     });
-
-    set.append(legend, group);
+    if (swatches) set.querySelector<HTMLElement>(".foxy-product-values")!.dataset.swatches = "";
     return set;
   }
 
@@ -427,7 +533,7 @@ export class Purchase {
 
     const id = `${this.#id}-quantity`;
     const field = this.#field(id, this.#t(messages.quantity));
-    const input = el("input", style === "input" ? "foxy-product-input foxy-product-quantity" : undefined);
+    const input = el("input");
     input.id = id;
     input.inputMode = "numeric";
     const set = (quantity: number) => {
@@ -435,15 +541,6 @@ export class Purchase {
       this.#refresh();
     };
     input.addEventListener("change", () => set(Number(input.value)));
-
-    if (style === "input") {
-      input.type = "number";
-      input.min = String(min);
-      if (Number.isFinite(max)) input.max = String(max);
-      this.#refreshers.push(() => (input.value = String(this.state.quantity)));
-      field.append(input);
-      return field;
-    }
 
     const step = (label: string, sign: string, by: number) => {
       const button = el("button", undefined, sign);
@@ -466,7 +563,7 @@ export class Purchase {
   /** "Choose a size": lowercased, as it sits mid-sentence. */
   #missingLabel(option: ProductOption): string {
     const name = option.label.toLowerCase();
-    return this.#t(/^[aeiou]/.test(name) ? messages.chooseAn : messages.chooseA, { option: name });
+    return this.#t(chooseMessage(name), { option: name });
   }
 
   #button(): HTMLButtonElement {

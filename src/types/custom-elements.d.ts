@@ -117,12 +117,16 @@ type ProductElementSharedProps = {
   store?: string;
   currency?: string;
   "currency-cookie"?: string;
+  theme?: "plain" | "foxy" | "soft" | "bookshop" | "market" | "cart" | "dark";
   font?: string;
   "text-color"?: string;
   "button-color"?: string;
   "button-text-color"?: string;
   "button-radius"?: number | string;
   "accent-color"?: string;
+  "tile-width"?: number | string;
+  "tile-gap"?: number | string;
+  "image-ratio"?: string;
 };
 
 type ProductLinkElementProps = DetailedHTMLProps<
@@ -147,6 +151,8 @@ type ProductFormElementProps = Omit<
     label?: string;
     headingLevel?: number;
     "heading-level"?: number | string;
+    optionStyle?: "buttons" | "rows" | "select";
+    "option-style"?: "buttons" | "rows" | "select";
     showQuantity?: boolean;
     "show-quantity"?: boolean;
   };
@@ -160,6 +166,8 @@ type ProductPageElementProps = Omit<
     label?: string;
     headingLevel?: number;
     "heading-level"?: number | string;
+    optionStyle?: "buttons" | "rows" | "select";
+    "option-style"?: "buttons" | "rows" | "select";
     skuParam?: string;
     "sku-param"?: string;
   };

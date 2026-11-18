@@ -13,7 +13,8 @@ export interface StoreLook {
   /** CSS pixels. */
   buttonRadius: number | null;
   buttonText: string | null;
-  font: keyof typeof FONT_STACKS | null;
+  /** `inherit` is the page's own font. */
+  font: "inherit" | keyof typeof FONT_STACKS | null;
   customCss: string | null;
 }
 
@@ -29,7 +30,6 @@ export const DEFAULT_LOOK: StoreLook = {
 };
 
 const FONT_STACKS = {
-  inherit: "inherit",
   system: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   serif: 'Georgia, "Times New Roman", serif',
 };
@@ -68,7 +68,7 @@ export function parseLook(body: unknown): StoreLook {
         : null,
     buttonText: text && text.length <= 40 && !/[<>\p{Cc}]/u.test(text) ? text : null,
     font:
-      typeof data.font === "string" && Object.hasOwn(FONT_STACKS, data.font)
+      data.font === "inherit" || (typeof data.font === "string" && Object.hasOwn(FONT_STACKS, data.font))
         ? (data.font as StoreLook["font"])
         : null,
     customCss: typeof css === "string" && css.trim() && css.length <= 10000 ? css : null,
@@ -117,8 +117,12 @@ export function applyLook(element: HTMLElement, store: string, look: StoreLook):
     look.buttonColor,
     look.buttonTextColor,
     look.buttonRadius === null ? null : `${look.buttonRadius}px`,
-    look.font && FONT_STACKS[look.font],
+    look.font && look.font !== "inherit" ? FONT_STACKS[look.font] : null,
   ];
+  // The page's font is a rule in the stylesheet: `inherit` in a variable
+  // would mean the variable's own inherited value.
+  if (look.font === "inherit") element.dataset.foxyStoreFont = "inherit";
+  else delete element.dataset.foxyStoreFont;
   STORE_VARIABLES.forEach((name, index) => {
     const value = values[index];
     if (value) element.style.setProperty(name, value);
@@ -159,16 +163,21 @@ export const LOOK_ATTRIBUTES: Record<string, string> = {
   "button-text-color": "--foxy-product-button-text-color",
   "button-radius": "--foxy-product-button-radius",
   "accent-color": "--foxy-product-accent-color",
+  "tile-width": "--foxy-product-tile-width",
+  "tile-gap": "--foxy-product-grid-gap",
+  "image-ratio": "--foxy-product-tile-aspect",
 };
+
+const PIXEL_ATTRIBUTES = ["button-radius", "tile-width", "tile-gap"];
 
 /** Copies the look attributes onto the element as `--foxy-product-*` variables. */
 export function syncLookAttributes(element: HTMLElement): void {
   for (const [attribute, variable] of Object.entries(LOOK_ATTRIBUTES)) {
     let value = element.getAttribute(attribute)?.trim() ?? "";
-    if (attribute === "font" && Object.hasOwn(FONT_STACKS, value)) {
-      value = FONT_STACKS[value as keyof typeof FONT_STACKS];
+    if (attribute === "font") {
+      value = value === "inherit" ? "" : Object.hasOwn(FONT_STACKS, value) ? FONT_STACKS[value as keyof typeof FONT_STACKS] : value;
     }
-    if (attribute === "button-radius" && /^\d+(\.\d+)?$/.test(value)) value += "px";
+    if (PIXEL_ATTRIBUTES.includes(attribute) && /^\d+(\.\d+)?$/.test(value)) value += "px";
     if (value) element.style.setProperty(variable, value);
     else element.style.removeProperty(variable);
   }

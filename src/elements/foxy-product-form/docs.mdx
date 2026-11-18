@@ -33,7 +33,7 @@ Whatever is inside the tag shows until the product has loaded, and stays if it c
 
 ## Options
 
-One drop-down per option, in declared order (`foxy-product-page` shows the same options as buttons and swatches). Nothing is chosen for the shopper: the price shows the range of the variants' prices and the button says what is missing ("Choose a size", then "Choose a colour"), until every option has a value. Then the price is the chosen variant's and the button reads "Add to cart · $24.95".
+One control per option, in declared order: buttons by default (a swatch for a value with a `color` or `image`, or when each value's variants have a photo of their own), a list of rows with `option-style="rows"`, or a drop-down with `option-style="select"`. A parent whose variants don't say which option values they have is offered as a list of its variants: a drop-down, or rows with `option-style="rows"`. `foxy-product-page` offers the same. Nothing is chosen for the shopper: the price shows the range of the variants' prices and the button says what is missing ("Choose a size", then "Choose a colour"), until every option has a value. Then the price is the chosen variant's and the button reads "Add to cart · $24.95".
 
 Each option only offers the values that exist with the choices made for the options before it:
 
@@ -47,12 +47,12 @@ A later choice that an earlier one rules out is cleared, and the shopper chooses
 The form offers the **chosen variant's** modifiers, because the cart checks an add against the variant's own list, which can add to or remove from its parent's. Until a variant is chosen, it shows what the parent declares. What the shopper already entered is kept for modifiers the new variant still has.
 
 - A text modifier is a text field with its `max_length`, a count of characters used, and "(optional)" or "(required)" beside its label, with its amount: "(optional, +$6.00)".
-- A choice is a drop-down. An optional one starts on its first declared value; the element never adds a "None" of its own, so a merchant who wants one declares it as a value. A required one starts on "Choose…".
+- A choice modifier is a drop-down. An optional one starts on its first declared value; the element never adds a "None" of its own, so a merchant who wants one declares it as a value. A required one starts on "Choose…".
 - A required modifier left empty stops the add with "Fill this in to add it to the cart."; the cart checks again.
 
 ## Quantity and stock
 
-With `show-quantity`, a number field from the product's `quantity_min` (else 1) up to the lower of its `quantity_max` and its stock. It is left out when only one can be bought. Under the price: "Sold out", or "Only 3 left" at or below the low-stock threshold: the product's own low-stock threshold when it sets one (`low_stock_threshold` in its definition, which variants inherit), else the store's (5 unless the store saved another).
+With `show-quantity`, a stepper from the product's `quantity_min` (else 1) up to the lower of its `quantity_max` and its stock. It is left out when only one can be bought. Under the price: "Sold out", or "Only 3 left" at or below the low-stock threshold: the product's own low-stock threshold when it sets one (`low_stock_threshold` in its definition, which variants inherit), else the store's (5 unless the store saved another).
 
 ## Attributes
 
@@ -61,12 +61,13 @@ With `show-quantity`, a number field from the product's `quantity_min` (else 1) 
 | `sku` | `sku` | Required. A product's, parent's or variant's SKU. |
 | `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
 | `value` | `value` | Preselected options, as a query string: `color=Black&size=M`. Changing it starts the choices over. |
-| `show-quantity` | `showQuantity` | Shows the quantity field. |
+| `option-style` | `optionStyle` | How a parent's options are offered: `buttons` (the default; a swatch for a value with a colour or photo), `rows` (a list, each value with its price once it has one) or `select` (drop-downs). |
+| `show-quantity` | `showQuantity` | Shows the quantity stepper. |
 | `label` | `label` | The add button's text; the price follows it. Default: the store's saved button text, else "Add to cart". |
 | `heading-level` | `headingLevel` | The name's heading level. Default `2`. |
 | `currency`, `currency-cookie`, `lang` | `currency` | As for `foxy-product-link`. |
-| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. |
+| `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. |
 
 ## Styling
 
-The look's attributes and CSS variables are listed under `foxy-product-link`. Classes: `.foxy-product-form` (the card), `.foxy-product-summary`, `.foxy-product-brand`, `.foxy-product-name`, `.foxy-product-price`, `.foxy-product-note`, `.foxy-product-controls`, `.foxy-product-field`, `.foxy-product-field-label`, `.foxy-product-hint`, `.foxy-product-input`, `.foxy-product-counter`, `.foxy-product-error`, `.foxy-product-add` (the button, also `.foxy-product-button`).
+The look's attributes and CSS variables are listed under `foxy-product-link`. Classes: `.foxy-product-form` (the card), `.foxy-product-summary`, `.foxy-product-brand`, `.foxy-product-name`, `.foxy-product-price`, `.foxy-product-note`, `.foxy-product-controls`, `.foxy-product-field`, `.foxy-product-field-label`, `.foxy-product-hint`, `.foxy-product-input`, `.foxy-product-option`, `.foxy-product-values`, `.foxy-product-pill`, `.foxy-product-swatch`, `.foxy-product-rows`, `.foxy-product-row`, `.foxy-product-stepper`, `.foxy-product-counter`, `.foxy-product-error`, `.foxy-product-add` (the button, also `.foxy-product-button`).

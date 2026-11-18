@@ -47,13 +47,14 @@ A product's description is Markdown, written by the merchant, and it's untrusted
 | `sku-param` | `skuParam` | The name of a query parameter of the page's address that holds the SKU. `sku` wins when both are set. |
 | `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
 | `value` | `value` | Preselected options, as a query string: `color=Black&size=M`. |
+| `option-style` | `optionStyle` | As for `foxy-product-form`: `buttons` (the default), `rows` or `select`. |
 | `label` | `label` | The add button's text; the price follows it. Default: the store's saved button text, else "Add to cart". |
 | `heading-level` | `headingLevel` | The name's heading level. Default `1`. |
 | `currency`, `currency-cookie`, `lang` | `currency` | As for `foxy-product-link`. |
-| `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. |
+| `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. |
 
 ## Styling
 
-The photos sit beside the details and stack when the element is narrow; so do the description and the details. The look's attributes and CSS variables are listed under `foxy-product-link`. Classes, besides `foxy-product-form`'s: `.foxy-product-page`, `.foxy-product-main`, `.foxy-product-gallery`, `.foxy-product-hero`, `.foxy-product-thumbs`, `.foxy-product-info`, `.foxy-product-option`, `.foxy-product-pill`, `.foxy-product-swatch`, `.foxy-product-stepper`, `.foxy-product-description`, `.foxy-product-details`.
+The photos sit beside the details and stack when the element is narrow; so do the description and the details. The look's attributes and CSS variables are listed under `foxy-product-link`. Classes, besides `foxy-product-form`'s: `.foxy-product-page`, `.foxy-product-main`, `.foxy-product-gallery`, `.foxy-product-hero`, `.foxy-product-thumbs`, `.foxy-product-info`, `.foxy-product-description`, `.foxy-product-details`.
 
 It doesn't set the page's `<title>` or meta description, and has no breadcrumbs: the catalog doesn't publish a collection's name or path.

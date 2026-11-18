@@ -74,6 +74,17 @@ describe("foxy-product-page", () => {
     expect(document.activeElement).toBe(current);
   });
 
+  it("shows a photo while its thumbnail is hovered or focused", async () => {
+    const element = await mount(`sku="TEE-ORG"`);
+    const thumbs = [...element.querySelectorAll<HTMLButtonElement>(".foxy-product-thumbs button")];
+    thumbs[1].dispatchEvent(new PointerEvent("pointerenter"));
+    expect(element.querySelector<HTMLImageElement>(".foxy-product-hero img")?.src).toContain("tee-black-back.jpg");
+    // The thumbnails weren't rebuilt, or the hover would end.
+    expect(element.querySelectorAll(".foxy-product-thumbs button")[1]).toBe(thumbs[1]);
+    thumbs[0].focus();
+    expect(thumbs[0].getAttribute("aria-current")).toBe("true");
+  });
+
   it("offers options as labelled swatches and pills, and says what's missing on the button", async () => {
     const element = await mount(`sku="TEE-ORG"`);
     expect(values(element, "Colour").map((l) => l.textContent)).toEqual(["Black", "Natural (undyed)", "Moss (sold out)"]);

@@ -11,7 +11,6 @@ import type { CatalogProduct } from "@/lib/products/types";
  * `foxycart.js` takes it over as it would any add-to-cart form.
  */
 export class ProductFormElement extends PurchaseElement {
-  protected readonly optionStyle = "select";
   protected readonly defaultHeadingLevel = 2;
   protected readonly saysInStock = false;
 
@@ -27,8 +26,8 @@ export class ProductFormElement extends PurchaseElement {
     this.toggleAttribute("show-quantity", value);
   }
 
-  protected get quantityStyle(): "input" | "none" {
-    return this.showQuantity ? "input" : "none";
+  protected get quantityStyle(): "stepper" | "none" {
+    return this.showQuantity ? "stepper" : "none";
   }
 
   protected layout(product: CatalogProduct, purchase: Purchase): Node[] {

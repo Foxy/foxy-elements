@@ -14,10 +14,7 @@ import type { CatalogProduct } from "./types";
 /** Attributes every product element takes. */
 export const SHARED_ATTRIBUTES = ["sku", "store", "currency", "lang", ...Object.keys(LOOK_ATTRIBUTES)];
 
-/**
- * Fetches the store's look once for an element and puts it on it. Returns
- * the look for `onLook` when it brings something a re-render would show.
- */
+/** Fetches the store's look (once per store per page), puts it on the element, then calls `onLook`. */
 export function loadLook(element: HTMLElement, store: string, onLook: (look: StoreLook) => void): void {
   void fetchLook(store).then((look) => {
     if (!element.isConnected) return;
@@ -117,6 +114,8 @@ export abstract class ProductElement extends HTMLElement {
       // Re-rendering replaces a link, and with it the shopper's focus, so
       // only a change of currency does.
       this.#unwatch = watchFoxy2Session(() => {
+        // The session may also be the first to say which store this is.
+        this.load();
         if (resolveCurrency(this) !== this.#renderedCurrency) this.render();
       });
       this.load();

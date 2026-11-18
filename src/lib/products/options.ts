@@ -27,8 +27,9 @@ export function productOptions(product: CatalogProduct): ProductOption[] {
 }
 
 /**
- * The option key the API, cart and catalog share: names and values lowercased
- * and trimmed, sorted by name, URI-encoded and joined with `&`.
+ * A key for a set of option values, to compare a shopper's choices with a
+ * variant's: names and values lowercased and trimmed, sorted by name,
+ * URI-encoded and joined with `&`.
  */
 export function optionKey(values: Record<string, string>): string {
   return Object.entries(values)

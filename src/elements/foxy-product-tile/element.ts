@@ -6,7 +6,7 @@ import {
   renderPrice,
   stockNote,
 } from "@/lib/products/light-dom";
-import { format, messages } from "@/lib/products/messages";
+import { chooseMessage, format, messages } from "@/lib/products/messages";
 import { isOneClick, productOptions } from "@/lib/products/options";
 import { productName } from "@/lib/products/price";
 import { productJsonLd } from "@/lib/products/structured-data";
@@ -191,7 +191,7 @@ export class ProductTileElement extends ProductElement {
     const [first, second, ...more] = productOptions(product).map(({ label }) => label.toLowerCase());
     if (first && second && !more.length) return format(locale, messages.chooseTwo, { first, second });
     if (first && !second) {
-      return format(locale, /^[aeiou]/.test(first) ? messages.chooseAn : messages.chooseA, { option: first });
+      return format(locale, chooseMessage(first), { option: first });
     }
     return format(locale, messages.chooseOptions);
   }

@@ -95,6 +95,10 @@ export const messages = defineMessages({
     id: "product_choose_an",
     defaultMessage: "Choose an {option}",
   },
+  chooseSome: {
+    id: "product_choose_some",
+    defaultMessage: "Choose {option}",
+  },
   chooseTwo: {
     id: "product_choose_two",
     defaultMessage: "Choose {first} and {second}",
@@ -199,6 +203,16 @@ const MESSAGES_BY_LOCALE: Record<string, Record<string, string>> = {
   "en-US": enUsMessages as Record<string, string>,
   en: enUsMessages as Record<string, string>,
 };
+
+/**
+ * "Choose a size", "Choose an engraving", "Choose pickups": the message for
+ * an option's lowercased name. The article follows English, like the
+ * messages themselves; a plural takes none.
+ */
+export function chooseMessage(option: string): MessageDescriptor {
+  if (/[^s]s$/.test(option)) return messages.chooseSome;
+  return /^[aeiou]/.test(option) ? messages.chooseAn : messages.chooseA;
+}
 
 export function format(
   locale: string,

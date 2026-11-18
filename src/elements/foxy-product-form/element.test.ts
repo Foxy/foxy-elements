@@ -11,9 +11,11 @@ import "./element";
 
 let stub: CatalogStub | undefined;
 
+// Mounted with drop-downs unless `attributes` names another style: the
+// parser keeps the first of a repeated attribute.
 async function mount(attributes: string, inner = ""): Promise<HTMLElement> {
   stub ??= stubCatalog();
-  document.body.innerHTML = `<foxy-product-form store="${FIXTURE_STORE}" lang="en-US" currency="USD" ${attributes}>${inner}</foxy-product-form>`;
+  document.body.innerHTML = `<foxy-product-form store="${FIXTURE_STORE}" lang="en-US" currency="USD" ${attributes} option-style="select">${inner}</foxy-product-form>`;
   const element = document.body.querySelector<HTMLElement>("foxy-product-form")!;
   await vi.waitFor(() => expect(element.querySelector(".foxy-product-controls")).not.toBeNull());
   return element;
@@ -205,10 +207,32 @@ describe("foxy-product-form", () => {
     expect(price(element)).toBe("$18.00");
   });
 
+  it("offers options as buttons with option-style=\"buttons\", with a swatch for each colour", async () => {
+    const element = await mount(`sku="TEE-ORG" option-style="buttons"`);
+    expect([...element.querySelectorAll("legend")].map((l) => l.textContent!.trim())).toEqual(["Colour", "Size"]);
+    const swatches = [...element.querySelectorAll<HTMLElement>(".foxy-product-swatch-dot")];
+    expect(swatches.map((dot) => dot.style.backgroundColor)).toContain("rgb(29, 29, 31)");
+    await userEvent.click(element.querySelector<HTMLElement>(".foxy-product-swatch")!);
+    expect(addButton(element).textContent).toBe("Choose a size");
+  });
+
+  it("lists options as rows with option-style=\"rows\", pricing a value once it has one price", async () => {
+    const element = await mount(`sku="TEE-ORG" option-style="rows"`);
+    const rows = (legend: string) =>
+      [...element.querySelectorAll("fieldset")]
+        .find((set) => set.querySelector("legend")!.textContent === legend)!
+        .querySelectorAll<HTMLLabelElement>(".foxy-product-row");
+    await userEvent.click(rows("Colour")[0]);
+    const sizes = [...rows("Size")];
+    expect(sizes.every((row) => row.querySelector(".foxy-product-row-price"))).toBe(true);
+    await userEvent.click(sizes[0]);
+    expect(addButton(element).disabled).toBe(false);
+    expect(sent(element)[0]).toBe("sku=TEE-ORG");
+  });
+
   it("caps the quantity at what's in stock", async () => {
     const element = await mount(`sku="MUG-ENM-WHT" show-quantity`);
     const quantity = control<HTMLInputElement>(element, "Quantity");
-    expect(quantity.max).toBe("3");
     await userEvent.fill(quantity, "8");
     quantity.dispatchEvent(new Event("change"));
     expect(sent(element)).toEqual(["sku=MUG-ENM-WHT", "quantity=3"]);

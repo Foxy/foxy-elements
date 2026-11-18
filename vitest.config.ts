@@ -38,7 +38,6 @@ export default defineConfig({
       "@foxy.io/design-system/field",
       "@foxy.io/design-system/input",
       "@foxy.io/design-system/item",
-      "@foxy.io/design-system/quantity-controls",
       "@foxy.io/design-system/radio",
       "@foxy.io/design-system/select",
       "@foxy.io/design-system/separator",

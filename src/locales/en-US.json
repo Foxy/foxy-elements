@@ -255,6 +255,7 @@
   "product_choose_a": "Choose a {option}",
   "product_choose_an": "Choose an {option}",
   "product_choose_options": "Choose options",
+  "product_choose_some": "Choose {option}",
   "product_choose_two": "Choose {first} and {second}",
   "product_collection_empty": "No products here yet.",
   "product_count": "{count, plural, one {# product} other {# products}}",

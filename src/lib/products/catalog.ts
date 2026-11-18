@@ -17,12 +17,11 @@ declare global {
 }
 
 const LOADER_SRC = /^https:\/\/cdn\.foxycart\.com\/([^/]+)\/loader\.js/;
-const DEV_LOADER_SRC = /^https:\/\/([^/]+)\/cdn\/get\.php\?.*file=loader\.js/;
 
 /**
  * The store's domain, such as `example.foxycart.com`: the `store` attribute,
  * else the one 2.0's `foxycart.js` was loaded for, else the one in the page's
- * `loader.js` URL (which is known before `foxycart.js` has loaded).
+ * `loader.js` URL (there before `foxycart.js` has loaded).
  *
  * Cart links must contain exactly this domain: 2.0 intercepts only links and
  * forms whose URL contains `FC.settings.storedomain + "/cart"`.
@@ -37,8 +36,9 @@ export function resolveStoreDomain(element: Element): string | null {
   for (const script of document.querySelectorAll<HTMLScriptElement>(
     "script[src*='loader.js']",
   )) {
-    const match = LOADER_SRC.exec(script.src) ?? DEV_LOADER_SRC.exec(script.src);
-    if (match) return match[1];
+    const match = LOADER_SRC.exec(script.src);
+    // A store without a custom domain is named there by its subdomain alone.
+    if (match) return match[1].includes(".") ? match[1] : `${match[1]}.foxycart.com`;
   }
 
   return null;

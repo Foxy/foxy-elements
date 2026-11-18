@@ -166,15 +166,29 @@ describe("foxy-product-link", () => {
 describe("foxy-product-link's look", () => {
   const background = (element: HTMLElement) => getComputedStyle(link(element)!).backgroundColor;
 
-  it("is the Foxy 2.0 cart's by default", async () => {
+  it("is the bold theme by default, and the 2.0 cart's with theme=\"cart\"", async () => {
     stub = stubCatalog();
     const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-link>`);
     await settle();
     const style = getComputedStyle(link(element)!);
-    expect(style.backgroundColor).toBe("rgb(63, 138, 46)");
+    expect(style.backgroundColor).toBe("rgb(17, 24, 39)");
     expect(style.color).toBe("rgb(255, 255, 255)");
+    expect(style.borderRadius).toBe("8px");
+
+    element.setAttribute("theme", "cart");
+    expect(style.backgroundColor).toBe("rgb(63, 138, 46)");
     expect(style.borderRadius).toBe("0px");
     expect(style.fontFamily).toContain("Helvetica Neue");
+  });
+
+  it("lets the store's look and an attribute win over a theme", async () => {
+    stub = stubCatalog();
+    stub.look = { button_color: "#0057d9" };
+    const element = mount(`<foxy-product-link theme="foxy" store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-link>`);
+    await settle();
+    await vi.waitFor(() => expect(background(element)).toBe("rgb(0, 87, 217)"));
+    element.setAttribute("button-color", "#0b5d3b");
+    expect(background(element)).toBe("rgb(11, 93, 59)");
   });
 
   it("takes the store's saved look, fetched once for every element on the page", async () => {
@@ -234,8 +248,8 @@ describe("foxy-product-link's look", () => {
     };
     const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" show-price="false"></foxy-product-link>`);
     await settle();
-    expect(background(element)).toBe("rgb(63, 138, 46)");
-    expect(getComputedStyle(link(element)!).borderRadius).toBe("0px");
+    expect(background(element)).toBe("rgb(17, 24, 39)");
+    expect(getComputedStyle(link(element)!).borderRadius).toBe("8px");
     expect(link(element)?.textContent).toBe("Add to cart");
     // The CSS is the text of a style element, so markup in it is never parsed.
     expect(document.getElementById("foxy-look-markup")).toBeNull();
@@ -253,7 +267,7 @@ describe("foxy-product-link's look", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" currency="USD"></foxy-product-link>`);
     await settle();
-    expect(background(element)).toBe("rgb(63, 138, 46)");
+    expect(background(element)).toBe("rgb(17, 24, 39)");
     expect(link(element)?.textContent).toBe("Add to cart · $16.40 $18.90");
     expect(warn).toHaveBeenCalledTimes(1);
   });

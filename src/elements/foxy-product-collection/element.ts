@@ -32,6 +32,7 @@ export class ProductCollectionElement extends HTMLElement {
   #failed = false;
   #request = 0;
   #started = false;
+  #loadedQuery = "";
   #fallback: Node[] | null = null;
   #toolbar = document.createElement("div");
   #list = document.createElement("ul");
@@ -139,7 +140,9 @@ export class ProductCollectionElement extends HTMLElement {
       if (!this.isConnected || this.#started) return;
       this.#fallback ??= [...this.childNodes];
       this.#started = true;
-      this.#reload();
+      // 2.0 moves the page's content the first time its sidecart opens;
+      // what is loaded, and how far the shopper has paged, is still right.
+      if (this.#loadedQuery !== this.#queryKey()) this.#reload();
     });
   }
 
@@ -169,7 +172,12 @@ export class ProductCollectionElement extends HTMLElement {
     };
   }
 
+  #queryKey(): string {
+    return JSON.stringify([resolveStoreDomain(this), this.#query()]);
+  }
+
   #reload(): void {
+    this.#loadedQuery = this.#queryKey();
     this.#products = [];
     this.#total = 0;
     this.#next = null;
