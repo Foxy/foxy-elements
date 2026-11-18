@@ -3,15 +3,19 @@ import './index';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ProductList } from './ProductList';
-import { createServer, product, productsHref } from './fixtures';
+import { collectionsHref, createServer, product, productsHref } from './fixtures';
 
 describe('ProductList', () => {
-  async function render(server = createServer()): Promise<ProductList> {
+  beforeEach(() => localStorage.clear());
+
+  async function render(server = createServer(), random = () => 0.5): Promise<ProductList> {
     const element = await fixture<ProductList>(html`
       <foxy-product-list
+        product-collections=${collectionsHref}
         currency-code="USD"
         href=${productsHref}
         lang="en"
+        .random=${random}
         .getProductPageHref=${(href: string) => `/products/${href.split('/').pop()}`}
         @fetch=${server.handle}
       >
@@ -45,10 +49,64 @@ describe('ProductList', () => {
     ]);
   });
 
-  it('says how many variants are counted in their products', async () => {
+  it('counts products, variants and templates in one line', async () => {
     const element = await render();
     const summary = element.renderRoot.querySelector('[data-testid="summary"]')!;
-    expect(text(summary)).to.equal('summary summary_variants');
+    expect(text(summary)).to.equal('product_count · variant_count · template_count');
+    expect(element.renderRoot.querySelector('[data-testid="fact"]')).to.not.exist;
+  });
+
+  it('leaves out the counts that are zero', async () => {
+    const element = await render(createServer([product(7, { definition: { name: 'A' } })]));
+    const summary = element.renderRoot.querySelector('[data-testid="summary"]')!;
+    expect(text(summary)).to.equal('product_count');
+  });
+
+  it('says how many rows a filter leaves, with a way to clear every filter', async () => {
+    const element = await render();
+    element.query = 'camp';
+    element.typeFilter = 'standalone';
+    await element.updateComplete;
+
+    const summary = element.renderRoot.querySelector('[data-testid="summary"]')!;
+    expect(text(summary)).to.equal('showing clear_filters');
+
+    summary.querySelector<HTMLElement>('[data-testid="clear-filters"]')!.click();
+    await element.updateComplete;
+    expect(rows(element)).to.have.length(5);
+    expect(element.query).to.equal('');
+    expect(element.typeFilter).to.equal('all');
+  });
+
+  it('shows a fact with a link to its source in about 1 load in 100', async () => {
+    // The first number decides whether a fact shows, the second which one.
+    const numbers = [0.0099, 0.9999];
+    const element = await render(createServer(), () => numbers.shift()!);
+    const fact = element.renderRoot.querySelector('[data-testid="fact"]')!;
+    const link = fact.querySelector('a')!;
+
+    expect(text(fact)).to.equal('fact_first_web_sale Wikipedia');
+    expect(link.href).to.equal('https://en.wikipedia.org/wiki/Online_shopping');
+    expect(link.target).to.equal('_blank');
+    expect(link.rel).to.equal('noopener noreferrer');
+    expect(element.renderRoot.querySelector('[data-testid="summary"]')).to.not.exist;
+  });
+
+  it('shows no fact when the number is 0.01 or more', async () => {
+    const element = await render(createServer(), () => 0.01);
+    expect(element.renderRoot.querySelector('[data-testid="fact"]')).to.not.exist;
+  });
+
+  it('shows the animated logo, labelled, while the products load', async () => {
+    const element = await fixture<ProductList>(html`
+      <foxy-product-list href=${productsHref} @fetch=${(evt: Event) => evt.preventDefault()}>
+      </foxy-product-list>
+    `);
+    await element.updateComplete;
+    const status = element.renderRoot.querySelector('[data-testid="status"]')!;
+    expect(status.getAttribute('role')).to.equal('status');
+    expect(status.getAttribute('aria-label')).to.equal('loading');
+    expect(status.querySelector('svg')).to.exist;
   });
 
   it('links each row to the product page', async () => {
@@ -71,10 +129,10 @@ describe('ProductList', () => {
     expect(sku_cell.scrollWidth).to.be.at.most(sku_cell.clientWidth);
   });
 
-  it('shows the SKU once for a product without a name', async () => {
+  it('leaves the name of a product without one blank', async () => {
     const element = await render();
     const template = rows(element)[4];
-    expect(text(cell(template, 'name'))).to.equal('unnamed');
+    expect(text(cell(template, 'name'))).to.equal('');
     expect(template.textContent!.split('TPL-COFFEE-340')).to.have.length(2);
   });
 
@@ -99,11 +157,24 @@ describe('ProductList', () => {
       'stock_low',
       'stock_untracked',
       'stock_in · stock_out_count · stock_low_count',
-      'stock_untracked',
+      'stock_template',
     ]);
-    const colors = stock.map(s => getComputedStyle(s.querySelector('.dot')!).backgroundColor);
+    const colors = stock
+      .slice(0, 4)
+      .map(s => getComputedStyle(s.querySelector('.dot')!).backgroundColor);
     expect(new Set(colors).size).to.equal(3);
     colors.forEach(color => expect(color).to.not.equal('rgba(0, 0, 0, 0)'));
+  });
+
+  it("words a template's stock as what its products start with, without a stock colour", async () => {
+    const server = createServer();
+    server.products.push(product(45, { sku: 'TPL-CLASS', product_type: 'template' }));
+    const element = await render(server);
+    const [without, withStock] = rows(element).slice(-2);
+
+    expect(text(cell(withStock, 'stock'))).to.equal('stock_template');
+    expect(text(cell(without, 'stock'))).to.equal('stock_template_none');
+    expect(withStock.querySelector('.dot')).to.not.exist;
   });
 
   it('uses the low-stock number it is given', async () => {
@@ -142,6 +213,170 @@ describe('ProductList', () => {
     );
   });
 
+  it('sorts by the column whose heading is pressed, then the other way', async () => {
+    const element = await render();
+    const byName = rows(element).map(row => row.dataset.sku);
+    const press = async (column: string) => {
+      element.renderRoot.querySelector<HTMLElement>(`[data-testid="sort-${column}"]`)!.click();
+      await element.updateComplete;
+    };
+    const heading = (column: string) =>
+      element.renderRoot.querySelector(`[data-testid="sort-${column}"]`)!.parentElement!;
+
+    expect(heading('name').getAttribute('aria-sort')).to.equal('ascending');
+
+    await press('name');
+    expect(rows(element).map(row => row.dataset.sku)).to.deep.equal([...byName].reverse());
+    expect(heading('name').getAttribute('aria-sort')).to.equal('descending');
+
+    // The template has no price, so it stays last both ways.
+    await press('price');
+    expect(rows(element)[0].dataset.sku).to.equal('GIFT-WRAP');
+    expect(rows(element)[4].dataset.sku).to.equal('TPL-COFFEE-340');
+    expect(heading('name').getAttribute('aria-sort')).to.equal('none');
+
+    await press('price');
+    expect(rows(element)[0].dataset.sku).to.equal('TEE-ORG');
+    expect(rows(element)[4].dataset.sku).to.equal('TPL-COFFEE-340');
+  });
+
+  it('limits the rows to one type', async () => {
+    const element = await render();
+    const filter = element.renderRoot.querySelector<HTMLSelectElement>(
+      '[data-testid="type-filter"]'
+    )!;
+    const choose = async (type: string) => {
+      filter.value = type;
+      filter.dispatchEvent(new Event('change'));
+      await element.updateComplete;
+    };
+
+    await choose('parent');
+    expect(rows(element).map(row => row.dataset.sku)).to.deep.equal(['TEE-ORG']);
+
+    await choose('template');
+    expect(rows(element).map(row => row.dataset.sku)).to.deep.equal(['TPL-COFFEE-340']);
+
+    await choose('standalone');
+    expect(rows(element)).to.have.length(3);
+  });
+
+  it('limits the rows to a collection and its sub-collections, or to no collection', async () => {
+    const element = await render();
+    const filter = element.renderRoot.querySelector<HTMLSelectElement>(
+      '[data-testid="collection-filter"]'
+    )!;
+    const choose = async (value: string) => {
+      filter.value = value;
+      filter.dispatchEvent(new Event('change'));
+      await element.updateComplete;
+    };
+
+    // In tree order, each under its parent, whatever order the API gave them in.
+    expect(Array.from(filter.options).map(option => option.value)).to.deep.equal([
+      '',
+      '18',
+      '19',
+      '17',
+      '21',
+      '25',
+      '20',
+      'none',
+    ]);
+    expect(filter.options[5].textContent).to.match(/^\s*\u00A0{6}Colombia\s*$/);
+
+    // Coffee holds nothing itself; the Huila is two levels down.
+    await choose('17');
+    expect(rows(element).map(row => row.dataset.sku)).to.deep.equal(['COF-COL-HUILA-340']);
+
+    await choose('19');
+    expect(rows(element).map(row => row.dataset.sku)).to.deep.equal(['TEE-ORG']);
+
+    await choose('none');
+    expect(rows(element).map(row => row.dataset.sku)).to.deep.equal([
+      'GIFT-WRAP',
+      'TPL-COFFEE-340',
+    ]);
+  });
+
+  it('limits the rows to the products that use a template', async () => {
+    const element = await render();
+    const filter = element.renderRoot.querySelector<HTMLSelectElement>(
+      '[data-testid="template-filter"]'
+    )!;
+    expect(Array.from(filter.options).map(text)).to.deep.equal([
+      'template_filter_all',
+      'TPL-COFFEE-340',
+    ]);
+
+    filter.value = '44';
+    filter.dispatchEvent(new Event('change'));
+    await element.updateComplete;
+    expect(rows(element).map(row => row.dataset.sku)).to.deep.equal(['COF-COL-HUILA-340']);
+  });
+
+  it('offers no collection or template choices to a store with neither', async () => {
+    const server = createServer([product(7, { definition: { name: 'A' } })]);
+    server.collections = [];
+    const element = await render(server);
+    ['collection-filter', 'template-filter', 'columns'].forEach(id => {
+      expect(element.renderRoot.querySelector(`[data-testid="${id}"]`)).to.not.exist;
+    });
+  });
+
+  it('shows the Collection and Template columns when chosen, and remembers the choice', async () => {
+    const element = await render();
+    const head = () =>
+      Array.from(element.renderRoot.querySelectorAll('[role="columnheader"]')).map(text);
+    expect(head()).to.have.length(5);
+
+    const box = (column: string) =>
+      element.renderRoot.querySelector<HTMLInputElement>(`[data-testid="column-${column}"]`)!;
+    for (const column of ['template', 'collection']) {
+      box(column).checked = true;
+      box(column).dispatchEvent(new Event('change'));
+      await element.updateComplete;
+    }
+
+    expect(head()).to.deep.equal([
+      'column_name ↑',
+      'column_sku',
+      'column_type',
+      'column_collection',
+      'column_template',
+      'column_price',
+      'column_stock',
+    ]);
+    const huila = rows(element)[0];
+    expect(text(cell(huila, 'collection'))).to.equal('Coffee › Single Origin › Colombia');
+    expect(text(cell(huila, 'template'))).to.equal('TPL-COFFEE-340');
+    expect(text(cell(rows(element)[2], 'collection'))).to.equal('—');
+    expect(huila.scrollWidth).to.be.at.most(huila.clientWidth);
+
+    const again = await render();
+    expect(again.extraColumns).to.deep.equal(['collection', 'template']);
+    expect(again.renderRoot.querySelector('[data-testid="head-collection"]')).to.exist;
+  });
+
+  it('keeps the columns for the visit when the browser refuses to store them', async () => {
+    const setItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = () => {
+      throw new Error('denied');
+    };
+    try {
+      const element = await render();
+      const box = element.renderRoot.querySelector<HTMLInputElement>(
+        '[data-testid="column-collection"]'
+      )!;
+      box.checked = true;
+      box.dispatchEvent(new Event('change'));
+      await element.updateComplete;
+      expect(element.renderRoot.querySelector('[data-testid="head-collection"]')).to.exist;
+    } finally {
+      Storage.prototype.setItem = setItem;
+    }
+  });
+
   it('loads a store with more products than one page holds', async () => {
     const many = Array.from({ length: 230 }, (_, i) =>
       product(i + 1, { definition: { name: `Product ${i + 1}` } })
@@ -149,7 +384,7 @@ describe('ProductList', () => {
     const server = createServer(many);
     const element = await render(server);
     expect(rows(element)).to.have.length(230);
-    expect(server.requests).to.have.length(2);
+    expect(server.requests.filter(request => request.url.includes('/products'))).to.have.length(2);
   });
 
   it('says so when the products fail to load', async () => {

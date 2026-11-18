@@ -148,7 +148,7 @@ export const sectionStyles = css`
 
   .pd-chip {
     padding: 0.1875rem 0.5625rem;
-    border-radius: 0.6875rem;
+    border-radius: var(--lumo-border-radius-s);
     background: var(--lumo-contrast-10pct);
     font-size: var(--lumo-font-size-xs);
   }

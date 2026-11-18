@@ -6,7 +6,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { STOCK_COLORS } from '../ProductList/listing';
+import { STOCK_COLORS, productStockState } from '../ProductList/listing';
 import { html } from 'lit-html';
 
 const NS = 'product-card';
@@ -39,7 +39,7 @@ export class ProductCard extends Base<Data> {
   /** ISO 4217 currency code for the price. When unset, the price is shown without a currency. */
   currencyCode: string | null = null;
 
-  /** stock_level <= this counts as "low stock" (amber). Default 5. */
+  /** The store's low-stock number, used when the product has none of its own. */
   lowStockThreshold = 5;
 
   // 1x1 transparent placeholder so broken/missing image URLs don't trigger
@@ -80,16 +80,20 @@ export class ProductCard extends Base<Data> {
             class="flex items-center text-s text-secondary leading-s"
             style="gap: 0.5rem; margin-top: 0.125rem"
           >
-            <span class="truncate" data-testid="sku">${data.sku}</span>
+            ${def.name
+              ? html`
+                  <span class="truncate" data-testid="sku">${data.sku}</span>
+                  <span class="text-tertiary">&bull;</span>
+                `
+              : ''}
             ${data.option_values && Object.keys(data.option_values).length
               ? html`
-                  <span class="text-tertiary">&bull;</span>
                   <span class="truncate" data-testid="option-values">
                     ${Object.values(data.option_values).join(' / ')}
                   </span>
+                  <span class="text-tertiary">&bull;</span>
                 `
               : ''}
-            <span class="text-tertiary">&bull;</span>
             ${this.__renderTypeBadge(data.product_type)}
             ${data.hidden
               ? html`
@@ -103,8 +107,12 @@ export class ProductCard extends Base<Data> {
                   <foxy-i18n data-testid="uses-template" infer="" key="uses_template"></foxy-i18n>
                 `
               : ''}
-            <span class="text-tertiary">&bull;</span>
-            ${this.__renderStockIndicator(stockState)}
+            ${data.product_type === 'template'
+              ? this.__renderStartingStock(data.stock_level)
+              : html`
+                  <span class="text-tertiary">&bull;</span>
+                  ${this.__renderStockIndicator(stockState)}
+                `}
             ${data.product_type === 'parent' && data.variant_count > 0
               ? html`
                   <span class="text-tertiary">&bull;</span>
@@ -146,6 +154,21 @@ export class ProductCard extends Base<Data> {
     `;
   }
 
+  // A template is never sold: its stock is only what its products start with.
+  private __renderStartingStock(level: number | null): TemplateResult | string {
+    if (typeof level !== 'number') return '';
+    return html`
+      <span class="text-tertiary">&bull;</span>
+      <foxy-i18n
+        data-testid="starting-stock"
+        infer=""
+        key="starting_stock"
+        .options=${{ count: level }}
+      >
+      </foxy-i18n>
+    `;
+  }
+
   private __renderStockIndicator(state: StockState): TemplateResult {
     return html`
       <span
@@ -164,10 +187,6 @@ export class ProductCard extends Base<Data> {
   }
 
   private get __stockState(): StockState {
-    const stockLevel = this.data?.stock_level;
-    if (stockLevel === null || stockLevel === undefined) return 'untracked';
-    if (stockLevel === 0) return 'out_of_stock';
-    if (stockLevel <= this.lowStockThreshold) return 'low_stock';
-    return 'in_stock';
+    return this.data ? productStockState(this.data, this.lowStockThreshold) : 'untracked';
   }
 }

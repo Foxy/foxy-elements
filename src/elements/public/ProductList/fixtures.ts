@@ -39,7 +39,13 @@ export function catalog(): Product[] {
   ];
   const tee = { name: 'Organic Cotton Tee', price: '24.95', options };
   return [
-    product(34, { sku: 'TEE-ORG', product_type: 'parent', variant_count: 3, definition: tee }),
+    product(34, {
+      sku: 'TEE-ORG',
+      product_type: 'parent',
+      variant_count: 3,
+      collection_id: 19,
+      definition: tee,
+    }),
     product(35, {
       sku: 'TEE-ORG-S',
       product_type: 'variant',
@@ -67,6 +73,7 @@ export function catalog(): Product[] {
     product(41, {
       sku: 'MUG-ENAMEL-12',
       stock_level: 3,
+      collection_id: 20,
       definition: { name: 'Enamel Camp Mug, 12 oz', price: 16.4 },
     }),
     product(42, { sku: 'GIFT-WRAP', definition: { name: 'Gift wrap and note', price: '4.5' } }),
@@ -74,14 +81,38 @@ export function catalog(): Product[] {
       sku: 'COF-COL-HUILA-340',
       stock_level: 0,
       hidden: true,
+      inherit_from_id: 44,
+      collection_id: 25,
       definition: { name: 'Colombia Huila', price: '17.25' },
     }),
     product(44, { sku: 'TPL-COFFEE-340', product_type: 'template', stock_level: 10 }),
   ];
 }
 
+/** Collections as deep as three levels, in no particular order, with their ids only in their links. */
+export function collections(): {
+  _links: { self: { href: string } };
+  name: string;
+  path: string;
+}[] {
+  const collection = (id: number, name: string, path: string) => ({
+    _links: { self: { href: `${BASE}/product_collections/${id}` } },
+    name,
+    path,
+  });
+  return [
+    collection(20, 'Brewing Gear', '/gear'),
+    collection(25, 'Colombia', '/coffee/single-origin/colombia'),
+    collection(18, 'Apparel', '/apparel'),
+    collection(17, 'Coffee', '/coffee'),
+    collection(19, 'T-Shirts', '/apparel/t-shirts'),
+    collection(21, 'Single Origin', '/coffee/single-origin'),
+  ];
+}
+
 export interface Server {
   products: Product[];
+  collections: ReturnType<typeof collections>;
   settings: { low_stock_threshold: number };
   requests: { method: string; url: string; body: unknown }[];
   /** Hrefs whose PATCH is refused with a 400. */
@@ -94,6 +125,7 @@ export function createServer(products = catalog()): Server {
   const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
   const server: Server = {
     products,
+    collections: collections(),
     settings: { low_stock_threshold: 5 },
     requests: [],
     failing: new Set(),
@@ -109,6 +141,13 @@ export function createServer(products = catalog()): Server {
           if (url.pathname.endsWith('/product_settings')) {
             if (method === 'PATCH') Object.assign(server.settings, body);
             return json(server.settings);
+          }
+
+          if (url.pathname.endsWith('/product_collections')) {
+            return json({
+              _embedded: { 'fx:product_collections': server.collections },
+              total_items: server.collections.length,
+            });
           }
 
           if (url.pathname.endsWith('/products')) {
@@ -139,4 +178,5 @@ export function createServer(products = catalog()): Server {
 }
 
 export const productsHref = `${BASE}/stores/0/products`;
+export const collectionsHref = `${BASE}/stores/0/product_collections`;
 export const settingsHref = `${BASE}/stores/0/product_settings`;

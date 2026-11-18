@@ -1,6 +1,7 @@
 import { expect } from '@open-wc/testing';
 import { catalog, product } from './fixtures';
 import {
+  collectionTree,
   formatPriceRange,
   groupProducts,
   loadAllProducts,
@@ -117,6 +118,20 @@ describe('ProductList', () => {
       });
       expect(loaded).to.have.length(450);
       expect(urls).to.have.length(3);
+    });
+
+    it('orders collections as a tree, each with its depth and the names down to it', () => {
+      // "/coffee-beans" sorts before "/coffee/blends" as plain text, which would split the tree.
+      const tree = collectionTree([
+        { id: 41, name: 'Coffee Beans', path: '/coffee-beans' },
+        { id: 26, name: 'Blends', path: '/coffee/blends' },
+        { id: 17, name: 'Coffee', path: '/coffee' },
+      ]);
+      expect(tree.map(c => [c.id, c.depth, c.trail])).to.deep.equal([
+        [17, 0, 'Coffee'],
+        [26, 1, 'Coffee › Blends'],
+        [41, 0, 'Coffee Beans'],
+      ]);
     });
   });
 });

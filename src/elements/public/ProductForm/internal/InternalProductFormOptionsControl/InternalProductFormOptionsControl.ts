@@ -1,6 +1,6 @@
 import type { Data, ProductOption, ProductOptionValue } from '../../types';
 import type { ProductForm } from '../../ProductForm';
-import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { CatalogError } from '../../catalog';
 
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
@@ -64,7 +64,11 @@ export class InternalProductFormOptionsControl extends InternalControl {
           <vaadin-button
             data-testid="add-option"
             ?disabled=${locked || options.length >= LIMITS.options || this.variants.length > 0}
-            @click=${() => this.__setOptions([...options, { name: '', values: [{ value: '' }] }])}
+            @mousedown=${(evt: Event) => evt.preventDefault()}
+            @click=${() => {
+              this.__commitField();
+              this.__setOptions([...this.__options, { name: '', values: [{ value: '' }] }]);
+            }}
           >
             ${this.t('add_option')}
           </vaadin-button>
@@ -159,7 +163,11 @@ export class InternalProductFormOptionsControl extends InternalControl {
         data-testid="option"
       >
         <div class="flex flex-wrap items-center" style="gap: 0.75rem">
-          <span class="font-semibold" style="min-width: 5.5rem" data-testid="option-title">
+          <span
+            class="${managed ? 'text-l' : ''} font-semibold"
+            style="min-width: 5.5rem"
+            data-testid="option-title"
+          >
             ${option.label || option.name || this.t('new_option')}
           </span>
           <div class="flex flex-wrap flex-1" style="gap: 0.375rem; min-width: 12rem">
@@ -168,7 +176,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
               .map(
                 value => html`
                   <span
-                    class="inline-flex items-center rounded-full bg-contrast-10 text-s"
+                    class="inline-flex items-center rounded-s bg-contrast-10 text-s"
                     style="gap: 0.375rem; height: 1.625rem; padding: 0 0.625rem"
                     data-testid="value-chip"
                   >
@@ -228,7 +236,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
       setOption({ ...option, values: values.map((v, i) => (i === valueIndex ? changed : v)) });
 
     return html`
-      <div class="grid gap-s border-t border-contrast-10 pt-s" data-testid="option-editor">
+      <div class="grid gap-m border-t border-contrast-10 pt-m" data-testid="option-editor">
         <div
           class="grid gap-s"
           style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"
@@ -255,63 +263,69 @@ export class InternalProductFormOptionsControl extends InternalControl {
           })}
         </div>
 
-        <span class="font-medium">${this.t('values_label')}</span>
-        ${error(`${path}.values`)
-          ? html`<p class="text-s text-error">${error(`${path}.values`)}</p>`
-          : ''}
-        ${values.map((value, valueIndex) =>
-          this.__renderValue(value, `${path}.values.${valueIndex}`, locked, error, {
-            usedBy: saved && value.value ? this.__usedBy(option.name, value.value) : null,
-            index: valueIndex,
-            length: values.length,
-            onChange: changed => setValue(valueIndex, changed),
-            onMove: (from, to) => setOption({ ...option, values: move(values, from, to) }),
-            onRemove: () =>
-              setOption({ ...option, values: values.filter((_, i) => i !== valueIndex) }),
-          })
-        )}
-        ${removedValues.map(value => {
-          const used = this.__usedBy(option.name, value.value);
-          return html`
-            <div
-              class="flex flex-wrap items-center rounded p-s bg-error-10 text-s"
-              style="gap: 0.75rem"
-              data-testid="removed-value"
-            >
-              <span class="flex-1" style="text-decoration: line-through">
-                ${value.label || value.value}
-              </span>
-              <span class="text-error">
-                ${used ? this.t('removed_used', { count: used }) : this.t('removed_unused')}
-              </span>
-              <button
-                class="text-primary font-medium"
-                type="button"
-                data-testid="undo-value"
-                ?disabled=${locked || values.length >= LIMITS.values}
-                @click=${() => {
-                  const at = saved?.values.indexOf(value) ?? values.length;
-                  const restored = [...values];
-                  restored.splice(Math.min(at, restored.length), 0, value);
-                  setOption({ ...option, values: restored });
-                }}
+        <div class="grid gap-s">
+          <h4 class="font-semibold">${this.t('values_label')}</h4>
+          ${error(`${path}.values`)
+            ? html`<p class="text-s text-error">${error(`${path}.values`)}</p>`
+            : ''}
+          ${values.map((value, valueIndex) =>
+            this.__renderValue(value, `${path}.values.${valueIndex}`, locked, error, {
+              usedBy: saved && value.value ? this.__usedBy(option.name, value.value) : null,
+              index: valueIndex,
+              length: values.length,
+              onChange: changed => setValue(valueIndex, changed),
+              onMove: (from, to) => setOption({ ...option, values: move(values, from, to) }),
+              onRemove: () =>
+                setOption({ ...option, values: values.filter((_, i) => i !== valueIndex) }),
+            })
+          )}
+          ${removedValues.map(value => {
+            const used = this.__usedBy(option.name, value.value);
+            return html`
+              <div
+                class="flex flex-wrap items-center rounded p-s bg-error-10 text-s"
+                style="gap: 0.75rem"
+                data-testid="removed-value"
               >
-                ${this.t('undo')}
-              </button>
-            </div>
-          `;
-        })}
+                <span class="flex-1" style="text-decoration: line-through">
+                  ${value.label || value.value}
+                </span>
+                <span class="text-error">
+                  ${used ? this.t('removed_used', { count: used }) : this.t('removed_unused')}
+                </span>
+                <button
+                  class="text-primary font-medium"
+                  type="button"
+                  data-testid="undo-value"
+                  ?disabled=${locked || values.length >= LIMITS.values}
+                  @click=${() => {
+                    const at = saved?.values.indexOf(value) ?? values.length;
+                    const restored = [...values];
+                    restored.splice(Math.min(at, restored.length), 0, value);
+                    setOption({ ...option, values: restored });
+                  }}
+                >
+                  ${this.t('undo')}
+                </button>
+              </div>
+            `;
+          })}
+          <div>
+            <button
+              class="text-s font-medium rounded-s bg-primary-10 text-primary"
+              style="height: 2rem; padding: 0 0.625rem"
+              type="button"
+              data-testid="add-value"
+              ?disabled=${locked || values.length >= LIMITS.values}
+              @mousedown=${(evt: Event) => evt.preventDefault()}
+              @click=${() => this.__addValue(index)}
+            >
+              ${this.t('add_value')}
+            </button>
+          </div>
+        </div>
 
-        <div class="flex flex-wrap items-center justify-between" style="gap: 1rem">
-          <button
-            class="text-s font-medium text-primary"
-            type="button"
-            data-testid="add-value"
-            ?disabled=${locked || values.length >= LIMITS.values}
-            @click=${() => setOption({ ...option, values: [...values, { value: '' }] })}
-          >
-            ${this.t('add_value')}
-          </button>
+        <div class="flex justify-end border-t border-contrast-10 pt-s">
           ${listActions({
             index,
             length: count,
@@ -358,7 +372,26 @@ export class InternalProductFormOptionsControl extends InternalControl {
       : '';
 
     return html`
-      <div class="grid gap-s border-t border-contrast-10 pt-s" data-testid="option-value">
+      <div class="grid gap-s rounded bg-contrast-5 p-s" data-testid="option-value">
+        <div class="flex flex-wrap items-center" style="gap: 0.5rem 1rem">
+          <span class="flex-1 font-medium" style="min-width: 8rem" data-testid="value-title">
+            ${value.label || value.value || this.t('new_value')}
+          </span>
+          ${list.usedBy === null
+            ? ''
+            : html`<span class="text-s text-secondary" data-testid="value-used-by">
+                ${list.usedBy ? this.t('used_by', { count: list.usedBy }) : this.t('used_by_none')}
+              </span>`}
+          ${listActions({
+            index: list.index,
+            length: list.length,
+            locked,
+            t: key => this.t(key),
+            testid: 'value-actions',
+            onMove: list.onMove,
+            onRemove: list.onRemove,
+          })}
+        </div>
         <div
           class="grid gap-s"
           style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"
@@ -413,6 +446,11 @@ export class InternalProductFormOptionsControl extends InternalControl {
             testid: 'value-weight-mod',
             onChange: weight => onChange(withField(value, 'weight_mod', parseWeight(weight))),
           })}
+        </div>
+        <div
+          class="grid gap-s"
+          style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"
+        >
           <div class="flex items-start" style="gap: 0.5rem">
             ${textField({
               label: this.t('color_label'),
@@ -427,11 +465,6 @@ export class InternalProductFormOptionsControl extends InternalControl {
             })}
             <div style="padding-top: var(--lumo-space-l)">${swatch}</div>
           </div>
-        </div>
-        <div
-          class="grid gap-s"
-          style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"
-        >
           ${textField({
             label: this.t('image_label'),
             helperText: help('image_helper_text'),
@@ -452,22 +485,32 @@ export class InternalProductFormOptionsControl extends InternalControl {
               value.image && onChange({ ...value, image: withField(value.image, 'alt', alt) }),
           })}
         </div>
-        ${list.usedBy === null
-          ? ''
-          : html`<span class="text-s text-secondary" data-testid="value-used-by">
-              ${list.usedBy ? this.t('used_by', { count: list.usedBy }) : this.t('used_by_none')}
-            </span>`}
-        ${listActions({
-          index: list.index,
-          length: list.length,
-          locked,
-          t: key => this.t(key),
-          testid: 'value-actions',
-          onMove: list.onMove,
-          onRemove: list.onRemove,
-        })}
       </div>
     `;
+  }
+
+  /**
+   * Saves what is being typed. A field saves when focus leaves it, and that can
+   * move the button being pressed from under the pointer, so the buttons that
+   * add to the list keep focus where it is and save the field themselves.
+   */
+  private __commitField() {
+    this.renderRoot.querySelector<HTMLElement>('vaadin-text-field[focused]')?.blur();
+  }
+
+  private async __addValue(index: number) {
+    this.__commitField();
+    this.__setOptions(
+      this.__options.map((option, i) =>
+        i === index ? { ...option, values: [...(option.values ?? []), { value: '' }] } : option
+      )
+    );
+
+    await (this.nucleon as LitElement | null)?.updateComplete;
+    await this.updateComplete;
+    const option = this.renderRoot.querySelectorAll('[data-testid="option"]')[index];
+    const fields = option?.querySelectorAll<HTMLElement>('[data-testid="value-value"]');
+    fields?.[fields.length - 1]?.focus();
   }
 
   private get __options(): ProductOption[] {

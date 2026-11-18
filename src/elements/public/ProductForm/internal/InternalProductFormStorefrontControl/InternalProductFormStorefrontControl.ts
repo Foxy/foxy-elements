@@ -90,7 +90,7 @@ export class InternalProductFormStorefrontControl extends InternalControl {
               <button
                 type="button"
                 role="radio"
-                class="text-s rounded-full border ${item === kind
+                class="text-s rounded-s border ${item === kind
                   ? 'border-primary bg-primary-10 text-primary font-medium'
                   : 'border-contrast-30'}"
                 style="height: 2rem; padding: 0 0.75rem; margin: 0 0.375rem 0.375rem 0"

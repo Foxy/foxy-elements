@@ -165,6 +165,50 @@ export function stockSummary(group: ProductGroup, threshold: number): StockSumma
   return { state, units, out, low, holders: holders.length };
 }
 
+export type SortColumn = 'name' | 'sku' | 'type' | 'price' | 'stock';
+
+export type TypeFilter = 'all' | 'standalone' | 'parent' | 'template';
+
+/** What the Type column says: a product with variants is a parent whatever the API calls it. */
+export function groupType(group: ProductGroup): Exclude<TypeFilter, 'all'> {
+  if (group.variants.length) return 'parent';
+  return group.product.product_type === 'template' ? 'template' : 'standalone';
+}
+
+/**
+ * The groups ordered by a column. Price orders by the lowest price and stock
+ * by units, with products that have neither last in both directions. Ties
+ * keep the order the groups came in, which is by name.
+ */
+export function sortGroups(
+  groups: readonly ProductGroup[],
+  column: SortColumn,
+  descending: boolean
+): ProductGroup[] {
+  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+  const text: Record<'name' | 'sku' | 'type', (group: ProductGroup) => string> = {
+    name: group => productName(group.product) || group.product.sku,
+    sku: group => group.product.sku,
+    type: groupType,
+  };
+  const amount = (group: ProductGroup): number | null => {
+    if (column === 'price') return priceRange(group)?.[0] ?? null;
+    const holders = stockHolders(group);
+    if (!holders.length) return null;
+    return holders.reduce((sum, holder) => sum + Math.max(0, holder.stock_level ?? 0), 0);
+  };
+  const sign = descending ? -1 : 1;
+
+  return [...groups].sort((a, b) => {
+    if (column === 'price' || column === 'stock') {
+      const [x, y] = [amount(a), amount(b)];
+      if (x === null || y === null) return x === y ? 0 : x === null ? 1 : -1;
+      return sign * (x - y);
+    }
+    return sign * collator.compare(text[column](a), text[column](b));
+  });
+}
+
 /** Whether the product's name or SKU, or one of its variants' SKUs, contains the query. */
 export function matchesQuery(group: ProductGroup, query: string): boolean {
   const needle = query.trim().toLowerCase();
@@ -198,12 +242,13 @@ export function formatPriceRange(
 
 const PAGE_SIZE = 200;
 
-/** Every product of a `fx:products` collection, deleted ones left out, page by page. */
-export async function loadAllProducts(
+/** Every resource of a collection, page by page. */
+export async function loadAll<T>(
   href: string,
+  rel: string,
   fetchPage: (url: string) => Promise<unknown>
-): Promise<Data[]> {
-  const products: Data[] = [];
+): Promise<T[]> {
+  const resources: T[] = [];
   const url = new URL(href);
   url.searchParams.set('limit', String(PAGE_SIZE));
 
@@ -211,12 +256,63 @@ export async function loadAllProducts(
     url.searchParams.set('offset', String(offset));
     const page = (await fetchPage(url.toString())) as {
       total_items?: number | string;
-      _embedded?: { 'fx:products'?: Data[] };
+      _embedded?: Record<string, T[]>;
     };
-    const items = page?._embedded?.['fx:products'] ?? [];
-    products.push(...items);
+    const items = page?._embedded?.[rel] ?? [];
+    resources.push(...items);
     if (!items.length || offset + items.length >= Number(page.total_items ?? 0)) break;
   }
 
-  return products;
+  return resources;
+}
+
+/** Every product of a `fx:products` collection, page by page. Callers leave out deleted ones. */
+export function loadAllProducts(
+  href: string,
+  fetchPage: (url: string) => Promise<unknown>
+): Promise<Data[]> {
+  return loadAll<Data>(href, 'fx:products', fetchPage);
+}
+
+/** What the list needs of a product collection. */
+export interface ListedCollection {
+  id: number;
+  name: string;
+  /** Its place in the tree, such as `/coffee/blends`. */
+  path: string;
+}
+
+/** The collections in tree order, each with its depth and its ancestors' names before its own. */
+export function collectionTree(
+  collections: readonly ListedCollection[]
+): (ListedCollection & { depth: number; trail: string })[] {
+  const names = new Map(collections.map(collection => [collection.path, collection.name]));
+  // Segment by segment, so that /coffee-beans can't land between /coffee and /coffee/blends.
+  const key = (collection: ListedCollection) => collection.path.split('/').join('\u0000');
+  return [...collections]
+    .sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0))
+    .map(collection => {
+      const slugs = collection.path.split('/').filter(Boolean);
+      const trail = slugs.map((_, i) => names.get(`/${slugs.slice(0, i + 1).join('/')}`));
+      return {
+        ...collection,
+        depth: Math.max(0, slugs.length - 1),
+        trail: trail.filter(Boolean).join(' › ') || collection.name,
+      };
+    });
+}
+
+/** `''` is any collection, `'none'` is no collection, else a collection's id. */
+export function matchesCollection(
+  group: ProductGroup,
+  filter: string,
+  collections: readonly ListedCollection[]
+): boolean {
+  if (!filter) return true;
+  const own = collections.find(collection => collection.id === group.product.collection_id);
+  if (filter === 'none') return !own;
+  const chosen = collections.find(collection => String(collection.id) === filter);
+  if (!chosen || !own) return false;
+  // A collection holds what its sub-collections hold.
+  return own.path === chosen.path || own.path.startsWith(`${chosen.path}/`);
 }

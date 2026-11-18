@@ -79,27 +79,28 @@
             "pagination": "{{from}}-{{to}} out of {{total}}",
             "previous": "Previous",
             "page_number": "Page number:",
-            "select": "Select"
-          },
-          "card": {
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No data",
-              "loading_error": "Unknown error"
-            },
-            "price": "{{amount, price}}",
-            "type_standalone": "Standalone",
-            "type_parent": "Parent",
-            "type_variant": "Variant",
-            "type_template": "Template",
-            "uses_template": "Uses a template",
-            "hidden": "Hidden",
-            "stock_in_stock": "In stock",
-            "stock_low_stock": "Low stock",
-            "stock_out_of_stock": "Out of stock",
-            "stock_untracked": "Untracked",
-            "variant_count": "{{count}} variant",
-            "variant_count_plural": "{{count}} variants"
+            "select": "Select",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No data",
+                "loading_error": "Unknown error"
+              },
+              "price": "{{amount, price}}",
+              "type_standalone": "Standalone",
+              "type_parent": "Parent",
+              "type_variant": "Variant",
+              "type_template": "Template",
+              "uses_template": "Uses a template",
+              "starting_stock": "Starting stock: {{count}}",
+              "hidden": "Hidden",
+              "stock_in_stock": "In stock",
+              "stock_low_stock": "Low stock",
+              "stock_out_of_stock": "Out of stock",
+              "stock_untracked": "Untracked",
+              "variant_count": "{{count}} variant",
+              "variant_count_plural": "{{count}} variants"
+            }
           }
         }
       }
@@ -116,6 +117,7 @@
         "cancel": "Cancel",
         "close": "Close",
         "header": "Select a collection",
+        "search": "Find a collection by name or path",
         "selection": {
           "label": "",
           "helper_text": "",
@@ -141,6 +143,44 @@
       "label": "Shipping weight",
       "placeholder": "0",
       "helper_text": "Used to work out shipping rates, in your store's weight unit."
+    },
+    "category": {
+      "label": "Item category",
+      "placeholder": "Store default",
+      "helper_text": "Sets this product's tax, shipping and delivery type. Without one, it uses your store's default category.",
+      "value": "{{label}}",
+      "value_busy": "Loading…",
+      "value_fail": "Unknown category",
+      "select": "Select",
+      "view": "View",
+      "clear": "Clear",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select an item category",
+        "search": "Find a category by name or code",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No item categories found",
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "option-values": {
@@ -236,6 +276,7 @@
     "used": "{{count}} of {{limit}} used",
     "has_variants": "This product has variants, so it can't gain an option: they would have no value for it. You can still add values.",
     "new_option": "New option",
+    "new_value": "New value",
     "manage": "Manage",
     "done": "Done",
     "manage_option": "Manage {{option}} values",
@@ -421,27 +462,28 @@
                   "pagination": "{{from}}-{{to}} out of {{total}}",
                   "previous": "Previous",
                   "page_number": "Page number:",
-                  "select": "Select"
-                },
-                "card": {
-                  "spinner": {
-                    "loading_busy": "Loading",
-                    "loading_empty": "No data",
-                    "loading_error": "Unknown error"
-                  },
-                  "price": "{{amount, price}}",
-                  "type_standalone": "Standalone",
-                  "type_parent": "Parent",
-                  "type_variant": "Variant",
-                  "type_template": "Template",
-                  "uses_template": "Uses a template",
-                  "hidden": "Hidden",
-                  "stock_in_stock": "In stock",
-                  "stock_low_stock": "Low stock",
-                  "stock_out_of_stock": "Out of stock",
-                  "stock_untracked": "Untracked",
-                  "variant_count": "{{count}} variant",
-                  "variant_count_plural": "{{count}} variants"
+                  "select": "Select",
+                  "card": {
+                    "spinner": {
+                      "loading_busy": "Loading",
+                      "loading_empty": "No data",
+                      "loading_error": "Unknown error"
+                    },
+                    "price": "{{amount, price}}",
+                    "type_standalone": "Standalone",
+                    "type_parent": "Parent",
+                    "type_variant": "Variant",
+                    "type_template": "Template",
+                    "uses_template": "Uses a template",
+                    "starting_stock": "Starting stock: {{count}}",
+                    "hidden": "Hidden",
+                    "stock_in_stock": "In stock",
+                    "stock_low_stock": "Low stock",
+                    "stock_out_of_stock": "Out of stock",
+                    "stock_untracked": "Untracked",
+                    "variant_count": "{{count}} variant",
+                    "variant_count_plural": "{{count}} variants"
+                  }
                 }
               }
             }
@@ -484,8 +526,8 @@
       "loading_empty": "No tags yet",
       "loading_error": "Unknown error"
     },
-    "total_items": "{{ count }} tag",
-    "total_items_plural": "{{ count }} tags"
+    "total_items": "{{ count }} stock rule",
+    "total_items_plural": "{{ count }} stock rules"
   },
   "tags": {
     "label": "Tags",
@@ -632,7 +674,7 @@
     "panel_weight": "Shipping weight",
     "panel_own_image": "Has its own image",
     "panel_product_image": "Uses the product image",
-    "panel_open_page": "Open this variant to edit its images and everything else",
+    "panel_open_page": "Open this variant to edit its images and other details",
     "panel_delete": "Delete variant",
     "panel_cancel": "Cancel",
     "panel_done": "Done",
@@ -669,6 +711,7 @@
         "type_variant": "Variant",
         "type_template": "Template",
         "uses_template": "Uses a template",
+        "starting_stock": "Starting stock: {{count}}",
         "hidden": "Hidden",
         "stock_in_stock": "In stock",
         "stock_low_stock": "Low stock",
@@ -683,8 +726,8 @@
       "loading_empty": "No variants yet",
       "loading_error": "Unknown error"
     },
-    "total_items": "{{ count }} variant",
-    "total_items_plural": "{{ count }} variants"
+    "total_items": "{{ count }} product",
+    "total_items_plural": "{{ count }} products"
   },
   "timestamps": {
     "date_created": "Created on",
@@ -723,6 +766,7 @@
       "untracked": "Not tracked",
       "tracked": "Tracked",
       "in_stock": "{{count}} in stock",
+      "starting_stock": "Starting stock: {{count}}",
       "out": "{{count}} out",
       "low": "{{count}} low",
       "variants_note": "Each variant holds its own stock: change the counts in the variants table under Options and variants. A number here is stock the product itself holds, which variants without their own draw on.",
@@ -838,27 +882,28 @@
                 "pagination": "{{from}}-{{to}} out of {{total}}",
                 "previous": "Previous",
                 "page_number": "Page number:",
-                "select": "Select"
-              },
-              "card": {
-                "spinner": {
-                  "loading_busy": "Loading",
-                  "loading_empty": "No data",
-                  "loading_error": "Unknown error"
-                },
-                "price": "{{amount, price}}",
-                "type_standalone": "Standalone",
-                "type_parent": "Parent",
-                "type_variant": "Variant",
-                "type_template": "Template",
-                "uses_template": "Uses a template",
-                "hidden": "Hidden",
-                "stock_in_stock": "In stock",
-                "stock_low_stock": "Low stock",
-                "stock_out_of_stock": "Out of stock",
-                "stock_untracked": "Untracked",
-                "variant_count": "{{count}} variant",
-                "variant_count_plural": "{{count}} variants"
+                "select": "Select",
+                "card": {
+                  "spinner": {
+                    "loading_busy": "Loading",
+                    "loading_empty": "No data",
+                    "loading_error": "Unknown error"
+                  },
+                  "price": "{{amount, price}}",
+                  "type_standalone": "Standalone",
+                  "type_parent": "Parent",
+                  "type_variant": "Variant",
+                  "type_template": "Template",
+                  "uses_template": "Uses a template",
+                  "starting_stock": "Starting stock: {{count}}",
+                  "hidden": "Hidden",
+                  "stock_in_stock": "In stock",
+                  "stock_low_stock": "Low stock",
+                  "stock_out_of_stock": "Out of stock",
+                  "stock_untracked": "Untracked",
+                  "variant_count": "{{count}} variant",
+                  "variant_count_plural": "{{count}} variants"
+                }
               }
             }
           }
@@ -875,6 +920,7 @@
             "cancel": "Cancel",
             "close": "Close",
             "header": "Select a collection",
+            "search": "Find a collection by name or path",
             "selection": {
               "label": "",
               "helper_text": "",
@@ -895,6 +941,49 @@
           "helper_text": "Left out of the public catalog's lists, search and collections. It's still sold, and still loads by its SKU, such as from a link you share.",
           "checked": "Hidden",
           "unchecked": "Listed"
+        },
+        "weight": {
+          "label": "Shipping weight",
+          "placeholder": "0",
+          "helper_text": "Used to work out shipping rates, in your store's weight unit."
+        },
+        "category": {
+          "label": "Item category",
+          "placeholder": "Store default",
+          "helper_text": "Sets this product's tax, shipping and delivery type. Without one, it uses your store's default category.",
+          "value": "{{label}}",
+          "value_busy": "Loading…",
+          "value_fail": "Unknown category",
+          "select": "Select",
+          "view": "View",
+          "clear": "Clear",
+          "dialog": {
+            "cancel": "Cancel",
+            "close": "Close",
+            "header": "Select an item category",
+            "search": "Find a category by name or code",
+            "selection": {
+              "label": "",
+              "helper_text": "",
+              "pagination": {
+                "first": "First",
+                "last": "Last",
+                "next": "Next",
+                "pagination": "{{from}}-{{to}} out of {{total}}",
+                "previous": "Previous",
+                "page_number": "Page number:",
+                "select": "Select",
+                "card": {
+                  "spinner": {
+                    "loading_busy": "Loading",
+                    "loading_empty": "No item categories found",
+                    "loading_error": "Unknown error",
+                    "loading_access_denied": "Access denied"
+                  }
+                }
+              }
+            }
+          }
         },
         "cart-link": {
           "label": "Add-to-cart link",
@@ -1172,27 +1261,28 @@
                       "pagination": "{{from}}-{{to}} out of {{total}}",
                       "previous": "Previous",
                       "page_number": "Page number:",
-                      "select": "Select"
-                    },
-                    "card": {
-                      "spinner": {
-                        "loading_busy": "Loading",
-                        "loading_empty": "No data",
-                        "loading_error": "Unknown error"
-                      },
-                      "price": "{{amount, price}}",
-                      "type_standalone": "Standalone",
-                      "type_parent": "Parent",
-                      "type_variant": "Variant",
-                      "type_template": "Template",
-                      "uses_template": "Uses a template",
-                      "hidden": "Hidden",
-                      "stock_in_stock": "In stock",
-                      "stock_low_stock": "Low stock",
-                      "stock_out_of_stock": "Out of stock",
-                      "stock_untracked": "Untracked",
-                      "variant_count": "{{count}} variant",
-                      "variant_count_plural": "{{count}} variants"
+                      "select": "Select",
+                      "card": {
+                        "spinner": {
+                          "loading_busy": "Loading",
+                          "loading_empty": "No data",
+                          "loading_error": "Unknown error"
+                        },
+                        "price": "{{amount, price}}",
+                        "type_standalone": "Standalone",
+                        "type_parent": "Parent",
+                        "type_variant": "Variant",
+                        "type_template": "Template",
+                        "uses_template": "Uses a template",
+                        "starting_stock": "Starting stock: {{count}}",
+                        "hidden": "Hidden",
+                        "stock_in_stock": "In stock",
+                        "stock_low_stock": "Low stock",
+                        "stock_out_of_stock": "Out of stock",
+                        "stock_untracked": "Untracked",
+                        "variant_count": "{{count}} variant",
+                        "variant_count_plural": "{{count}} variants"
+                      }
                     }
                   }
                 }
@@ -1235,8 +1325,8 @@
           "loading_empty": "No tags yet",
           "loading_error": "Unknown error"
         },
-        "total_items": "{{ count }} tag",
-        "total_items_plural": "{{ count }} tags"
+        "total_items": "{{ count }} stock rule",
+        "total_items_plural": "{{ count }} stock rules"
       },
       "tags": {
         "label": "Tags",

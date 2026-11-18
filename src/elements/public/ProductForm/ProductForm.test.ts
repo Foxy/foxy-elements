@@ -95,6 +95,16 @@ describe('ProductForm', () => {
       expect(run({ sku: 'X', definition: { price: 1 } as any })).to.include('name:v8n_required');
     });
 
+    it('takes a product with no name of its own when it inherits one', () => {
+      const host = new ProductForm();
+      host.parentProduct = { compiled_definition: { name: 'Yamaha Revstar' } } as Data;
+      const form = { sku: 'REVSTAR-01-SUNBURST', definition: {} } as Data;
+      expect(ProductForm.v8n.map(rule => rule(form, host))).to.not.include('name:v8n_required');
+
+      host.parentProduct = { compiled_definition: {} } as Data;
+      expect(ProductForm.v8n.map(rule => rule(form, host))).to.include('name:v8n_required');
+    });
+
     it('flags negative definition.price', () => {
       expect(run({ sku: 'X', definition: { name: 'X', price: -5 } as any })).to.include(
         'price:v8n_negative'
@@ -314,7 +324,100 @@ describe('ProductForm', () => {
       expect(ctrl?.getAttribute('property')).to.be.null;
     });
 
-    it('forwards productCollections attribute to the collection picker first link', async () => {
+    describe('item category', () => {
+      type Picker = HTMLElement & {
+        getValue: () => string | undefined;
+        setValue: (href: string) => Promise<void>;
+        getDisplayValueOptions: (resource: unknown) => { label?: string };
+        searchFields: string[];
+        placeholder: string;
+      };
+
+      const categories = 'https://demo.api/hapi/stores/0/item_categories';
+
+      async function render(onFetch: (evt: FetchEvent) => void = () => void 0) {
+        const element = await fixture<ProductForm>(html`
+          <foxy-product-form item-categories=${categories} @fetch=${onFetch}></foxy-product-form>
+        `);
+        const picker = element.renderRoot.querySelector(
+          'foxy-internal-resource-picker-control[infer="category"]'
+        ) as Picker;
+        return { element, picker };
+      }
+
+      it("picks from the store's item categories, searched by name or code", async () => {
+        const { picker } = await render();
+        expect(picker.getAttribute('first')).to.equal(categories);
+        expect(picker.getAttribute('item')).to.equal('foxy-item-category-card');
+        expect(picker.searchFields).to.deep.equal(['name', 'code']);
+        expect(customElements.get('foxy-item-category-card')).to.exist;
+      });
+
+      it('stores the code of the category picked, and nothing once cleared', async () => {
+        const { element, picker } = await render(evt => {
+          evt.preventDefault();
+          evt.respondWith(Promise.resolve(new Response(JSON.stringify({ code: 'WHOLE-BEAN' }))));
+        });
+        element.edit({ definition: { name: 'Colombia Huila' } });
+
+        await picker.setValue(`${categories}/5874`);
+        expect(element.form.definition).to.deep.equal({
+          name: 'Colombia Huila',
+          category_code: 'WHOLE-BEAN',
+        });
+        expect(picker.getValue()).to.equal(`${categories}?code=WHOLE-BEAN&limit=1`);
+
+        await picker.setValue('');
+        expect(element.form.definition).to.deep.equal({ name: 'Colombia Huila' });
+        expect(picker.getValue()).to.be.undefined;
+      });
+
+      it('keeps the category when the one picked fails to load', async () => {
+        const { element, picker } = await render(evt => {
+          evt.preventDefault();
+          evt.respondWith(Promise.resolve(new Response('{}', { status: 500 })));
+        });
+        element.edit({ definition: { category_code: 'WHOLE-BEAN' } });
+        await picker.setValue(`${categories}/5874`);
+        expect(element.form.definition?.category_code).to.equal('WHOLE-BEAN');
+      });
+
+      it("shows the category's name, or the code when no category has it", async () => {
+        const { element, picker } = await render();
+        element.edit({ definition: { category_code: 'WHOLE-BEAN' } });
+        const found = { _embedded: { 'fx:item_categories': [{ name: 'Whole bean coffee' }] } };
+        expect(picker.getDisplayValueOptions(found)).to.deep.equal({ label: 'Whole bean coffee' });
+        expect(picker.getDisplayValueOptions({ _embedded: {} })).to.deep.equal({
+          label: 'WHOLE-BEAN',
+        });
+      });
+
+      it('shows the inherited category in place of an empty one', async () => {
+        const { element, picker } = await render();
+        element.parentProduct = { compiled_definition: { category_code: 'TICKETS' } } as Data;
+        await element.requestUpdate();
+        expect(picker.placeholder).to.equal('TICKETS');
+      });
+
+      it("falls back to the item categories of the product's store", async () => {
+        const router = createRouter();
+        const data = await getTestData<Data>('https://demo.api/hapi/products/0', router);
+        const element = await fixture<ProductForm>(html`
+          <foxy-product-form
+            .data=${data}
+            @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+          ></foxy-product-form>
+        `);
+        const picker = element.renderRoot.querySelector(
+          'foxy-internal-resource-picker-control[infer="category"]'
+        )!;
+        expect(picker.getAttribute('first')).to.equal(
+          `${data._links['fx:store'].href}/item_categories`
+        );
+      });
+    });
+
+    it('lists the collection picker by path, so each collection follows its parent', async () => {
       const element = await fixture<ProductForm>(html`
         <foxy-product-form
           product-collections="https://demo.api/hapi/product_collections"
@@ -323,7 +426,10 @@ describe('ProductForm', () => {
       const picker = element.renderRoot.querySelector(
         'foxy-internal-resource-picker-control[infer="collection"]'
       ) as HTMLElement | null;
-      expect(picker?.getAttribute('first')).to.equal('https://demo.api/hapi/product_collections');
+      expect(picker?.getAttribute('first')).to.equal(
+        'https://demo.api/hapi/product_collections?order=path+asc'
+      );
+      expect(picker).to.have.deep.property('searchFields', ['name', 'path']);
     });
 
     it('hides the variants section when this product IS a variant', async () => {
@@ -459,7 +565,7 @@ describe('ProductForm', () => {
 
       const control = element.renderRoot.querySelector(
         'foxy-internal-product-form-images-control'
-      ) as HTMLElement & { updateComplete: Promise<unknown> };
+      ) as HTMLElement & { updateComplete: Promise<unknown>; renderRoot: ParentNode };
       await control.updateComplete;
       const buttons = (text: string) =>
         Array.from(control.renderRoot.querySelectorAll('button')).filter(
@@ -571,6 +677,53 @@ describe('ProductForm', () => {
         'M',
       ]);
       expect(element.form.definition?.name).to.equal('Organic Cotton Tee');
+    });
+
+    it('makes the fields that stopped a save stand out once a save was tried', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      element.edit({ definition: { price: '1999.99' } });
+      await element.requestUpdate();
+      const row = (infer: string) =>
+        element.renderRoot.querySelector(`foxy-internal-summary-control > [infer="${infer}"]`)!;
+      expect(row('name')).to.not.have.class('pd-invalid');
+
+      element.submit();
+      await element.requestUpdate();
+      expect(row('name')).to.have.class('pd-invalid');
+      expect(row('sku')).to.have.class('pd-invalid');
+      expect(row('price')).to.not.have.class('pd-invalid');
+
+      element.edit({ sku: 'REVSTAR-01' });
+      await element.requestUpdate();
+      expect(row('sku')).to.not.have.class('pd-invalid');
+    });
+
+    it('adds a value without losing the one still being typed', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const options = (await control(element, 'foxy-internal-product-form-options-control'))!;
+      (byTestId(options.renderRoot, 'add-option')[0] as HTMLElement).click();
+      await settle(element, options);
+
+      // Typed but not yet saved: a field saves when focus leaves it.
+      const value = byTestId(options.renderRoot, 'value-value')[0] as HTMLInputElement;
+      value.focus();
+      value.value = 'Natural Sunburst';
+      const add = byTestId(options.renderRoot, 'add-value')[0];
+      const pressed = new MouseEvent('mousedown', { cancelable: true, bubbles: true });
+      add.dispatchEvent(pressed);
+      expect(pressed.defaultPrevented).to.be.true;
+      value.addEventListener('blur', () => value.dispatchEvent(new Event('change')), {
+        once: true,
+      });
+      add.click();
+      await settle(element, options);
+
+      expect(element.form.definition?.options?.[0].values).to.deep.equal([
+        { value: 'Natural Sunburst' },
+        { value: '' },
+      ]);
+      const titles = byTestId(options.renderRoot, 'value-title').map(e => e.textContent!.trim());
+      expect(titles).to.deep.equal(['Natural Sunburst', 'new_value']);
     });
 
     it('refuses a reserved option name before it reaches the API', async () => {
@@ -768,6 +921,22 @@ describe('ProductForm', () => {
       expect(element.hiddenSelector.matches('general:hidden', true)).to.be.false;
       const template = (await load(4)).element;
       expect(template.hiddenSelector.matches('general:hidden', true)).to.be.true;
+    });
+
+    it("summarises a template's stock as what its products start with", async () => {
+      const { element } = await load(4);
+      const summary = () =>
+        element.renderRoot
+          .querySelector('[data-testid="section-inventory"] [data-testid="section-summary"]')!
+          .textContent!.trim();
+
+      element.edit({ stock_level: 10 });
+      await element.requestUpdate();
+      expect(summary()).to.equal('sections.inventory.starting_stock');
+
+      element.edit({ stock_level: null });
+      await element.requestUpdate();
+      expect(summary()).to.equal('');
     });
 
     it('builds a link once every required modifier is filled in', async () => {

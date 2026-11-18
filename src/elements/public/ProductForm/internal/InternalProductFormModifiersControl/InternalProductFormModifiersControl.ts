@@ -113,8 +113,8 @@ export class InternalProductFormModifiersControl extends InternalControl {
       <button
         type="button"
         role="switch"
-        class="relative flex-shrink-0 rounded-full ${on ? 'bg-primary' : 'bg-contrast-50'}"
-        style="width: 2.75rem; height: 1.5rem"
+        class="relative flex-shrink-0 ${on ? 'bg-primary' : 'bg-contrast-50'}"
+        style="width: 2.75rem; height: 1.5rem; border-radius: 0.75rem"
         data-testid=${testid}
         aria-checked=${on ? 'true' : 'false'}
         aria-label=${label}
@@ -136,7 +136,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
       <div class="flex-1 min-w-0 grid" style="gap: 0.1875rem; min-width: 14rem">
         <p class="flex flex-wrap items-center font-semibold" style="gap: 0.5rem">
           ${modifier.label || modifier.name || this.t('new_modifier')}
-          <span class="text-xs font-semibold rounded-full bg-contrast-10 px-xs">
+          <span class="text-xs font-semibold rounded-s bg-contrast-10 px-xs">
             ${this.t(modifier.type === 'select' ? 'type_badge_select' : 'type_badge_text')}
           </span>
           <span class="text-s font-normal text-secondary">${modifier.name}</span>
@@ -194,7 +194,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
         )}
         ${this.__renderTitle(modifier)}
         <span
-          class="text-xs rounded-full px-s ${removed
+          class="text-xs rounded-s px-s ${removed
             ? 'bg-contrast-10'
             : 'bg-primary-10 text-primary'}"
           style="padding-top: 0.1875rem; padding-bottom: 0.1875rem; white-space: nowrap"
@@ -267,7 +267,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
         <div class="flex flex-wrap items-center" style="gap: 0.875rem">
           ${this.__renderTitle(modifier)}
           <span
-            class="text-xs rounded-full px-s ${isOverride ? '' : 'bg-success-10 text-success'}"
+            class="text-xs rounded-s px-s ${isOverride ? '' : 'bg-success-10 text-success'}"
             style="padding-top: 0.1875rem; padding-bottom: 0.1875rem; white-space: nowrap; ${isOverride
               ? 'background: #fff6e5; color: #8a4b00'
               : ''}"

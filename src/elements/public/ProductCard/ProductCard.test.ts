@@ -96,6 +96,16 @@ describe('ProductCard', () => {
       expect((await getByTestId(element, 'name'))?.textContent?.trim()).to.equal('NO-NAME-SKU');
     });
 
+    it("doesn't repeat the SKU under a product shown by its SKU", async () => {
+      const element = await renderWith({
+        id: 0,
+        sku: 'TPL-COFFEE-340',
+        definition: { name: undefined } as any,
+        compiled_definition: undefined,
+      } as any);
+      expect(element.renderRoot.querySelector('[data-testid="sku"]')).to.not.exist;
+    });
+
     it('renders the SKU', async () => {
       const element = await renderWith({ id: 0, sku: 'WIDGET-001' });
       expect((await getByTestId(element, 'sku'))?.textContent?.trim()).to.equal('WIDGET-001');
@@ -141,6 +151,30 @@ describe('ProductCard', () => {
 
     it('is "out_of_stock" when stock_level === 0', async () => {
       expect(await getState(0)).to.equal('out_of_stock');
+    });
+
+    it("words a template's stock as what its products start with, not as stock for sale", async () => {
+      const router = createRouter();
+      const base = await getTestData<Data>('https://demo.api/hapi/products/0', router);
+      const render = async (stock_level: number | null) => {
+        const data = { ...base, product_type: 'template', stock_level } as Data;
+        const element = await fixture<ProductCard>(html`
+          <foxy-product-card .data=${data} @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+          </foxy-product-card>
+        `);
+        await waitUntil(() => element.isBodyReady);
+        return element;
+      };
+
+      const withStock = await render(10);
+      const starting = await getByTestId(withStock, 'starting-stock');
+      expect(starting).to.have.attribute('key', 'starting_stock');
+      expect(starting).to.have.deep.property('options', { count: 10 });
+      expect(await getByTestId(withStock, 'stock-indicator')).to.not.exist;
+
+      const without = await render(null);
+      expect(await getByTestId(without, 'starting-stock')).to.not.exist;
+      expect(await getByTestId(without, 'stock-indicator')).to.not.exist;
     });
 
     it('is "untracked" when stock_level is null', async () => {

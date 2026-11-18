@@ -23,6 +23,8 @@ import '../ProductStockRuleForm/index';
 import '../CopyToClipboard/index';
 import '../FormDialog/index';
 import '../ProductTagCard/index';
+import '../ProductCollectionCard/index';
+import '../ItemCategoryCard/index';
 import '../ProductCard/index';
 import '../ProductTagForm/index';
 import '../I18n/index';
