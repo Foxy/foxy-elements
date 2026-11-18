@@ -13,7 +13,7 @@ import { Skeleton } from "@foxy.io/design-system/skeleton";
 import {
   getAllowedFrequencies,
   getNextTransactionDateConstraints,
-} from "@foxy.io/sdk/customer";
+} from "@foxy.io/sdk/customer/subscriptions";
 import {
   useApi,
   useCollection,
@@ -695,7 +695,10 @@ export function SubscriptionPage({
 
       {isFailed ? (
         <AlertSlot>
-          <Alert.Root $variant="destructive">
+          {/* Plain content for the same reason as the subscription card's
+              message: this describes the subscription, not something the
+              customer just did. */}
+          <Alert.Root $variant="destructive" role="none">
             <AlertTitle>
               {intl.formatMessage(messages.subscriptionPastDueTitle)}
             </AlertTitle>

@@ -153,7 +153,6 @@ describe("SignInScreen", () => {
     expect(bordered).toHaveLength(0);
   });
 
-
   it("calls signIn with the entered credentials", async () => {
     const signIn = vi.fn(async () => {});
     render({ signIn });
@@ -175,6 +174,21 @@ describe("SignInScreen", () => {
     await flush();
 
     expect(onSignedIn).toHaveBeenCalled();
+  });
+
+  it("marks empty fields invalid and focuses the first one on submit", async () => {
+    const signIn = vi.fn();
+    render({ signIn });
+    submit("", "");
+    await act(() => new Promise((r) => requestAnimationFrame(r)));
+
+    const [email, password] = screen!.host.querySelectorAll("input");
+    expect(email.getAttribute("aria-invalid")).toBe("true");
+    expect(password.getAttribute("aria-invalid")).toBe("true");
+    expect((email.getRootNode() as Document | ShadowRoot).activeElement).toBe(
+      email,
+    );
+    expect(signIn).not.toHaveBeenCalled();
   });
 
   it("shows a credentials error on UNAUTHORIZED", async () => {

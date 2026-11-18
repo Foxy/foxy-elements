@@ -183,8 +183,13 @@ export function SubscriptionCard({
           {priceLine ? <CardPrice>{priceLine}</CardPrice> : null}
         </CardTitleRow>
 
+        {/* Plain content, not a live region: the message is stored on the
+            subscription, not caused by anything the customer just did. An
+            `alert` interrupts the screen reader every time the list renders,
+            and a `status` would too whenever the text changes. `none`
+            because Alert.Root falls back to `alert` when `role` is unset. */}
         {subscription.error_message ? (
-          <Alert.Root $variant="destructive">
+          <Alert.Root $variant="destructive" role="none">
             <Alert.Description>{subscription.error_message}</Alert.Description>
           </Alert.Root>
         ) : null}

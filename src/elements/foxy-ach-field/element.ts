@@ -75,6 +75,7 @@ const PLACEHOLDER_ATTRIBUTE = "placeholder";
 const ACCOUNT_TYPE_VALUES_ATTRIBUTE = "account-type-values";
 const DISABLED_ATTRIBUTE = "disabled";
 const LANG_ATTRIBUTE = "lang";
+const ERROR_MESSAGE_ATTRIBUTE = "error-message";
 
 const ACH_IFRAME_THEME_ATTRIBUTE_NAMES = [
   "theme-color-secondary",
@@ -267,6 +268,7 @@ export class AchFieldElement extends ThemeableHTMLElement {
       ACCOUNT_TYPE_VALUES_ATTRIBUTE,
       DISABLED_ATTRIBUTE,
       LANG_ATTRIBUTE,
+      ERROR_MESSAGE_ATTRIBUTE,
       ...ThemeableHTMLElement.themeAttributeNames,
     ];
   }
@@ -277,6 +279,7 @@ export class AchFieldElement extends ThemeableHTMLElement {
   private _group = "";
   private _placeholder: string | undefined;
   private _lang: string | undefined;
+  private _errorMessage = "";
   private _accountTypeValues: AchAccountTypeValue[] | undefined;
 
   private _fieldPublicState: Partial<AchHostedFieldsPublicState> = {};
@@ -314,6 +317,8 @@ export class AchFieldElement extends ThemeableHTMLElement {
       entry.registeredFields = new Set(registeredFields);
 
       this._broadcast(achFieldEvents.load, {});
+      // A field frame that just registered starts without the message.
+      for (const instance of entry.instances) instance._syncErrorMessage();
 
       this._syncSessionValidity(entry);
       return;
@@ -616,6 +621,12 @@ export class AchFieldElement extends ThemeableHTMLElement {
       return;
     }
 
+    if (name === ERROR_MESSAGE_ATTRIBUTE) {
+      this._errorMessage = newValue?.trim() ?? "";
+      this._syncErrorMessage();
+      return;
+    }
+
     if (name === LANG_ATTRIBUTE) {
       this._lang = newValue?.trim() || undefined;
       this._scheduleRender();
@@ -701,6 +712,37 @@ export class AchFieldElement extends ThemeableHTMLElement {
     } else if (this.getAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE) !== right) {
       this.setAttribute(ACCOUNT_TYPE_VALUES_ATTRIBUTE, right);
     }
+  }
+
+  /**
+   * Text the page shows for this field's error. The input inside the frame
+   * uses it as its description, since a screen reader there can't reach the
+   * page's text. Empty when there is no error.
+   */
+  get errorMessage(): string {
+    return this._errorMessage;
+  }
+
+  set errorMessage(value: string | undefined) {
+    const normalized = value?.trim() ?? "";
+    if (normalized === this._errorMessage) return;
+
+    this._errorMessage = normalized;
+    if (!normalized) {
+      this.removeAttribute(ERROR_MESSAGE_ATTRIBUTE);
+    } else if (this.getAttribute(ERROR_MESSAGE_ATTRIBUTE) !== normalized) {
+      this.setAttribute(ERROR_MESSAGE_ATTRIBUTE, normalized);
+    }
+  }
+
+  /**
+   * Why the field is invalid, once the customer has left it -- the same moment
+   * it matches `:state(user-invalid)`. `null` before that and while valid, so
+   * an untouched empty field reports nothing. Read it on `blur` and `change`.
+   */
+  get errorCode(): AchHostedFieldsPublicState["errorCode"] {
+    const { touched, errorCode } = this._fieldPublicState;
+    return touched && errorCode ? errorCode : null;
   }
 
   get disabled(): boolean {
@@ -1005,6 +1047,14 @@ export class AchFieldElement extends ThemeableHTMLElement {
     }
 
     this._internals?.setValidity({});
+  }
+
+  private _syncErrorMessage(): void {
+    this._postMessage({
+      type: "set_error_message",
+      field: EMBED_FIELD_NAME[this._type],
+      message: this._errorMessage,
+    });
   }
 
   private _syncSessionValidity(

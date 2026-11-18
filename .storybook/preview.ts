@@ -282,8 +282,24 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    // axe runs on every story in `npm test`, and a violation fails it.
     a11y: {
-      test: "todo",
+      test: "error",
+      config: {
+        rules: [
+          {
+            // Base UI's focus guards (inside design-system popups) are
+            // aria-hidden on purpose: they only catch Tab at a popup's edge
+            // and move focus on. Every other aria-hidden element is checked.
+            id: "aria-hidden-focus",
+            selector: '[aria-hidden="true"]:not([data-base-ui-focus-guard])',
+          },
+        ],
+      },
+      options: {
+        // WCAG 2.2 AA 2.5.8 Target Size. axe ships this rule turned off.
+        rules: { "target-size": { enabled: true } },
+      },
     },
     options: {
       storySort: {

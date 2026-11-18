@@ -1,7 +1,10 @@
-import { API } from "@foxy.io/sdk/customer";
+import type { API, StoredSession } from "@foxy.io/sdk/customer";
 
-/** The parts of the SDK's stored session that decide whether it is still usable. */
-type StoredSession = { date_created?: string; expires_in?: number };
+/** Key of the saved session inside the portal's scoped storage. */
+const SESSION_KEY = "session";
+
+/** Storage each API's session is saved to by `persistSession`. */
+const storages = new WeakMap<API, Storage>();
 
 /** Thrown by a read whose response says the customer is not authenticated. */
 export class UnauthenticatedError extends Error {
@@ -12,38 +15,52 @@ export class UnauthenticatedError extends Error {
 }
 
 /**
- * True when storage holds a session the SDK would still send.
+ * True when the API holds a session the SDK would still send.
  *
- * The presence of the session key is not enough: `API.__fetch` compares
- * `date_created + expires_in` against the clock on every request and signs the
- * customer out when it has passed. Picking the initial screen on presence alone
- * lands an expired session on the account screen, where the first request
- * clears the session and comes back 401.
- *
- * Two deliberate details:
- *
- * - A session that cannot be parsed counts as no session. The SDK would throw
- *   on it inside `__fetch`; treating it as absent is a strict improvement.
- * - A session missing `date_created` or `expires_in` counts as valid, because
- *   the arithmetic yields `NaN` and `NaN < Date.now()` is `false`. That is what
- *   the SDK does, and diverging here would sign out sessions the SDK accepts.
+ * Having a session is not enough: the SDK compares `date_created + expires_in`
+ * against the clock on every request and drops the session when it has
+ * passed. Picking the initial screen on presence alone lands an expired
+ * session on the account screen, where the first request drops it and comes
+ * back 401.
  */
-export function hasValidSession(api: Pick<API, "storage">): boolean {
-  const raw = api.storage.getItem(API.SESSION);
-  if (!raw) return false;
+export function hasValidSession(api: Pick<API, "session">): boolean {
+  const session = api.session;
+  if (!session) return false;
 
-  let session: StoredSession | null;
+  const createdAt = new Date(session.date_created).getTime();
+  return !(createdAt + session.expires_in * 1000 < Date.now());
+}
 
-  try {
-    session = JSON.parse(raw) as StoredSession | null;
-  } catch {
-    return false;
+/**
+ * Keeps the API's session across reloads. The SDK holds it in memory only, so
+ * this restores the saved one into the API, then saves every `session` event
+ * and removes the saved copy when the session ends. A saved session the SDK
+ * rejects is removed, so the customer signs in again.
+ */
+export function persistSession(api: API, storage: Storage): void {
+  storages.set(api, storage);
+
+  const raw = storage.getItem(SESSION_KEY);
+  if (raw) {
+    try {
+      api.setSession(JSON.parse(raw) as StoredSession);
+    } catch {
+      storage.removeItem(SESSION_KEY);
+    }
   }
 
-  if (typeof session !== "object" || session === null) return false;
+  api.addEventListener("session", (event) => {
+    if (event.detail) storage.setItem(SESSION_KEY, JSON.stringify(event.detail));
+    else storage.removeItem(SESSION_KEY);
+  });
+}
 
-  const createdAt = new Date(session.date_created as string).getTime();
-  const expiresAt = createdAt + (session.expires_in as number) * 1000;
-
-  return !(expiresAt < Date.now());
+/**
+ * Forgets the session without a request, in the API and in the storage
+ * `persistSession` saves it to. `setSession` dispatches no `session` event, so
+ * the saved copy has to be removed here.
+ */
+export function forgetSession(api: API): void {
+  api.setSession(null);
+  storages.get(api)?.removeItem(SESSION_KEY);
 }

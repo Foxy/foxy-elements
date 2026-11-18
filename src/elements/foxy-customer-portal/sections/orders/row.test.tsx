@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
 import { page } from "vitest/browser";
 import { mountScreen, type MountedScreen } from "../../test-utils";
-import { OrderRow, SUBSCRIPTION_ORDER_COLUMNS } from "./row";
+import { OrderHeaderRow, OrderRow, SUBSCRIPTION_ORDER_COLUMNS } from "./row";
 
 let screen: MountedScreen | null = null;
 
@@ -102,6 +102,65 @@ describe("OrderRow", () => {
     );
     expect(receipt).toBeDefined();
     expect(receipt?.getAttribute("href")).toBe("https://example.test/receipt/1");
+  });
+
+  it("names each value's column for screen readers", async () => {
+    render({
+      onOpen: vi.fn(),
+      order: order({
+        _links: {
+          self: { href: "/s/1" },
+          "fx:receipt": { href: "https://example.test/receipt/1" },
+        },
+      }) as never,
+    });
+
+    await expect
+      .element(
+        page.getByRole("button", {
+          name: /^Order 98213\s+Date .+\s+Summary Coffee.*\s+Amount \$42\.50\s+Status \S/,
+        }),
+      )
+      .toBeInTheDocument();
+    // Every row has a Receipt link, so each says which order it is for.
+    await expect
+      .element(page.getByRole("link", { name: /^Receipt\s+Order 98213/ }))
+      .toBeInTheDocument();
+  });
+
+  // The accessible names above were always right, but Chrome hands screen
+  // readers its layout text, and layout trimmed the separator spaces at the
+  // edges of the hidden column names: NVDA said "Amount$25.00" and JAWS
+  // "ReceiptOrder 100". Each name keeps its space inside and preserves it.
+  it("keeps the space between each column name and its value through layout", () => {
+    render({
+      onOpen: vi.fn(),
+      order: order({
+        _links: {
+          self: { href: "/s/1" },
+          "fx:receipt": { href: "https://example.test/receipt/1" },
+        },
+      }) as never,
+    });
+
+    const columnNames = [...document.querySelectorAll("span")].filter(
+      (span) => getComputedStyle(span).clip === "rect(0px, 0px, 0px, 0px)",
+    );
+    expect(columnNames.length).toBeGreaterThan(1);
+    for (const name of columnNames) {
+      expect(getComputedStyle(name).whiteSpace).toBe("pre");
+    }
+
+    const [receiptName] = columnNames.filter((name) => name.closest("a"));
+    expect(receiptName.textContent).toMatch(/^ Order 98213$/);
+    for (const name of columnNames.filter((name) => !name.closest("a"))) {
+      expect(name.textContent).toMatch(/\S $/);
+    }
+  });
+
+  it("hides the visual header row from screen readers", () => {
+    screen = mountScreen(<OrderHeaderRow />, {});
+    expect(document.querySelector('[aria-hidden="true"]')).not.toBeNull();
   });
 
   it("shows no Receipt link when the order has none", () => {
@@ -311,8 +370,12 @@ describe("OrderRow", () => {
 
     // There is no button to find the group by, so locate it through the Id
     // cell it wraps.
-    const idCell = [...document.querySelectorAll("div")].find(
-      (el) => el.children.length === 0 && el.textContent?.trim() === "98213",
+    const idCell = [...document.querySelectorAll("div")].find((el) =>
+      [...el.childNodes].some(
+        (node) =>
+          node.nodeType === Node.TEXT_NODE &&
+          node.textContent?.trim() === "98213",
+      ),
     )!;
     const group = idCell.parentElement!;
     expect(group.tagName).toBe("DIV");

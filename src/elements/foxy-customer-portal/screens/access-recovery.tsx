@@ -75,7 +75,7 @@ export function AccessRecoveryScreen({ onBack }: { onBack: () => void }) {
             )}
 
             <Form onSubmit={handleSubmit} noValidate $maxWidth="none">
-              <Field.Root>
+              <Field.Root invalid={Boolean(errors.email)}>
                 <Field.Label htmlFor={emailId}>
                   {intl.formatMessage(messages.signInEmail)}
                 </Field.Label>

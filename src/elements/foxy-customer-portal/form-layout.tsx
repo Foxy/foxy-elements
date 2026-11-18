@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import styled from "styled-components";
 
 /**
@@ -14,12 +15,32 @@ import styled from "styled-components";
  * layout measurements the token scale does not carry, so they stay literals;
  * the spacing between fields comes from tokens.
  */
-export const Form = styled.form<{ $maxWidth?: string }>`
+const FormRoot = styled.form<{ $maxWidth?: string }>`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.tokens.space.lg};
   max-width: ${(props) => props.$maxWidth ?? "480px"};
 `;
+
+/**
+ * Focuses the first invalid field after a submit. Otherwise focus stays on the
+ * submit button and a screen reader says nothing about the errors. Waits a
+ * frame so the `aria-invalid` the submit handler's validation set is rendered.
+ */
+export function Form({ onSubmit, ...props }: ComponentProps<typeof FormRoot>) {
+  return (
+    <FormRoot
+      {...props}
+      onSubmit={(event) => {
+        const form = event.currentTarget;
+        onSubmit?.(event);
+        requestAnimationFrame(() => {
+          form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        });
+      }}
+    />
+  );
+}
 
 /**
  * Two fields side by side, for the pairs an address form conventionally

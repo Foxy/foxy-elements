@@ -19,6 +19,8 @@ import {
 const OWNER_CONFIRMATION_LABEL = "I am the account owner.";
 const OWNER_CONFIRMATION_ERROR = "Confirm that you own this account.";
 const TOKENIZE_ERROR = "We could not verify those bank details.";
+const ROUTING_LENGTH_ERROR = "Enter a 9-digit routing number.";
+const FIELD_ERROR_FALLBACK = "Check this field.";
 
 const DEFAULT_LABELS: Partial<Record<AchHostedFieldName, string>> = {
   "routing-number": "Routing Number",
@@ -54,6 +56,8 @@ function embed(overrides: EmbedPropOverrides = {}) {
     styleAttributes: STYLE_ATTRIBUTES,
     onControllerReady: overrides.onControllerReady,
     defaultLabelsByField: DEFAULT_LABELS,
+    fieldErrorMessages: { routing_number_length: ROUTING_LENGTH_ERROR },
+    fieldErrorFallback: FIELD_ERROR_FALLBACK,
     ownerConfirmationLabel: OWNER_CONFIRMATION_LABEL,
     ownerConfirmationErrorMessage: OWNER_CONFIRMATION_ERROR,
     tokenizeErrorMessage: TOKENIZE_ERROR,
@@ -96,6 +100,14 @@ function ownerConfirmationIn(container: HTMLElement): HTMLElement {
  * embed iframe, which never answers here; what these tests check is the gate
  * the embed puts in front of it.
  */
+/** Stands in for the state the embed iframe would report. */
+function stubErrorCode(field: AchFieldElement, code: string | null): void {
+  Object.defineProperty(field, "errorCode", {
+    configurable: true,
+    get: () => code,
+  });
+}
+
 function stubTokenize(field: AchFieldElement, result: unknown): void {
   Object.defineProperty(field, "tokenize", {
     configurable: true,
@@ -285,6 +297,52 @@ describe("AchOptionEmbed", () => {
     await mounted.unmount();
   });
 
+  it("shows a field's error once the customer leaves it, and hands the text to the field", async () => {
+    const mounted = await mountEmbed(embed());
+    const routing = fieldIn(mounted.container, "routing-number");
+    const account = fieldIn(mounted.container, "account-number");
+
+    stubErrorCode(routing, "routing_number_length");
+    stubErrorCode(account, "some_future_code");
+    await settled(() => {
+      routing.dispatchEvent(new FocusEvent("blur"));
+      account.dispatchEvent(new FocusEvent("blur"));
+    });
+
+    expect(mounted.container.textContent).toContain(ROUTING_LENGTH_ERROR);
+    expect(routing.getAttribute("error-message")).toBe(ROUTING_LENGTH_ERROR);
+    expect(account.getAttribute("error-message")).toBe(FIELD_ERROR_FALLBACK);
+
+    stubErrorCode(routing, null);
+    await settled(() => {
+      routing.dispatchEvent(new Event("change"));
+    });
+
+    expect(mounted.container.textContent).not.toContain(ROUTING_LENGTH_ERROR);
+    expect(routing.hasAttribute("error-message")).toBe(false);
+
+    await mounted.unmount();
+  });
+
+  it("links the owner confirmation error to its checkbox", async () => {
+    const sink = controllerSink();
+    const mounted = await mountEmbed(
+      embed({ onControllerReady: sink.onControllerReady }),
+    );
+
+    await rejection(() => sink.get().tokenize());
+    await settled(() => {});
+
+    const checkbox = ownerConfirmationIn(mounted.container);
+    const describedBy = checkbox.getAttribute("aria-describedby") ?? "";
+    expect(checkbox.getAttribute("aria-invalid")).toBe("true");
+    expect(
+      mounted.container.querySelector(`[id="${describedBy}"]`)?.textContent,
+    ).toBe(OWNER_CONFIRMATION_ERROR);
+
+    await mounted.unmount();
+  });
+
   it("shows the tokenize error message on a tokenizationerror event and clears it on success", async () => {
     const mounted = await mountEmbed(embed());
     const field = fieldIn(mounted.container, "routing-number");
@@ -297,7 +355,9 @@ describe("AchOptionEmbed", () => {
       );
     });
 
-    expect(mounted.container.textContent).toContain(TOKENIZE_ERROR);
+    expect(mounted.container.querySelector('[role="alert"]')?.textContent).toBe(
+      TOKENIZE_ERROR,
+    );
 
     await settled(() => {
       field.dispatchEvent(new CustomEvent("tokenizationsuccess", {}));

@@ -12,8 +12,10 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { Card } from "@foxy.io/design-system/card";
 import { Checkbox } from "@foxy.io/design-system/checkbox";
+import { DelayedStatus } from "@foxy.io/design-system/delayed-status";
 import { Field } from "@foxy.io/design-system/field";
 import { Input } from "@foxy.io/design-system/input";
 import { Check } from "lucide-react";
@@ -536,6 +538,28 @@ function PaymentOptionBody({
           styleAttributes={styleAttributes}
           onControllerReady={onControllerReady}
           defaultLabelsByField={achDefaultLabels}
+          fieldErrorMessages={{
+            required: intl.formatMessage(messages.achFieldRequired),
+            routing_number_length: intl.formatMessage(
+              messages.achRoutingNumberLength,
+            ),
+            routing_number_checksum: intl.formatMessage(
+              messages.achRoutingNumberChecksum,
+            ),
+            account_number_too_short: intl.formatMessage(
+              messages.achAccountNumberTooShort,
+            ),
+            account_number_too_long: intl.formatMessage(
+              messages.achAccountNumberTooLong,
+            ),
+            account_type_invalid: intl.formatMessage(
+              messages.achAccountTypeInvalid,
+            ),
+            account_holder_name_too_long: intl.formatMessage(
+              messages.achAccountHolderNameTooLong,
+            ),
+          }}
+          fieldErrorFallback={intl.formatMessage(messages.achFieldInvalid)}
           ownerConfirmationLabel={intl.formatMessage(
             messages.achOwnerConfirmationLabel,
           )}
@@ -794,6 +818,32 @@ export function Payment({
     return initial;
   });
 
+  // Option bodies render outside OptionRadioGroup and are portaled into their
+  // card. Inside the group they would inherit Base UI's composite and the
+  // radio's Field.Root: a Checkbox there takes itself for a roving-focus item
+  // and gets no tabindex, and arrow keys on it would change the selection.
+  const [bodySlots, setBodySlots] = useState<Record<string, HTMLElement>>({});
+  const bodySlotRefs = useRef(
+    new Map<string, (element: HTMLElement | null) => void>(),
+  );
+  // One stable callback per option, so React calls it only on mount and unmount.
+  const bodySlotRef = (optionId: string) => {
+    let ref = bodySlotRefs.current.get(optionId);
+    if (!ref) {
+      ref = (element) =>
+        setBodySlots((previous) => {
+          if (element ? previous[optionId] === element : !(optionId in previous))
+            return previous;
+          const next = { ...previous };
+          if (element) next[optionId] = element;
+          else delete next[optionId];
+          return next;
+        });
+      bodySlotRefs.current.set(optionId, ref);
+    }
+    return ref;
+  };
+
   useEffect(() => {
     if (!selection) return;
     setMountedOptionIds((previous) => {
@@ -932,25 +982,34 @@ export function Payment({
     );
   }
 
+  // The banner replaces the loading state with its text already in it, and a
+  // live region that appears with its text is often not announced. The
+  // design system's DelayedStatus mounts empty and speaks a moment later.
   if (!visibleOptions.length && allOptionsHidden) {
     return (
-      <EmptyStateBanner role="status" aria-live="polite">
+      <EmptyStateBanner>
         <EmptyStateTitle>
           {intl.formatMessage(messages.noPaymentMethodsVisible)}
         </EmptyStateTitle>
+        <DelayedStatus
+          message={intl.formatMessage(messages.noPaymentMethodsVisible)}
+        />
       </EmptyStateBanner>
     );
   }
 
   if (!visibleOptions.length) {
     return (
-      <EmptyStateBanner role="status" aria-live="polite">
+      <EmptyStateBanner>
         <EmptyStateTitle>
           {intl.formatMessage(messages.noPaymentMethods)}
         </EmptyStateTitle>
         <MutedFootnote>
           {intl.formatMessage(messages.noPaymentMethodsDescription)}
         </MutedFootnote>
+        <DelayedStatus
+          message={`${intl.formatMessage(messages.noPaymentMethods)} ${intl.formatMessage(messages.noPaymentMethodsDescription)}`}
+        />
       </EmptyStateBanner>
     );
   }
@@ -1030,22 +1089,11 @@ export function Payment({
                           {optionDescription}
                         </OptionDescription>
                       ) : null}
-                      <OptionContent $hidden={!checked}>
-                        <PaymentOptionBody
-                          option={option}
-                          lang={lang}
-                          disabled={optionDisabled}
-                          styleAttributes={styleAttributes}
-                          onControllerReady={(controller) =>
-                            onControllerReady?.(option.id, controller)
-                          }
-                          onKlarnaAvailabilityChange={
-                            onKlarnaAvailabilityChange
-                          }
-                          renderStripeContent={renderStripeContent}
-                          renderAdyenContent={renderAdyenContent}
-                        />
-                      </OptionContent>
+                      {/* Filled by the portal after OptionRadioGroup. */}
+                      <OptionContent
+                        $hidden={!checked}
+                        ref={bodySlotRef(option.id)}
+                      />
                     </>
                   ) : null}
                 </OptionFieldContent>
@@ -1064,6 +1112,27 @@ export function Payment({
           );
         })}
       </OptionRadioGroup>
+
+      {nativeOptions.map((option) => {
+        const slot = bodySlots[option.id];
+        if (!slot || !mountedOptionIds.has(option.id)) return null;
+        return createPortal(
+          <PaymentOptionBody
+            option={option}
+            lang={lang}
+            disabled={Boolean(disabled || option.disabled)}
+            styleAttributes={styleAttributes}
+            onControllerReady={(controller) =>
+              onControllerReady?.(option.id, controller)
+            }
+            onKlarnaAvailabilityChange={onKlarnaAvailabilityChange}
+            renderStripeContent={renderStripeContent}
+            renderAdyenContent={renderAdyenContent}
+          />,
+          slot,
+          option.id,
+        );
+      })}
 
       {adyenOption !== null &&
         renderAdyenContent?.({

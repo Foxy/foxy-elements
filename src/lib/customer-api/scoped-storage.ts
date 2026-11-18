@@ -6,9 +6,8 @@ const PROBE_KEY = "__probe__";
 /**
  * A `Storage` view over another `Storage`, namespaced by `scope`.
  *
- * The SDK writes session data under the fixed key `API.SESSION` ("session").
- * Two Foxy stores served from the same origin would therefore share one
- * session slot, and signing into the second would silently overwrite the
+ * `persistSession` saves the session under the fixed key "session". Two Foxy
+ * stores served from the same origin would therefore share one session slot, and signing into the second would silently overwrite the
  * first. Scoping by the resolved base URL keeps them apart.
  */
 export class ScopedStorage implements Storage {

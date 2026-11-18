@@ -21,6 +21,7 @@ export const paymentCardFieldEvents = {
   resize: "resize",
   tokenizationSuccess: "tokenizationsuccess",
   tokenizationError: "tokenizationerror",
+  errorMessageChange: "errormessagechange",
 } as const;
 
 // app-php serves the card-entry shell and the vault mint it posts to on the
@@ -92,6 +93,7 @@ type PaymentCardFieldEventMap = HTMLElementEventMap & {
   resize: CustomEvent<ResizeEventDetail>;
   tokenizationsuccess: CustomEvent<TokenizationSuccessEventDetail>;
   tokenizationerror: CustomEvent<TokenizationErrorEventDetail>;
+  errormessagechange: Event;
 };
 
 const THEME_ATTR_TO_QUERY_KEY = {
@@ -333,6 +335,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
   private _focused = false;
   private _touched = false;
   private _invalid = false;
+  private _errorMessage = "";
   private _internals: ElementInternals | null;
 
   constructor() {
@@ -553,6 +556,17 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     return this._internals?.validationMessage ?? "";
   }
 
+  /**
+   * The card error the shopper should see, in the frame's own translation:
+   * the first field they left invalid, or every empty one after a refused
+   * tokenize. Empty when there is none. Show it below the field and re-read
+   * it on `errormessagechange`. The frame describes its inputs with the same
+   * text for screen readers.
+   */
+  get errorMessage(): string {
+    return this._errorMessage;
+  }
+
   get willValidate(): boolean {
     return this._internals?.willValidate ?? false;
   }
@@ -689,6 +703,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
     this._touched = false;
     this._invalid = false;
     this._syncPublicStates();
+    this._setErrorMessage("");
 
     this._disconnectPort();
     this._rejectPendingTokenizes("Card tokenization aborted.");
@@ -703,6 +718,7 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
 
     this._ready = false;
     this._fieldValidation.clear();
+    this._setErrorMessage("");
     this._disconnectPort();
     this._rejectPendingTokenizes("Card tokenization aborted.");
     this._iframe?.remove();
@@ -978,6 +994,12 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       return;
     }
 
+    if (type === "error_text") {
+      const message = payload["message"];
+      if (typeof message === "string") this._setErrorMessage(message);
+      return;
+    }
+
     if (type === "validation") {
       this._handleValidationPayload(payload);
       return;
@@ -1160,6 +1182,17 @@ export class PaymentCardFieldElement extends ThemeableHTMLElement {
       formState?.valid ?? true,
       formState?.message ?? null,
       formState?.code ?? null,
+    );
+  }
+
+  private _setErrorMessage(message: string): void {
+    if (message === this._errorMessage) return;
+    this._errorMessage = message;
+    this.dispatchEvent(
+      new Event(paymentCardFieldEvents.errorMessageChange, {
+        bubbles: true,
+        composed: true,
+      }),
     );
   }
 

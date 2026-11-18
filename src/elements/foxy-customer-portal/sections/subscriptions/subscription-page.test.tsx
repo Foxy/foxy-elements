@@ -912,6 +912,26 @@ describe("SubscriptionPage", () => {
     expect(document.body.textContent).toMatch(/\$24\.00/);
   });
 
+  // Opening the page focuses its heading. A live region here was spoken over
+  // the heading, though the failure is old news stored on the subscription.
+  it("keeps the past-due alert out of any live region", () => {
+    render({
+      subscription: subscription({
+        first_failed_transaction_date: past,
+        past_due_amount: 24,
+      }),
+    });
+    const alert = [...document.querySelectorAll("div")].find(
+      (el) =>
+        el.children.length === 0 && el.textContent?.trim() === "Payment Failed",
+    )?.parentElement;
+
+    expect(alert).toBeTruthy();
+    expect(
+      alert!.closest('[role="alert"], [role="status"], [aria-live]'),
+    ).toBeNull();
+  });
+
   it("names no amount in the past-due alert when there is none", () => {
     // A failure date with no `past_due_amount`. The alert must still appear
     // -- the payment genuinely failed -- but it must not state $0.00 as the

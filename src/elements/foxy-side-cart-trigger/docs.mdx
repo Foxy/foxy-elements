@@ -7,7 +7,7 @@ import * as SideCartTriggerStories from "./element.stories";
 
 A merchant drops this element anywhere on their site — a header, a product page, a nav bar — to show the cart's item count and open the sidecart drawer on click. It renders a button with a cart icon, the text "Cart" and a count badge; nothing else needs configuring.
 
-Required attributes: none. It reads the shared `sideCart` singleton from `@foxy.io/sdk/checkout/side-cart` directly, so as soon as it's on the page it reflects whatever that singleton knows.
+Required attributes: none. It reads the shared `sideCart` singleton from `@foxy.io/sdk/checkout` directly, so as soon as it's on the page it reflects whatever that singleton knows. The page also needs the SDK loader (`sdk@2/checkout/loader.js?store=…`): it sets the store and turns the drawer on.
 
 It accepts `lang`, the locale for its visible label, accessible name and announcement text. It falls back to the page's `<html lang>`, then to `en-US`.
 

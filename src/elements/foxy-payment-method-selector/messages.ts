@@ -154,6 +154,38 @@ export const messages = defineMessages({
     id: "payment_ach_owner_confirmation_error",
     defaultMessage: "Please confirm that you own this account.",
   },
+  achFieldRequired: {
+    id: "payment_ach_field_required",
+    defaultMessage: "This field is required.",
+  },
+  achRoutingNumberLength: {
+    id: "payment_ach_routing_number_length",
+    defaultMessage: "Enter a 9-digit routing number.",
+  },
+  achRoutingNumberChecksum: {
+    id: "payment_ach_routing_number_checksum",
+    defaultMessage: "This routing number isn't valid. Check it and try again.",
+  },
+  achAccountNumberTooShort: {
+    id: "payment_ach_account_number_too_short",
+    defaultMessage: "This account number is too short.",
+  },
+  achAccountNumberTooLong: {
+    id: "payment_ach_account_number_too_long",
+    defaultMessage: "This account number is too long.",
+  },
+  achAccountTypeInvalid: {
+    id: "payment_ach_account_type_invalid",
+    defaultMessage: "Choose an account type.",
+  },
+  achAccountHolderNameTooLong: {
+    id: "payment_ach_account_holder_name_too_long",
+    defaultMessage: "Use 120 characters or fewer.",
+  },
+  achFieldInvalid: {
+    id: "payment_ach_field_invalid",
+    defaultMessage: "Check this field.",
+  },
   purchaseOrderNumberLabel: {
     id: "payment_purchase_order_number_label",
     defaultMessage: "Purchase Order Number",

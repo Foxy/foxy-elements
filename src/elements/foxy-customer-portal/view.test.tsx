@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act } from "react";
-import { API } from "@foxy.io/sdk/customer";
+import type { StoredSession } from "@foxy.io/sdk/customer";
 import { RequestCache, serialiseQuery } from "@/lib/customer-api";
 import { mountScreen, setInputValue, type MountedScreen } from "./test-utils";
 import { resetHCaptchaLoaderForTests } from "./hcaptcha";
@@ -82,14 +82,15 @@ const ada = {
   },
 };
 
-/** A stored session shaped the way the SDK writes one. */
-function session(overrides: Record<string, unknown> = {}) {
-  return JSON.stringify({
+/** A session shaped the way the SDK keeps one. */
+function session(overrides: Partial<StoredSession> = {}): StoredSession {
+  return {
     session_token: "t",
+    jwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMifQ.c2lnbmF0dXJl",
     expires_in: 3600,
     date_created: new Date().toISOString(),
     ...overrides,
-  });
+  };
 }
 
 /** A session the SDK's own expiry check would already have thrown away. */
@@ -100,40 +101,30 @@ function expiredSession() {
   });
 }
 
-// A minimal double of `@foxy.io/sdk/customer`'s `API`: `storage` is a real
-// Map-backed Storage so `API.SESSION` round-trips exactly like production,
-// and every method the router or a routed screen touches is stubbed.
+// A minimal double of `@foxy.io/sdk/customer`'s `API`: the session lives in
+// memory behind `session` / `setSession`, like in the SDK, and every method
+// the router or a routed screen touches is stubbed.
 // `get` resolves with `ok` and `status` because the real client does, and
 // because those are the only thing that distinguishes a signed-in read from a
 // 401 — the SDK parses either body without complaint.
 function fakeApi(overrides: Record<string, unknown> = {}) {
-  const store = new Map<string, string>();
-
-  const storage: Storage = {
-    getItem: (key: string) => store.get(key) ?? null,
-    setItem: (key: string, value: string) => {
-      store.set(key, value);
-    },
-    removeItem: (key: string) => {
-      store.delete(key);
-    },
-    clear: () => store.clear(),
-    key: () => null,
-    get length() {
-      return store.size;
-    },
-  };
+  let current: StoredSession | null = null;
 
   return {
     base: new URL("https://demo.foxycart.com/s/customer/"),
-    storage,
+    get session() {
+      return current ? { ...current } : null;
+    },
+    setSession: vi.fn((next: StoredSession | null) => {
+      current = next ? { ...next } : null;
+    }),
     usesTemporaryPassword: false,
     signIn: vi.fn(async () => {
-      store.set(API.SESSION, session());
+      current = session();
     }),
     signUp: vi.fn(async () => {}),
     signOut: vi.fn(async () => {
-      store.delete(API.SESSION);
+      current = null;
     }),
     sendPasswordResetEmail: vi.fn(async () => {}),
     get: vi.fn(async () => ({ ok: true, status: 200, json: async () => ada })),
@@ -199,7 +190,7 @@ describe("Portal", () => {
 
   it("shows account directly when a session already exists", async () => {
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api);
     await flush();
     await flush();
@@ -297,7 +288,7 @@ describe("Portal", () => {
 
   it("fires signout with no detail and returns to sign-in", async () => {
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     const onEvent = vi.fn();
     render(api, { onEvent });
     await flush();
@@ -340,7 +331,7 @@ describe("Portal", () => {
     // not enough: starting on `account` would fire a request that clears the
     // session and comes back 401.
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, expiredSession());
+    api.setSession(expiredSession());
     render(api);
     await flush();
     await flush();
@@ -358,7 +349,7 @@ describe("Portal", () => {
         json: async () => ({}),
       })),
     });
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api, { onEvent });
     await flush();
     await flush();
@@ -366,7 +357,7 @@ describe("Portal", () => {
     expect(screen!.host.textContent).toMatch(/sign in/i);
     // The stale session is dropped, or the next mount routes straight back to
     // an account screen that cannot load.
-    expect(api.storage.getItem(API.SESSION)).toBeNull();
+    expect(api.session).toBeNull();
     // Nobody signed out, so no `signout` event.
     expect(onEvent).not.toHaveBeenCalled();
   });
@@ -385,14 +376,14 @@ describe("Portal", () => {
     });
     const onEvent = vi.fn();
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api, { onEvent });
     await flush();
     await flush();
 
     expect(screen!.host.textContent).not.toMatch(/sign in/i);
     expect(screen!.host.textContent).toMatch(ada.first_name);
-    expect(api.storage.getItem(API.SESSION)).not.toBeNull();
+    expect(api.session).not.toBeNull();
   });
 
   it("shows the customer's updated name after a profile save", async () => {
@@ -415,7 +406,7 @@ describe("Portal", () => {
         json: async () => current,
       })),
     });
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api);
     await flush();
     await flush();
@@ -468,7 +459,7 @@ describe("Portal", () => {
         json: async () => customer,
       })),
     });
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api, { onEvent, cache });
     await flush();
     await flush();
@@ -488,7 +479,7 @@ describe("Portal", () => {
     await flush();
 
     expect(screen!.host.textContent).toMatch(/sign in/i);
-    expect(api.storage.getItem(API.SESSION)).toBeNull();
+    expect(api.session).toBeNull();
     // The customer did not sign out, so no `signout` event either.
     expect(onEvent).not.toHaveBeenCalled();
 
@@ -516,7 +507,7 @@ describe("Portal", () => {
     container.scrollIntoView = vi.fn();
 
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
 
     try {
       screen = mountScreen(
@@ -572,7 +563,7 @@ describe("Portal", () => {
     container.scrollIntoView = vi.fn();
 
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
 
     try {
       screen = mountScreen(
@@ -629,7 +620,7 @@ describe("Portal", () => {
     container.scrollIntoView = scrollIntoView;
 
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
 
     screen = mountScreen(
       <PortalContainerContext value={container}>
@@ -669,7 +660,7 @@ describe("Portal", () => {
     container.scrollIntoView = vi.fn();
 
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     const originalUrl = window.location.href;
     const originalRestoration = history.scrollRestoration;
 
@@ -739,7 +730,7 @@ describe("Portal", () => {
     container.scrollIntoView = vi.fn();
 
     const api = fakeApi();
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     const originalUrl = window.location.href;
     const originalRestoration = history.scrollRestoration;
 
@@ -816,7 +807,7 @@ describe("Portal", () => {
 
     try {
       const api = fakeApi();
-      api.storage.setItem(API.SESSION, session());
+      api.setSession(session());
 
       render(api, { urlSync: true });
       await flush();
@@ -849,7 +840,7 @@ describe("Portal", () => {
 
     try {
       const api = fakeApi();
-      api.storage.setItem(API.SESSION, session());
+      api.setSession(session());
       render(api, { urlSync: true });
       await flush();
       await flush();
@@ -948,7 +939,7 @@ describe("Portal", () => {
       history.replaceState({}, "", seededUrl);
 
       const api = fakeApi();
-      api.storage.setItem(API.SESSION, session());
+      api.setSession(session());
       render(api, { urlSync: true });
       await flush();
       await flush();
@@ -1037,7 +1028,7 @@ describe("Portal", () => {
         json: async () => current,
       })),
     });
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api);
     await flush();
     await flush();
@@ -1090,7 +1081,7 @@ describe("Portal", () => {
         json: async () => ({}),
       })),
     });
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api);
     await flush();
     await flush();
@@ -1104,7 +1095,7 @@ describe("Portal", () => {
         throw Object.assign(new Error("nope"), { code: "UNKNOWN" });
       }),
     });
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     const onEvent = vi.fn();
     render(api, { onEvent });
     await flush();
@@ -1345,7 +1336,7 @@ describe("Portal", () => {
         json: async () => customerWithSubscription,
       })),
     });
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api);
     await flush();
     await flush();
@@ -1419,7 +1410,7 @@ describe("Portal", () => {
         json: async () => customerWithSubscription,
       })),
     });
-    api.storage.setItem(API.SESSION, session());
+    api.setSession(session());
     render(api);
     await flush();
     await flush();
@@ -1455,7 +1446,7 @@ describe("Portal", () => {
   describe("layout variant", () => {
     it("leads with the subscriptions section by default", async () => {
       const api = fakeApi();
-      api.storage.setItem(API.SESSION, session());
+      api.setSession(session());
       render(api);
       await flush();
       await flush();
@@ -1465,7 +1456,7 @@ describe("Portal", () => {
 
     it('drops the subscriptions section under variant="orders"', async () => {
       const api = fakeApi();
-      api.storage.setItem(API.SESSION, session());
+      api.setSession(session());
       render(api, { variant: "orders" });
       await flush();
       await flush();
@@ -1488,7 +1479,7 @@ describe("Portal", () => {
         history.replaceState({}, "", "?fc_page=subscription&fc_id=42");
 
         const api = fakeApi();
-        api.storage.setItem(API.SESSION, session());
+        api.setSession(session());
         render(api, { variant: "orders", urlSync: true });
         await flush();
         await flush();

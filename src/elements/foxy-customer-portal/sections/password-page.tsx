@@ -85,7 +85,7 @@ export function PasswordPage({ customer, onBack }: Props) {
           </Alert.Root>
         )}
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.current)}>
           <Field.Label htmlFor={currentId}>
             {intl.formatMessage(messages.passwordCurrent)}
           </Field.Label>
@@ -112,7 +112,7 @@ export function PasswordPage({ customer, onBack }: Props) {
           )}
         </Field.Root>
 
-        <Field.Root>
+        <Field.Root invalid={Boolean(errors.next)}>
           <Field.Label htmlFor={nextId}>
             {intl.formatMessage(messages.passwordNew)}
           </Field.Label>

@@ -8,6 +8,7 @@ import { API } from "@foxy.io/sdk/customer";
 import {
   RequestCache,
   createScopedStorage,
+  persistSession,
   resolveBaseUrl,
 } from "@/lib/customer-api";
 import { ThemeMixin } from "@/lib/theme-mixin";
@@ -197,7 +198,8 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
 
   /**
    * Builds the API lazily and reuses it while `store-domain` is unchanged.
-   * Session storage is scoped by base URL — never raw `localStorage`, or two
+   * The SDK keeps the session in memory; `persistSession` saves it to storage
+   * scoped by base URL — never raw `localStorage`, or two
    * stores on one origin share a session slot — and `createScopedStorage`
    * keeps a browser that blocks storage from throwing out of `#render`.
    */
@@ -215,11 +217,8 @@ export class CustomerPortalElement extends ThemeableHTMLElement {
     if (this.#api && this.#apiBase === base.toString()) return this.#api;
 
     this.#apiBase = base.toString();
-    this.#api = new API({
-      base,
-      level: LOG_LEVEL,
-      storage: createScopedStorage(base.toString()),
-    });
+    this.#api = new API({ base, level: LOG_LEVEL });
+    persistSession(this.#api, createScopedStorage(base.toString()));
 
     return this.#api;
   }

@@ -196,7 +196,7 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
         )}
 
         <Form onSubmit={handleSubmit} noValidate $maxWidth="none">
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.firstName)}>
             <Field.Label htmlFor={firstNameId}>
               {intl.formatMessage(messages.signUpFirstName)}
             </Field.Label>
@@ -217,7 +217,7 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
               <Field.Error match>{errors.firstName}</Field.Error>
             ) : null}
           </Field.Root>
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.lastName)}>
             <Field.Label htmlFor={lastNameId}>
               {intl.formatMessage(messages.signUpLastName)}
             </Field.Label>
@@ -238,7 +238,7 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
               <Field.Error match>{errors.lastName}</Field.Error>
             ) : null}
           </Field.Root>
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.email)}>
             <Field.Label htmlFor={emailId}>
               {intl.formatMessage(messages.signInEmail)}
             </Field.Label>
@@ -258,7 +258,7 @@ export function SignUpScreen({ siteKey, onSignedIn, onBack }: Props) {
             />
             {errors.email ? <Field.Error match>{errors.email}</Field.Error> : null}
           </Field.Root>
-          <Field.Root>
+          <Field.Root invalid={Boolean(errors.password)}>
             <Field.Label htmlFor={passwordId}>
               {intl.formatMessage(messages.signInPassword)}
             </Field.Label>

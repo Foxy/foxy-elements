@@ -62,6 +62,19 @@ The themed elements in this package support a broader shared set of theme attrib
     </tr>
     <tr>
       <td>
+        <code>error-message</code>
+      </td>
+      <td>
+        The error text your page shows for this field. The input inside the
+        frame announces it to screen readers, which can't reach your page's text
+        from there. Set it while <code>errorCode</code> is not null.
+      </td>
+      <td>
+        <code>Enter a 9-digit routing number.</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
         <code>disabled</code>
       </td>
       <td>Disables the hosted field and marks the control disabled.</td>
@@ -193,6 +206,30 @@ The themed elements in this package support a broader shared set of theme attrib
         <code>("checking" | "savings")[] | undefined</code>
       </td>
       <td>Allowed account types when rendering the account-type field.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>errorMessage</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        Reflects <code>error-message</code>. Empty when there is no error.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>errorCode</code>
+      </td>
+      <td>
+        <code>string | null</code> (read-only)
+      </td>
+      <td>
+        Why the field is invalid, such as <code>routing_number_length</code>,
+        once the customer has left it. <code>null</code> before that and while
+        valid. Read it on <code>blur</code> and <code>change</code>.
+      </td>
     </tr>
     <tr>
       <td>

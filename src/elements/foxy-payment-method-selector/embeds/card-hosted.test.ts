@@ -212,6 +212,29 @@ describe("CardOptionEmbed", () => {
     await mounted.unmount();
   });
 
+  it("shows the card field's error text below it", async () => {
+    const mounted = await mountEmbed(embed());
+    const field = fieldIn(mounted.container);
+    let message = "Enter a card number.";
+    Object.defineProperty(field, "errorMessage", {
+      configurable: true,
+      get: () => message,
+    });
+
+    await settled(() => {
+      field.dispatchEvent(new Event("errormessagechange"));
+    });
+    expect(mounted.container.textContent).toContain("Enter a card number.");
+
+    message = "";
+    await settled(() => {
+      field.dispatchEvent(new Event("errormessagechange"));
+    });
+    expect(mounted.container.textContent).not.toContain("Enter a card number.");
+
+    await mounted.unmount();
+  });
+
   it("shows the tokenize error message on a tokenizationerror event and clears it on success", async () => {
     const mounted = await mountEmbed(embed());
     const field = fieldIn(mounted.container);
@@ -224,7 +247,9 @@ describe("CardOptionEmbed", () => {
       );
     });
 
-    expect(mounted.container.textContent).toContain(TOKENIZE_ERROR);
+    expect(mounted.container.querySelector('[role="alert"]')?.textContent).toBe(
+      TOKENIZE_ERROR,
+    );
 
     await settled(() => {
       field.dispatchEvent(new CustomEvent("tokenizationsuccess", {}));

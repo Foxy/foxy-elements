@@ -77,6 +77,15 @@ export default function CardOptionEmbed({
 }: CardHostedEmbedProps) {
   const elementRef = useRef<PaymentCardFieldElement | null>(null);
   const [error, setError] = useState<CardEmbedTokenizeErrorCode | null>(null);
+  const [fieldError, setFieldError] = useState("");
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+    const update = () => setFieldError(element.errorMessage);
+    element.addEventListener("errormessagechange", update);
+    return () => element.removeEventListener("errormessagechange", update);
+  }, []);
 
   useEffect(() => {
     const element = elementRef.current;
@@ -173,7 +182,11 @@ export default function CardOptionEmbed({
           elementRef.current = node as PaymentCardFieldElement | null;
         }}
       />
-      {error ? <ErrorText>{tokenizeErrorMessage}</ErrorText> : null}
+      {fieldError ? <ErrorText>{fieldError}</ErrorText> : null}
+      {/* An alert: it answers the customer's own submit. */}
+      {error ? (
+        <ErrorText role="alert">{tokenizeErrorMessage}</ErrorText>
+      ) : null}
     </Field.Root>
   );
 }
