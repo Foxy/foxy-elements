@@ -1,5 +1,6 @@
-import { format, messages } from "./messages";
+import { chooseMessage, format, messages } from "./messages";
 import { isHttps } from "./markdown";
+import { productOptions } from "./options";
 import {
   formatPrice,
   priceRange,
@@ -9,169 +10,222 @@ import type { CatalogProduct, ProductImage } from "./types";
 
 const STYLE_ID = "foxy-product-styles";
 
-// Each look value reads the element's own variable first (set by an attribute
-// or the page's CSS), then the store's saved look, then the theme's, then the
-// default theme's value.
-const tier = (name: string, fallback: string): string =>
-  `var(--foxy-product-${name}, var(--foxy-store-${name}, var(--foxy-theme-${name}, ${fallback})))`;
-const font = tier("font", "inherit");
-const nameColor = tier("text-color", "#111827");
-const button = tier("button-color", "#111827");
-const onButton = tier("button-text-color", "#FFFFFF");
-const buttonRadius = tier("button-radius", "8px");
-const radius = "var(--foxy-product-radius, 8px)";
-const fieldRadius = "var(--foxy-product-field-radius, 8px)";
-const accent = "var(--foxy-product-accent-color, #111827)";
-const onAccent = "var(--foxy-product-on-accent-color, #FFFFFF)";
-const body = "var(--foxy-product-body-color, #1F2937)";
-const muted = "var(--foxy-product-muted-color, #6B7280)";
-const prose = "var(--foxy-product-description-color, #4B5563)";
-const border = "var(--foxy-product-border-color, #D1D5DB)";
-const fieldBorder = "var(--foxy-product-field-border-color, #D1D5DB)";
-const divider = "var(--foxy-product-divider-color, #E5E7EB)";
-const surface = "var(--foxy-product-surface-color, #FFFFFF)";
-const panel = "var(--foxy-product-panel-color, #F3F4F6)";
-const header = "var(--foxy-product-header-color, #F9FAFB)";
-const onDisabled = "var(--foxy-product-disabled-text-color, #4B5563)";
-const notice = "var(--foxy-product-notice-color, #B91C1C)";
-const success = "var(--foxy-product-success-color, #15803D)";
-// A card: the form, a tile, and each panel of the page.
-const card = `border: var(--foxy-product-card-border, 1px solid #E5E7EB); border-radius: var(--foxy-product-card-radius, 12px); box-shadow: var(--foxy-product-card-shadow, none); background: var(--foxy-product-card-bar, none) top / 100% 4px no-repeat, ${surface};`;
-const cardPadding = (size: string): string => `var(--foxy-product-card-padding, ${size})`;
 const chevron = (color: string): string =>
   `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23${color}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E")`;
+
+/**
+ * The themes, as the CSS variables each one sets. `bold` is the default
+ * look: the value every variable has when no theme, store setting or page
+ * CSS sets it, for the variables that have one such value. The stylesheet
+ * is built from this, so the two can't differ.
+ *
+ * A `--foxy-theme-*` variable gives way to the store's saved setting and to
+ * the element's attribute of the same name; a `--foxy-product-*` variable
+ * is the value itself, and is also what a page's own CSS sets.
+ */
+export const themes = {
+  bold: {
+    "--foxy-theme-font": "inherit",
+    "--foxy-theme-text-color": "#111827",
+    "--foxy-theme-button-color": "#111827",
+    "--foxy-theme-button-text-color": "#FFFFFF",
+    "--foxy-theme-button-radius": "8px",
+    "--foxy-product-button-border": "0",
+    "--foxy-product-button-font": "inherit",
+    "--foxy-product-button-weight": "600",
+    "--foxy-product-button-tracking": "0",
+    "--foxy-product-button-transform": "none",
+    "--foxy-product-radius": "8px",
+    "--foxy-product-field-radius": "8px",
+    "--foxy-product-accent-color": "#111827",
+    "--foxy-product-on-accent-color": "#FFFFFF",
+    "--foxy-product-body-color": "#1F2937",
+    "--foxy-product-muted-color": "#6B7280",
+    "--foxy-product-description-color": "#4B5563",
+    "--foxy-product-border-color": "#D1D5DB",
+    "--foxy-product-field-border-color": "#D1D5DB",
+    "--foxy-product-divider-color": "#E5E7EB",
+    "--foxy-product-surface-color": "#FFFFFF",
+    "--foxy-product-panel-color": "#F3F4F6",
+    "--foxy-product-header-color": "#F9FAFB",
+    "--foxy-product-notice-color": "#B91C1C",
+    "--foxy-product-success-color": "#15803D",
+    "--foxy-product-card-border": "1px solid #E5E7EB",
+    "--foxy-product-card-radius": "12px",
+    "--foxy-product-card-shadow": "none",
+    "--foxy-product-card-bar": "none",
+    "--foxy-product-backdrop-color": "transparent",
+    "--foxy-product-backdrop-padding": "0",
+    "--foxy-product-text-link-background": "none",
+    "--foxy-product-text-link-padding": "0",
+    "--foxy-product-chevron": chevron("6B7280"),
+  },
+  // Square, type and space only: for a site that brings its own styling.
+  // currentColor, not inherit: on a custom property, inherit takes the
+  // parent's value of that property, so var() would fall through.
+  plain: {
+    "--foxy-theme-text-color": "currentColor",
+    "--foxy-theme-button-color": "transparent",
+    "--foxy-theme-button-text-color": "currentColor",
+    "--foxy-theme-button-radius": "0px",
+    "--foxy-product-button-border": "1px solid currentColor",
+    "--foxy-product-radius": "0px",
+    "--foxy-product-field-radius": "0px",
+    "--foxy-product-accent-color": "currentColor",
+    "--foxy-product-on-accent-color": "currentColor",
+    "--foxy-product-selected-color": "transparent",
+    "--foxy-product-body-color": "currentColor",
+    "--foxy-product-muted-color": "currentColor",
+    "--foxy-product-description-color": "currentColor",
+    "--foxy-product-border-color": "currentColor",
+    "--foxy-product-field-border-color": "currentColor",
+    "--foxy-product-divider-color": "rgba(127, 127, 127, 0.35)",
+    "--foxy-product-surface-color": "transparent",
+    "--foxy-product-panel-color": "rgba(127, 127, 127, 0.14)",
+    "--foxy-product-header-color": "transparent",
+    "--foxy-product-card-border": "0",
+    "--foxy-product-card-radius": "0px",
+    "--foxy-product-card-padding": "0px",
+  },
+  // Foxy's purple, under the unicorn's rainbow.
+  foxy: {
+    "--foxy-theme-text-color": "#2B1B3D",
+    "--foxy-theme-button-color": "#5B2A86",
+    "--foxy-theme-button-radius": "10px",
+    "--foxy-product-accent-color": "#5B2A86",
+    "--foxy-product-panel-color": "#F6F1FA",
+    "--foxy-product-card-border": "1px solid #E9DDF3",
+    "--foxy-product-card-radius": "14px",
+    "--foxy-product-card-bar": "linear-gradient(90deg, #F2798F, #F6A45C, #F4D35E, #7BC67B, #5AA9E6, #9B6DD6)",
+    "--foxy-product-card-shadow": "0 6px 24px rgba(91, 42, 134, 0.10)",
+  },
+  bookshop: {
+    "--foxy-theme-font": 'Georgia, "Times New Roman", serif',
+    "--foxy-theme-text-color": "#1B2A49",
+    "--foxy-theme-button-color": "#1B365D",
+    "--foxy-theme-button-radius": "0px",
+    "--foxy-product-button-weight": "700",
+    "--foxy-product-button-tracking": "0.06em",
+    "--foxy-product-button-transform": "uppercase",
+    "--foxy-product-button-font": "system-ui, sans-serif",
+    "--foxy-product-radius": "0px",
+    "--foxy-product-field-radius": "0px",
+    "--foxy-product-accent-color": "#1B365D",
+    "--foxy-product-card-radius": "0px",
+    "--foxy-product-card-shadow": "0 2px 8px rgba(0, 0, 0, 0.12)",
+  },
+  soft: {
+    "--foxy-theme-font": 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+    "--foxy-theme-text-color": "#1F2937",
+    "--foxy-theme-button-color": "#2563EB",
+    "--foxy-theme-button-radius": "12px",
+    "--foxy-product-radius": "14px",
+    "--foxy-product-field-radius": "10px",
+    "--foxy-product-accent-color": "#2563EB",
+    "--foxy-product-card-border": "0",
+    "--foxy-product-card-radius": "18px",
+    "--foxy-product-card-shadow": "0 1px 3px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06)",
+  },
+  market: {
+    "--foxy-theme-font": 'Georgia, "Times New Roman", serif',
+    "--foxy-theme-text-color": "#3B2F2F",
+    "--foxy-theme-button-color": "#B45309",
+    "--foxy-theme-button-radius": "999px",
+    "--foxy-product-accent-color": "#92400E",
+    "--foxy-product-surface-color": "#FFFDF9",
+    "--foxy-product-panel-color": "#FAF5EE",
+    "--foxy-product-border-color": "#E7DCCB",
+    "--foxy-product-field-border-color": "#D9CBB5",
+    "--foxy-product-divider-color": "#EDE3D3",
+    "--foxy-product-card-border": "1px solid #E7DCCB",
+  },
+  // Dark on any page: every element brings its own dark background, and
+  // the button an edge that shows on a white one.
+  dark: {
+    "--foxy-theme-text-color": "#F9FAFB",
+    "--foxy-theme-button-color": "#F9FAFB",
+    "--foxy-theme-button-text-color": "#111827",
+    "--foxy-product-button-border": "1px solid #9CA3AF",
+    "--foxy-product-backdrop-color": "#030712",
+    "--foxy-product-backdrop-padding": "24px",
+    "--foxy-product-text-link-background": "#111827",
+    "--foxy-product-text-link-padding": "4px 10px",
+    "--foxy-product-accent-color": "#F9FAFB",
+    "--foxy-product-on-accent-color": "#111827",
+    "--foxy-product-body-color": "#E5E7EB",
+    "--foxy-product-muted-color": "#9CA3AF",
+    "--foxy-product-description-color": "#D1D5DB",
+    "--foxy-product-border-color": "#4B5563",
+    "--foxy-product-field-border-color": "#4B5563",
+    "--foxy-product-divider-color": "#374151",
+    "--foxy-product-surface-color": "#111827",
+    "--foxy-product-panel-color": "#1F2937",
+    "--foxy-product-header-color": "#1F2937",
+    "--foxy-product-disabled-color": "#374151",
+    "--foxy-product-disabled-text-color": "#D1D5DB",
+    "--foxy-product-disabled-opacity": "1",
+    "--foxy-product-notice-color": "#FCA5A5",
+    "--foxy-product-success-color": "#86EFAC",
+    "--foxy-product-card-border": "1px solid #374151",
+    "--foxy-product-chevron": chevron("D1D5DB"),
+  },
+} as const satisfies Record<string, Record<`--foxy-${"theme" | "product"}-${string}`, string>>;
+
+const BOLD: Record<string, string> = themes.bold;
+
+// Each look value reads the element's own variable first (set by an attribute
+// or the page's CSS), then the store's saved look, then the theme's, then the
+// default look's value.
+const tier = (name: string): string =>
+  `var(--foxy-product-${name}, var(--foxy-store-${name}, var(--foxy-theme-${name}, ${BOLD[`--foxy-theme-${name}`]})))`;
+/** A variable with the default look's value behind it. */
+const v = (name: string): string => `var(--foxy-product-${name}, ${BOLD[`--foxy-product-${name}`]})`;
+const font = tier("font");
+const nameColor = tier("text-color");
+const button = tier("button-color");
+const onButton = tier("button-text-color");
+const buttonRadius = tier("button-radius");
+const radius = v("radius");
+const fieldRadius = v("field-radius");
+const accent = v("accent-color");
+const onAccent = v("on-accent-color");
+const body = v("body-color");
+const muted = v("muted-color");
+const prose = v("description-color");
+const border = v("border-color");
+const fieldBorder = v("field-border-color");
+const divider = v("divider-color");
+const surface = v("surface-color");
+const panel = v("panel-color");
+const header = v("header-color");
+const onDisabled = "var(--foxy-product-disabled-text-color, #4B5563)";
+const notice = v("notice-color");
+const success = v("success-color");
+// A card: the form, a tile, and each panel of the page.
+const card = `border: ${v("card-border")}; border-radius: ${v("card-radius")}; box-shadow: ${v("card-shadow")}; background: ${v("card-bar")} top / 100% 4px no-repeat, ${surface};`;
+const cardPadding = (size: string): string => `var(--foxy-product-card-padding, ${size})`;
 
 const ELEMENTS =
   "foxy-product-link, foxy-product-form, foxy-product-tile, foxy-product-collection, foxy-product-page";
 
-// A theme is a set of variables chosen by the element's `theme` attribute.
-// `:where()` keeps each rule as light as a plain element selector, so the
-// page's CSS can set the same variables without out-weighing it.
-const theme = (name: string, variables: Record<string, string>): string =>
-  `:is(${ELEMENTS}):where([theme="${name}"]) { ${Object.entries(variables)
-    .map(([key, value]) => `--foxy-${key}: ${value};`)
-    .join(" ")} }`;
+// A theme is chosen by the element's `theme` attribute, or by the store's
+// saved theme when the element has none; any other value of the attribute,
+// such as `bold`, is the default look. `:where()` keeps each rule as light
+// as a plain element selector, so the page's CSS can set the same variables
+// without out-weighing it.
+const themed = (name: string): string =>
+  `:is(${ELEMENTS}):where([theme="${name}"], [data-foxy-store-theme="${name}"]:not([theme]))`;
 
-const THEMES = [
-  // Square, type and space only: for a site that brings its own styling.
-  // currentColor, not inherit: on a custom property, inherit takes the
-  // parent's value of that property, so var() would fall through.
-  theme("plain", {
-    "theme-text-color": "currentColor",
-    "theme-button-color": "transparent",
-    "theme-button-text-color": "currentColor",
-    "theme-button-radius": "0px",
-    "product-button-border": "1px solid currentColor",
-    "product-radius": "0px",
-    "product-field-radius": "0px",
-    "product-accent-color": "currentColor",
-    "product-on-accent-color": "currentColor",
-    "product-selected-color": "transparent",
-    "product-body-color": "currentColor",
-    "product-muted-color": "currentColor",
-    "product-description-color": "currentColor",
-    "product-border-color": "currentColor",
-    "product-field-border-color": "currentColor",
-    "product-divider-color": "rgba(127, 127, 127, 0.35)",
-    "product-surface-color": "transparent",
-    "product-panel-color": "rgba(127, 127, 127, 0.14)",
-    "product-header-color": "transparent",
-    "product-card-border": "0",
-    "product-card-radius": "0px",
-    "product-card-padding": "0px",
-  }),
-  // Foxy's purple, under the unicorn's rainbow.
-  theme("foxy", {
-    "theme-text-color": "#2B1B3D",
-    "theme-button-color": "#5B2A86",
-    "theme-button-radius": "10px",
-    "product-accent-color": "#5B2A86",
-    "product-panel-color": "#F6F1FA",
-    "product-card-border": "1px solid #E9DDF3",
-    "product-card-radius": "14px",
-    "product-card-bar": "linear-gradient(90deg, #F2798F, #F6A45C, #F4D35E, #7BC67B, #5AA9E6, #9B6DD6)",
-    "product-card-shadow": "0 6px 24px rgba(91, 42, 134, 0.10)",
-  }),
-  // The 2.0 cart and checkout: green, square, Helvetica.
-  theme("cart", {
-    "theme-font": '"Helvetica Neue", Helvetica, Arial, sans-serif',
-    "theme-text-color": "#333333",
-    "theme-button-color": "#3F8A2E",
-    "theme-button-radius": "0px",
-    "product-button-weight": "400",
-    "product-radius": "0px",
-    "product-field-radius": "0px",
-    "product-accent-color": "#666666",
-    "product-border-color": "#D5D5D5",
-    "product-field-border-color": "#CCCCCC",
-    "product-card-border": "0",
-    "product-card-radius": "0px",
-  }),
-  theme("bookshop", {
-    "theme-font": 'Georgia, "Times New Roman", serif',
-    "theme-text-color": "#1B2A49",
-    "theme-button-color": "#1B365D",
-    "theme-button-radius": "0px",
-    "product-button-weight": "700",
-    "product-button-tracking": "0.06em",
-    "product-button-transform": "uppercase",
-    "product-button-font": "system-ui, sans-serif",
-    "product-radius": "0px",
-    "product-field-radius": "0px",
-    "product-accent-color": "#1B365D",
-    "product-card-radius": "0px",
-    "product-card-shadow": "0 2px 8px rgba(0, 0, 0, 0.12)",
-  }),
-  theme("soft", {
-    "theme-font": 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-    "theme-text-color": "#1F2937",
-    "theme-button-color": "#2563EB",
-    "theme-button-radius": "12px",
-    "product-radius": "14px",
-    "product-field-radius": "10px",
-    "product-accent-color": "#2563EB",
-    "product-card-border": "0",
-    "product-card-radius": "18px",
-    "product-card-shadow": "0 1px 3px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06)",
-  }),
-  theme("market", {
-    "theme-font": 'Georgia, "Times New Roman", serif',
-    "theme-text-color": "#3B2F2F",
-    "theme-button-color": "#B45309",
-    "theme-button-radius": "999px",
-    "product-accent-color": "#92400E",
-    "product-surface-color": "#FFFDF9",
-    "product-panel-color": "#FAF5EE",
-    "product-border-color": "#E7DCCB",
-    "product-field-border-color": "#D9CBB5",
-    "product-divider-color": "#EDE3D3",
-    "product-card-border": "1px solid #E7DCCB",
-  }),
-  // For a page with a dark background.
-  theme("dark", {
-    "theme-text-color": "#F9FAFB",
-    "theme-button-color": "#F9FAFB",
-    "theme-button-text-color": "#111827",
-    "product-accent-color": "#F9FAFB",
-    "product-on-accent-color": "#111827",
-    "product-body-color": "#E5E7EB",
-    "product-muted-color": "#9CA3AF",
-    "product-description-color": "#D1D5DB",
-    "product-border-color": "#4B5563",
-    "product-field-border-color": "#4B5563",
-    "product-divider-color": "#374151",
-    "product-surface-color": "#111827",
-    "product-panel-color": "#1F2937",
-    "product-header-color": "#1F2937",
-    "product-disabled-color": "#374151",
-    "product-disabled-text-color": "#D1D5DB",
-    "product-disabled-opacity": "1",
-    "product-notice-color": "#FCA5A5",
-    "product-success-color": "#86EFAC",
-    "product-card-border": "1px solid #374151",
-    "product-chevron": chevron("D1D5DB"),
-  }),
-].join("\n");
+const THEMES = Object.entries(themes)
+  .filter(([name]) => name !== "bold")
+  .map(
+    ([name, variables]) =>
+      `${themed(name)} { ${Object.entries(variables)
+        .map(([variable, value]) => `${variable}: ${value};`)
+        .join(" ")} }`,
+  )
+  .join("\n");
+
 
 // Everything renders into light DOM, so that 2.0's `foxycart.js` sees the
 // links and forms and search engines the text. That leaves it open to the
@@ -180,21 +234,27 @@ const THEMES = [
 // won by this stylesheet being added to the page last.
 const STYLES = `
 ${THEMES}
-:is(${ELEMENTS}):where([theme="dark"]) { color-scheme: dark; }
+${themed("dark")} { color-scheme: dark; }
 :is(${ELEMENTS}):where([font="inherit"], [data-foxy-store-font="inherit"]:not([font])) { font-family: inherit; }
 :is(${ELEMENTS}) { font-family: ${font}; color: ${body}; line-height: 1.4; }
 :is(${ELEMENTS}) :where(h1, h2, h3, h4, h5, h6, p, dl, dd, fieldset, legend) { margin: 0; padding: 0; }
 :is(${ELEMENTS}) :where(button, input, select) { font-family: inherit; }
-:is(${ELEMENTS}) [hidden] { display: none !important; }
+:is(${ELEMENTS}) [hidden]:not([hidden="until-found"]) { display: none !important; }
+:is(${ELEMENTS}) .foxy-product-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 :is(foxy-product-link) { display: inline-block; }
 :is(foxy-product-form, foxy-product-tile, foxy-product-collection, foxy-product-page) { display: block; }
+/* The elements that aren't one card stand on a backdrop when the theme has one. */
+:is(foxy-product-collection, foxy-product-page) {
+  box-sizing: border-box; padding: ${v("backdrop-padding")}; border-radius: ${v("card-radius")};
+  background: ${v("backdrop-color")};
+}
 
 :is(${ELEMENTS}) :is(a, button).foxy-product-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.35em; box-sizing: border-box;
-  min-height: 48px; padding: 0 24px; border: var(--foxy-product-button-border, 0); border-radius: ${buttonRadius};
-  background: ${button}; color: ${onButton}; font-family: var(--foxy-product-button-font, inherit); font-size: 15px;
-  font-weight: var(--foxy-product-button-weight, 600); line-height: 1.2; letter-spacing: var(--foxy-product-button-tracking, 0);
-  text-transform: var(--foxy-product-button-transform, none); text-align: center; text-decoration: none; cursor: pointer;
+  min-height: 48px; padding: 0 24px; border: ${v("button-border")}; border-radius: ${buttonRadius};
+  background: ${button}; color: ${onButton}; font-family: ${v("button-font")}; font-size: 15px;
+  font-weight: ${v("button-weight")}; line-height: 1.2; letter-spacing: ${v("button-tracking")};
+  text-transform: ${v("button-transform")}; text-align: center; text-decoration: none; cursor: pointer;
   transition: opacity 0.15s;
 }
 :is(${ELEMENTS}) :is(a, button).foxy-product-button:is([href], :enabled):hover { opacity: 0.88; }
@@ -206,14 +266,19 @@ ${THEMES}
   background: var(--foxy-product-disabled-color, ${button}); color: var(--foxy-product-disabled-text-color, ${onButton});
   opacity: var(--foxy-product-disabled-opacity, 0.45); cursor: not-allowed;
 }
-:is(foxy-product-link) a.foxy-product-text-link { color: ${accent}; font-size: 15px; text-decoration: underline; }
+:is(foxy-product-link) a.foxy-product-text-link {
+  padding: ${v("text-link-padding")}; border-radius: ${fieldRadius};
+  background: ${v("text-link-background")}; color: ${accent}; font-size: 15px; text-decoration: underline;
+}
 :is(foxy-product-link) a.foxy-product-text-link[aria-disabled="true"] { text-decoration: none; cursor: not-allowed; }
 :is(${ELEMENTS}) .foxy-product-button s { color: inherit; opacity: 0.75; }
 
-:is(${ELEMENTS}) .foxy-product-price { color: ${nameColor}; }
-:is(${ELEMENTS}) .foxy-product-price s { margin-inline-start: 8px; color: ${muted}; font-size: 0.82em; }
+:is(${ELEMENTS}) .foxy-product-price { color: var(--foxy-product-price-color, ${nameColor}); }
+:is(${ELEMENTS}) .foxy-product-list-price {
+  margin-inline-start: 8px; color: var(--foxy-product-list-price-color, ${muted}); font-size: var(--foxy-product-list-price-size, 0.82em);
+}
 :is(${ELEMENTS}) :is(.foxy-product-button, .foxy-product-text-link) .foxy-product-price { color: inherit; }
-:is(${ELEMENTS}) .foxy-product-brand { color: ${muted}; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+:is(${ELEMENTS}) .foxy-product-brand { color: ${muted}; font-size: 13px; }
 :is(${ELEMENTS}) .foxy-product-name { color: ${nameColor}; font-weight: 500; }
 :is(${ELEMENTS}) .foxy-product-note { color: ${success}; font-size: 13px; }
 :is(${ELEMENTS}) .foxy-product-note[data-tone="notice"] { color: ${notice}; }
@@ -230,11 +295,16 @@ ${THEMES}
 }
 :is(foxy-product-tile) .foxy-product-tile-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
 :is(foxy-product-tile) .foxy-product-tile-body { display: flex; flex-direction: column; flex-grow: 1; gap: 6px; padding: ${cardPadding("16px")}; }
-:is(foxy-product-tile) .foxy-product-brand { font-size: 11px; }
+:is(foxy-product-tile) .foxy-product-brand { margin-top: -4px; font-size: 13px; }
+:is(foxy-product-tile) .foxy-product-tile-swatches { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
+:is(foxy-product-tile) .foxy-product-tile-swatch {
+  display: block; width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 0 1px ${surface};
+}
+:is(foxy-product-tile) .foxy-product-tile-more { color: ${muted}; font-size: 12px; line-height: 14px; }
 :is(foxy-product-tile) .foxy-product-name { font-size: 16px; line-height: 1.35; }
 :is(foxy-product-tile) .foxy-product-name a { color: inherit; text-decoration: none; }
 :is(foxy-product-tile) .foxy-product-name a:hover { text-decoration: underline; }
-:is(foxy-product-tile) .foxy-product-tile-price { font-size: 16px; }
+:is(foxy-product-tile) .foxy-product-tile-price { font-size: var(--foxy-product-price-size, 16px); }
 :is(foxy-product-tile) .foxy-product-note { font-size: 12px; }
 :is(foxy-product-tile) .foxy-product-tile-action { display: flex; margin-top: auto; padding-top: 10px; }
 :is(foxy-product-tile) .foxy-product-tile-action a.foxy-product-button { flex: 1; min-height: 44px; padding: 0 12px; font-size: 14px; }
@@ -261,9 +331,12 @@ ${THEMES}
 }
 :is(${ELEMENTS}) .foxy-product-summary { display: flex; flex-direction: column; gap: 4px; }
 :is(foxy-product-form) .foxy-product-name { font-size: 22px; line-height: 1.25; }
-:is(foxy-product-form) .foxy-product-summary .foxy-product-price { font-size: 20px; }
+:is(foxy-product-form) .foxy-product-summary .foxy-product-price { font-size: var(--foxy-product-price-size, 20px); }
 
 :is(${ELEMENTS}) .foxy-product-controls { display: flex; flex-direction: column; gap: 18px; margin: 0; }
+:is(${ELEMENTS}) .foxy-product-choices { display: flex; flex-direction: column; gap: inherit; }
+/* On a page, what there is to choose sits on a tint of its own. */
+:is(foxy-product-page) .foxy-product-choices { padding: 20px; border-radius: ${radius}; background: ${panel}; }
 :is(${ELEMENTS}) .foxy-product-field { display: flex; flex-direction: column; gap: 6px; }
 :is(${ELEMENTS}) .foxy-product-field-label { font-size: 14px; font-weight: 600; }
 :is(${ELEMENTS}) .foxy-product-hint { color: ${muted}; font-weight: 400; }
@@ -274,7 +347,7 @@ ${THEMES}
 }
 :is(${ELEMENTS}) select.foxy-product-input {
   appearance: none; padding-inline-end: 36px; text-overflow: ellipsis; cursor: pointer;
-  background-image: var(--foxy-product-chevron, ${chevron("6B7280")}); background-repeat: no-repeat; background-position: right 14px center;
+  background-image: ${v("chevron")}; background-repeat: no-repeat; background-position: right 14px center;
 }
 :is(${ELEMENTS}) .foxy-product-add { width: 100%; }
 :is(${ELEMENTS}) .foxy-product-input[aria-invalid="true"] { border-color: ${notice}; }
@@ -323,21 +396,48 @@ ${THEMES}
 :is(${ELEMENTS}) .foxy-product-row-price { flex: none; color: ${nameColor}; font-weight: 600; font-variant-numeric: tabular-nums; }
 
 :is(foxy-product-page) .foxy-product-page { display: flex; flex-direction: column; gap: 24px; }
-:is(foxy-product-page) .foxy-product-main { display: flex; flex-wrap: wrap; gap: 40px; box-sizing: border-box; padding: ${cardPadding("32px")}; ${card} }
-:is(foxy-product-page) .foxy-product-gallery { display: flex; flex: 1 1 460px; flex-direction: column; gap: 12px; min-width: 0; }
-:is(foxy-product-page) .foxy-product-hero { aspect-ratio: 1 / 1; overflow: hidden; border-radius: ${radius}; background: ${panel}; }
+/* Its columns follow its own width, not the window's: it sits in pages of any width. */
+:is(foxy-product-page) { container-type: inline-size; }
+:is(foxy-product-page) .foxy-product-main {
+  display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 32px; box-sizing: border-box;
+  padding: ${cardPadding("32px")}; ${card}
+}
+@container (min-width: 720px) {
+  :is(foxy-product-page) .foxy-product-main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; }
+  /* What is bought stays in view while a tall gallery scrolls. */
+  :is(foxy-product-page) .foxy-product-info { position: sticky; top: var(--foxy-product-sticky-top, 16px); }
+}
+@container (min-width: 960px) {
+  :is(foxy-product-page) .foxy-product-main { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+}
+:is(foxy-product-page) .foxy-product-gallery { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+:is(foxy-product-page) .foxy-product-gallery[hidden] + .foxy-product-info { grid-column: 1 / -1; max-width: 560px; }
+/* Square, but never taller than most of the window, so the button stays in the first screen. */
+:is(foxy-product-page) .foxy-product-hero {
+  aspect-ratio: 1 / 1; max-height: var(--foxy-product-photo-max-height, min(70vh, 640px)); overflow: hidden;
+  border-radius: ${radius}; background: ${panel};
+}
 :is(foxy-product-page) .foxy-product-hero img { display: block; width: 100%; height: 100%; object-fit: var(--foxy-product-photo-fit, contain); }
 :is(foxy-product-page) .foxy-product-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 10px; }
 :is(foxy-product-page) .foxy-product-thumbs button { aspect-ratio: 1 / 1; padding: 0; overflow: hidden; border: 2px solid ${divider}; border-radius: ${radius}; background: ${panel}; cursor: pointer; }
 :is(foxy-product-page) .foxy-product-thumbs button[aria-current="true"] { border-color: ${accent}; }
 :is(foxy-product-page) .foxy-product-thumbs button:focus-visible { outline: 2px solid ${accent}; outline-offset: 2px; }
 :is(foxy-product-page) .foxy-product-thumbs img { display: block; width: 100%; height: 100%; object-fit: cover; }
-:is(foxy-product-page) .foxy-product-info { display: flex; flex: 1 1 340px; flex-direction: column; gap: 20px; min-width: 0; max-width: 480px; }
+:is(foxy-product-page) .foxy-product-info { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 :is(foxy-product-page) .foxy-product-summary { gap: 6px; }
-:is(foxy-product-page) .foxy-product-brand { font-size: 13px; }
-:is(foxy-product-page) .foxy-product-name { font-size: 32px; line-height: 1.2; }
+:is(foxy-product-page) .foxy-product-brand { color: ${accent}; font-size: 16px; font-weight: 500; }
+:is(foxy-product-page) .foxy-product-name { font-size: clamp(28px, 4.2cqi, 40px); line-height: 1.15; }
+:is(foxy-product-page) .foxy-product-price-row { margin-top: 10px; }
+:is(foxy-product-page) .foxy-product-lead { margin-top: 10px; color: ${prose}; font-size: 15px; line-height: 1.6; }
+:is(foxy-product-page) .foxy-product-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; padding: 0; list-style: none; }
+:is(foxy-product-page) .foxy-product-chip {
+  display: inline-block; padding: 3px 10px; border: 1px solid ${border}; border-radius: 999px; background: ${panel};
+  color: ${prose}; font-size: 12px; line-height: 1.4; text-decoration: none;
+}
+:is(foxy-product-page) a.foxy-product-chip:hover { border-color: ${accent}; color: ${nameColor}; }
+:is(foxy-product-page) a.foxy-product-chip:focus-visible { outline: 2px solid ${accent}; outline-offset: 2px; }
 :is(foxy-product-page) .foxy-product-price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; }
-:is(foxy-product-page) .foxy-product-summary .foxy-product-price { font-size: 26px; }
+:is(foxy-product-page) .foxy-product-summary .foxy-product-price { font-size: var(--foxy-product-price-size, 26px); }
 :is(foxy-product-page) .foxy-product-note { font-size: 14px; }
 :is(foxy-product-page) .foxy-product-controls { gap: 20px; }
 :is(foxy-product-page) button.foxy-product-button { min-height: 52px; font-size: 16px; letter-spacing: 0.02em; }
@@ -358,6 +458,44 @@ ${THEMES}
 :is(foxy-product-page) .foxy-product-details dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; font-size: 14px; }
 :is(foxy-product-page) .foxy-product-details dt { color: ${muted}; }
 :is(foxy-product-page) .foxy-product-details dd { overflow-wrap: anywhere; }
+
+:is(foxy-product-page) .foxy-product-sections {
+  flex: 1 1 100%; box-sizing: border-box; min-width: 0; padding: ${cardPadding("8px 32px 32px")}; ${card}
+  color: ${prose}; font-size: 15px; line-height: 1.6;
+}
+:is(foxy-product-page) .foxy-product-panel { display: flex; flex-direction: column; gap: 14px; overflow-x: auto; }
+:is(foxy-product-page) .foxy-product-panel :where(h2, h3, h4, h5, h6) { color: ${nameColor}; font-size: 18px; font-weight: 500; line-height: 1.3; }
+:is(foxy-product-page) .foxy-product-panel :where(ul, ol) { margin: 0; padding-left: 20px; }
+:is(foxy-product-page) .foxy-product-panel table { border-collapse: collapse; font-size: 14px; }
+:is(foxy-product-page) .foxy-product-panel :where(th, td) { padding: 8px 16px; text-align: left; }
+:is(foxy-product-page) .foxy-product-panel thead tr { background: ${header}; }
+:is(foxy-product-page) .foxy-product-panel tbody tr { border-top: 1px solid ${divider}; }
+:is(foxy-product-page) .foxy-product-panel a { color: inherit; }
+:is(foxy-product-page) .foxy-product-panel dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; font-size: 14px; }
+:is(foxy-product-page) .foxy-product-panel dt { color: ${muted}; }
+:is(foxy-product-page) .foxy-product-panel dd { overflow-wrap: anywhere; }
+:is(foxy-product-page) .foxy-product-tablist { display: flex; gap: 4px; margin-bottom: 24px; overflow-x: auto; border-bottom: 1px solid ${divider}; }
+:is(foxy-product-page) .foxy-product-tab {
+  flex: none; margin-bottom: -1px; padding: 16px 14px 14px; border: 0; border-bottom: 2px solid transparent; background: none;
+  color: ${muted}; font-size: 15px; font-weight: 500; cursor: pointer;
+}
+:is(foxy-product-page) .foxy-product-tab[aria-selected="true"] { border-bottom-color: ${accent}; color: ${nameColor}; }
+:is(foxy-product-page) .foxy-product-tab:hover { color: ${nameColor}; }
+:is(foxy-product-page) .foxy-product-tab:focus-visible { outline: 2px solid ${accent}; outline-offset: -2px; }
+:is(foxy-product-page) .foxy-product-panel:focus-visible { outline: 2px solid ${accent}; outline-offset: 4px; }
+:is(foxy-product-page) .foxy-product-sections[data-layout="accordion"] { padding-top: 0; padding-bottom: 0; }
+:is(foxy-product-page) .foxy-product-section + .foxy-product-section { border-top: 1px solid ${divider}; }
+:is(foxy-product-page) .foxy-product-section summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0; list-style: none; cursor: pointer;
+}
+:is(foxy-product-page) .foxy-product-section summary::-webkit-details-marker { display: none; }
+:is(foxy-product-page) .foxy-product-section summary::after {
+  content: ""; flex: none; width: 12px; height: 8px; background: ${v("chevron")} center / contain no-repeat; transition: transform 0.15s;
+}
+:is(foxy-product-page) .foxy-product-section[open] summary::after { transform: rotate(180deg); }
+:is(foxy-product-page) .foxy-product-section summary:focus-visible { outline: 2px solid ${accent}; outline-offset: 2px; }
+:is(foxy-product-page) .foxy-product-section-title { color: ${nameColor}; font-size: 17px; font-weight: 500; }
+:is(foxy-product-page) .foxy-product-section .foxy-product-panel { padding-bottom: 20px; }
 `;
 
 /**
@@ -385,6 +523,7 @@ export function priceNodes(
   const nodes: Array<Node | string> = [formatPrice(price, currency, locale)];
   if (listPrice !== null && listPrice > price) {
     const was = document.createElement("s");
+    was.className = "foxy-product-list-price";
     was.textContent = formatPrice(listPrice, currency, locale);
     was.setAttribute("aria-label", format(locale, messages.priceWas, {
       price: formatPrice(listPrice, currency, locale),
@@ -396,29 +535,32 @@ export function priceNodes(
 
 /**
  * The price as text nodes: `$24.95`, a struck-through list price beside it,
- * or `$22.00 – $26.00` for a parent whose variants differ.
+ * or `$22.00 – $26.00` for a parent whose variants differ. Each amount is
+ * formatted in the currency it is in, which `requested` only asks for.
  */
 export function renderPrice(
   product: CatalogProduct,
-  currency: string | null,
+  requested: string | null,
   locale: string,
 ): HTMLSpanElement {
   const span = document.createElement("span");
   span.className = "foxy-product-price";
 
-  const range = priceRange(product, currency);
+  const range = priceRange(product, requested);
   if (product.product_type === "parent" && range && range.min !== range.max) {
     span.textContent = format(locale, messages.priceRange, {
-      min: formatPrice(range.min, currency, locale),
-      max: formatPrice(range.max, currency, locale),
+      min: formatPrice(range.min, range.currency, locale),
+      max: formatPrice(range.max, range.currency, locale),
     });
     return span;
   }
 
-  const { price, listPrice } = productPrice(product, currency);
   const isParent = product.product_type === "parent";
-  const amount = isParent ? range?.min ?? price : price;
-  if (amount !== null) span.append(...priceNodes(amount, isParent ? null : listPrice, currency, locale));
+  if (isParent && range) span.append(...priceNodes(range.min, null, range.currency, locale));
+  else {
+    const { price, listPrice, currency } = productPrice(product, requested);
+    if (price !== null) span.append(...priceNodes(price, isParent ? null : listPrice, currency, locale));
+  }
   return span;
 }
 
@@ -441,6 +583,14 @@ export function stockNote(
     return { text: format(locale, messages.onlyLeft, { count: left }), tone: "success" };
   }
   return null;
+}
+
+/** "Choose size and colour" for one or two options; "Choose options" otherwise. */
+export function chooseLabel(product: CatalogProduct, locale: string): string {
+  const [first, second, ...more] = productOptions(product).map(({ label }) => label.toLowerCase());
+  if (first && second && !more.length) return format(locale, messages.chooseTwo, { first, second });
+  if (first && !second) return format(locale, chooseMessage(first), { option: first });
+  return format(locale, messages.chooseOptions);
 }
 
 /** An `<img>` for a catalog image; `null` unless its address is `https`. */
@@ -479,16 +629,19 @@ export function addToCartHref(
   return `https://${store}/cart?${params}`;
 }
 
-const watchers = new Set<() => void>();
+export type Foxy2Event = "ready" | "cart-submit";
+
+const watchers = new Set<(event: Foxy2Event) => void>();
 let watching = false;
 
 /**
  * Calls `callback` whenever the 2.0 cart session may have changed what the
- * element shows (its currency comes from the session's template set). 2.0
+ * element shows (its currency comes from the session's template set): once
+ * the cart has loaded (`ready`) and after each add to it (`cart-submit`). 2.0
  * fills `FC.json` after `foxycart.js` loads, which may be after the element,
  * so this waits for `FC.client` for up to 15 seconds. Returns an unsubscribe.
  */
-export function watchFoxy2Session(callback: () => void): () => void {
+export function watchFoxy2Session(callback: (event: Foxy2Event) => void): () => void {
   watchers.add(callback);
   if (!watching) {
     watching = true;
@@ -496,10 +649,10 @@ export function watchFoxy2Session(callback: () => void): () => void {
     const attach = (): void => {
       const on = window.FC?.client?.on;
       if (typeof on === "function") {
-        const notify = (): void => watchers.forEach((watcher) => watcher());
-        on.call(window.FC!.client, "ready.done", notify);
-        on.call(window.FC!.client, "cart-submit.done", notify);
-        if (window.FC?.json?.locale_info) notify();
+        const notify = (event: Foxy2Event) => (): void => watchers.forEach((watcher) => watcher(event));
+        on.call(window.FC!.client, "ready.done", notify("ready"));
+        on.call(window.FC!.client, "cart-submit.done", notify("cart-submit"));
+        if (window.FC?.json?.locale_info) notify("ready")();
       } else if (++tries < 60) {
         setTimeout(attach, 250);
       }
@@ -507,6 +660,12 @@ export function watchFoxy2Session(callback: () => void): () => void {
     attach();
   }
   return () => watchers.delete(callback);
+}
+
+/** Forgets the 2.0 session and everyone watching it. For tests. */
+export function forgetFoxy2Session(): void {
+  watchers.clear();
+  watching = false;
 }
 
 /**

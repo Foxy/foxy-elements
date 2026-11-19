@@ -131,6 +131,18 @@ export const messages = defineMessages({
     id: "product_details",
     defaultMessage: "Details",
   },
+  descriptionSection: {
+    id: "product_description_section",
+    defaultMessage: "Description",
+  },
+  moreValues: {
+    id: "product_more_values",
+    defaultMessage: "+{count}",
+  },
+  moreValuesLabel: {
+    id: "product_more_values_label",
+    defaultMessage: "and {count} more",
+  },
   brand: {
     id: "product_brand",
     defaultMessage: "Brand",

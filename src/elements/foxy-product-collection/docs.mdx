@@ -34,12 +34,18 @@ By default the list carries each parent **without its variants**, and a parent's
 | `variant-prices` | `variantPrices` | Loads each parent's variants with the list, for its price range. |
 | `show-count` | `showCount` | Shows "12 products" above the grid. |
 | `show-sort` | `showSort` | Shows a "Sort by" control: Name; Price, low to high; Price, high to low; Newest. Choosing one sets `sort`. |
-| `product-href` | `productHref` | Each tile's `href`, such as `/product?sku={sku}`. |
+| `product-href` | `productHref` | Each tile's `href`, such as `/product?sku={sku}`. Unset, the product page saved in the store's settings is used. |
+| `list-name` | `listName` | What analytics calls this list (`item_list_name`), such as "Mugs". |
+| `analytics` | — | Reports `view_item_list`, and its tiles' events, to Google Analytics; see `foxy-product-link`. |
 | `quick-add`, `heading-level` | | Passed to every tile. |
 | `currency`, `currency-cookie`, `lang` | | Inherited by the tiles from this element. |
-| `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look, inherited by the tiles; see `foxy-product-link`. |
+| `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look, inherited by the tiles; see `foxy-product-link`. Changing one keeps the list and the tiles as they are. |
 
 Changing a query attribute starts the list over. The `products` property holds what has loaded so far. While a page loads, the element has `aria-busy="true"`; after "Load more", focus moves to the first product it loaded, and "Showing 20 of 48" sits under the button. An empty or failed list says so in a status message.
+
+## Events
+
+`foxy-product:view-item-list` for each page of results, once, with every product's `index`, `item_list_id` (the `collection`, else the `tag`) and `item_list_name` (`list-name`). Its tiles' `foxy-product:select-item` and `foxy-product:add-to-cart` bubble through it. All are described under `foxy-product-link`.
 
 ## Styling
 

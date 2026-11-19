@@ -236,4 +236,233 @@ describe("foxy-product-page", () => {
     await new Promise((resolve) => setTimeout(resolve, 30));
     expect(document.body.querySelector("foxy-product-page")!.innerHTML).toBe("<p>Not here</p>");
   });
+
+  it("is dark by itself with theme=\"dark\": its own backdrop, dark panels and light text", async () => {
+    const element = await mount(`sku="TEE-ORG" theme="dark"`);
+    expect(getComputedStyle(element).backgroundColor).toBe("rgb(3, 7, 18)");
+    expect(getComputedStyle(element).paddingTop).toBe("24px");
+    expect(getComputedStyle(element.querySelector(".foxy-product-main")!).backgroundColor).toBe("rgb(17, 24, 39)");
+    expect(getComputedStyle(element.querySelector(".foxy-product-name")!).color).toBe("rgb(249, 250, 251)");
+    expect(getComputedStyle(element.querySelector(".foxy-product-details")!).color).toBe("rgb(229, 231, 235)");
+  });
+
+  it("keeps the photos and the shopper's choices when its look changes", async () => {
+    const element = await mount(`sku="TEE-ORG"`);
+    await pick(element, "Colour", "Black");
+    const hero = element.querySelector(".foxy-product-hero img");
+    const requests = stub!.requests.length;
+
+    element.setAttribute("theme", "market");
+    element.setAttribute("button-radius", "0");
+    element.setAttribute("label", "Add to basket");
+    element.setAttribute("option-style", "rows");
+
+    expect(element.querySelector(".foxy-product-hero img")).toBe(hero);
+    expect(element.querySelectorAll(".foxy-product-row").length).toBeGreaterThan(0);
+    expect(sent(element)).toContain("color=Black");
+    expect(stub!.requests).toHaveLength(requests);
+  });
+
+  it("reports the product as viewed once, however often it re-renders", async () => {
+    const viewed: unknown[] = [];
+    document.body.addEventListener("foxy-product:view-item", (event) => viewed.push((event as CustomEvent).detail));
+    const element = await mount(`sku="MUG-ENM-WHT" analytics`);
+    element.setAttribute("heading-level", "2");
+    element.setAttribute("value", "x=y");
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const detail = {
+      currency: "USD",
+      value: 16.4,
+      items: [{ item_id: "MUG-ENM-WHT", item_name: "Enamel Camp Mug, White", item_brand: "Foxy Goods", price: 16.4, quantity: 1 }],
+    };
+    expect(viewed).toEqual([detail]);
+    expect(window.dataLayer).toEqual([{ ecommerce: null }, { event: "view_item", ecommerce: detail }]);
+    delete window.dataLayer;
+  });
+
+  it("puts the photos beside what is bought from a medium width of its own, and stacks them below it", async () => {
+    document.body.innerHTML = `<div id="frame" style="width: 1180px"></div>`;
+    stub = stubCatalog();
+    const frame = document.getElementById("frame")!;
+    frame.innerHTML = `<foxy-product-page store="${FIXTURE_STORE}" sku="TEE-ORG"></foxy-product-page>`;
+    const element = frame.querySelector<HTMLElement>("foxy-product-page")!;
+    await vi.waitFor(() => expect(element.querySelector(".foxy-product-hero img")).not.toBeNull());
+    const box = (selector: string) => element.querySelector(selector)!.getBoundingClientRect();
+    const share = () => box(".foxy-product-gallery").width / (box(".foxy-product-gallery").width + box(".foxy-product-info").width);
+
+    // Wide: about three fifths for the photos, and the photo no taller than its cap.
+    expect(box(".foxy-product-info").left).toBeGreaterThan(box(".foxy-product-gallery").right);
+    expect(share()).toBeCloseTo(0.6, 1);
+    expect(box(".foxy-product-hero").height).toBeLessThanOrEqual(640);
+    expect(getComputedStyle(element.querySelector(".foxy-product-info")!).position).toBe("sticky");
+
+    // Medium: half each.
+    frame.style.width = "800px";
+    expect(box(".foxy-product-info").left).toBeGreaterThan(box(".foxy-product-gallery").right);
+    expect(share()).toBeCloseTo(0.5, 1);
+
+    // Narrow: one column, whatever the window's width.
+    frame.style.width = "560px";
+    expect(box(".foxy-product-info").top).toBeGreaterThan(box(".foxy-product-gallery").bottom);
+    expect(box(".foxy-product-info").width).toBe(box(".foxy-product-gallery").width);
+    expect(getComputedStyle(element.querySelector(".foxy-product-info")!).position).toBe("static");
+  });
+
+  it("gives what is bought the whole width when the product has no photo", async () => {
+    stub = stubCatalog([{ ...plainMug, definition: { ...plainMug.definition, images: [] } }]);
+    document.body.innerHTML = `<div style="width: 1180px"><foxy-product-page store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-page></div>`;
+    const element = document.body.querySelector<HTMLElement>("foxy-product-page")!;
+    await vi.waitFor(() => expect(element.querySelector(".foxy-product-controls")).not.toBeNull());
+    const main = element.querySelector(".foxy-product-main")!.getBoundingClientRect();
+    const info = element.querySelector(".foxy-product-info")!.getBoundingClientRect();
+    expect(getComputedStyle(element.querySelector(".foxy-product-gallery")!).display).toBe("none");
+    expect(info.left - main.left).toBeLessThan(40);
+    expect(info.width).toBe(560);
+  });
+
+  describe("description-layout", () => {
+    // Four top-level headings, a short lead before them, and a sub-heading kept inside its section.
+    const sectioned = (description: string): CatalogProduct => ({ ...plainMug, definition: { ...plainMug.definition, description } });
+    const FOUR = [
+      "Steel with a glossy enamel coat.",
+      "## Size",
+      "Holds 12 oz.",
+      "### Lid",
+      "Sold apart.",
+      "## Care",
+      "- Hand wash",
+      "## Delivery",
+      "Ships in 2 days.",
+      "## Returns",
+      "Within 30 days.",
+    ].join("\n\n");
+
+    async function page(attributes: string, description = FOUR, width = 1100): Promise<HTMLElement> {
+      stub = stubCatalog([sectioned(description)]);
+      document.body.innerHTML = `<div id="frame" style="width: ${width}px"><foxy-product-page store="${FIXTURE_STORE}" lang="en-US" sku="MUG-ENM-WHT" ${attributes}></foxy-product-page></div>`;
+      const element = document.body.querySelector<HTMLElement>("foxy-product-page")!;
+      await vi.waitFor(() => expect(element.querySelector(".foxy-product-controls")).not.toBeNull());
+      return element;
+    }
+    const tabs = (element: HTMLElement) => [...element.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = (element: HTMLElement) => [...element.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+
+    it("shows the description as written by default", async () => {
+      const element = await page("");
+      expect(element.querySelector(".foxy-product-sections")).toBeNull();
+      expect([...element.querySelectorAll(".foxy-product-description h2")].map((h) => h.textContent)).toEqual(["Size", "Care", "Delivery", "Returns"]);
+      expect(text(element, ".foxy-product-details h2")).toBe("Details");
+    });
+
+    it("makes accessible tabs of the top-level headings, with the details last and a short lead by the price", async () => {
+      const element = await page(`description-layout="tabs"`);
+      expect(tabs(element).map((tab) => tab.textContent)).toEqual(["Size", "Care", "Delivery", "Returns", "Details"]);
+      expect(text(element, ".foxy-product-summary .foxy-product-lead")).toBe("Steel with a glossy enamel coat.");
+      expect(element.querySelector(".foxy-product-details")).toBeNull();
+      // The sub-heading stays inside its section.
+      expect(panels(element)[0].querySelector("h3")?.textContent).toBe("Lid");
+
+      const [first, second, , , last] = tabs(element);
+      expect(first.getAttribute("aria-selected")).toBe("true");
+      expect([first.tabIndex, second.tabIndex]).toEqual([0, -1]);
+      expect(panels(element)[0].hasAttribute("hidden")).toBe(false);
+      expect(panels(element)[1].getAttribute("hidden")).toBe("until-found");
+      expect(panels(element)[1].getAttribute("aria-labelledby")).toBe(second.id);
+      expect(second.getAttribute("aria-controls")).toBe(panels(element)[1].id);
+      // Kept in the page, so search engines and find in page reach every section.
+      expect(panels(element)[4].textContent).toContain("MUG-ENM-WHT");
+
+      first.focus();
+      await userEvent.keyboard("{ArrowRight}");
+      expect(document.activeElement).toBe(second);
+      expect(second.getAttribute("aria-selected")).toBe("true");
+      expect(panels(element)[0].getAttribute("hidden")).toBe("until-found");
+      await userEvent.keyboard("{End}");
+      expect(document.activeElement).toBe(last);
+      await userEvent.keyboard("{ArrowRight}");
+      expect(document.activeElement).toBe(first);
+      await userEvent.keyboard("{ArrowLeft}");
+      expect(document.activeElement).toBe(last);
+      await userEvent.keyboard("{Home}");
+      expect(document.activeElement).toBe(first);
+
+      await userEvent.click(tabs(element)[2]);
+      expect(panels(element)[2].hasAttribute("hidden")).toBe(false);
+      // A re-render keeps the shopper's section.
+      element.setAttribute("label", "Add to bag");
+      expect(tabs(element)[2].getAttribute("aria-selected")).toBe("true");
+    });
+
+    it("puts the details list in a section of the merchant's that is already called Details", async () => {
+      const element = await page(`description-layout="tabs"`, FOUR.replace("## Size", "## Details"));
+      expect(tabs(element).map((tab) => tab.textContent)).toEqual(["Details", "Care", "Delivery", "Returns"]);
+      expect(panels(element)[0].querySelector("dl")?.textContent).toContain("MUG-ENM-WHT");
+    });
+
+    it("shows a hidden tab's text when find in page reaches it", async () => {
+      const element = await page(`description-layout="tabs"`);
+      panels(element)[3].dispatchEvent(new Event("beforematch"));
+      expect(tabs(element)[3].getAttribute("aria-selected")).toBe("true");
+    });
+
+    it("makes an accordion of native disclosures, the first open", async () => {
+      const element = await page(`description-layout="accordion"`);
+      const sections = [...element.querySelectorAll("details.foxy-product-section")] as HTMLDetailsElement[];
+      expect(sections.map((section) => section.querySelector("summary h2")?.textContent)).toEqual(["Size", "Care", "Delivery", "Returns", "Details"]);
+      expect(sections.map((section) => section.open)).toEqual([true, false, false, false, false]);
+    });
+
+    it("leaves the details apart, and the text before the first heading a section, with fewer than three headings", async () => {
+      const element = await page(`description-layout="tabs"`, "Steel with a glossy enamel coat.\n\nRolled rim.\n\n## Care\n\nHand wash.");
+      expect(tabs(element).map((tab) => tab.textContent)).toEqual(["Description", "Care"]);
+      expect(element.querySelector(".foxy-product-lead")).toBeNull();
+      expect(text(element, ".foxy-product-details h2")).toBe("Details");
+    });
+
+    it("shows a description with nothing to split as written, even when asked for tabs", async () => {
+      const element = await page(`description-layout="tabs"`, "Steel with a glossy enamel coat.");
+      expect(element.querySelector(".foxy-product-sections")).toBeNull();
+      expect(text(element, ".foxy-product-description")).toBe("Steel with a glossy enamel coat.");
+    });
+
+    it("with auto, does nothing under three headings, and otherwise switches between tabs and an accordion with its width", async () => {
+      const few = await page(`description-layout="auto"`, "Intro.\n\n## Care\n\nHand wash.\n\n## Delivery\n\nTwo days.");
+      expect(few.querySelector(".foxy-product-sections")).toBeNull();
+
+      const element = await page(`description-layout="auto"`);
+      expect(element.querySelector(".foxy-product-sections")?.getAttribute("data-layout")).toBe("tabs");
+      await userEvent.click(tabs(element)[1]);
+      document.getElementById("frame")!.style.width = "480px";
+      await vi.waitFor(() => expect(element.querySelector(".foxy-product-sections")?.getAttribute("data-layout")).toBe("accordion"));
+      // The open section is the one that was chosen.
+      expect(element.querySelector<HTMLDetailsElement>("details[open] summary")?.textContent).toBe("Care");
+      document.getElementById("frame")!.style.width = "1100px";
+      await vi.waitFor(() => expect(element.querySelector(".foxy-product-sections")?.getAttribute("data-layout")).toBe("tabs"));
+    });
+  });
+
+  it("puts the collections first as chips, then the name, then the brand", async () => {
+    stub = stubCatalog([{ ...teeParent, collections: [{ id: 12, name: "Clothing" }, { id: 31, name: "Tees" }] }]);
+    const element = await mount(`sku="TEE-ORG"`);
+    const order = [...element.querySelector(".foxy-product-summary")!.children].map((child) => child.className);
+    expect(order).toEqual(["foxy-product-chips", "foxy-product-name", "foxy-product-brand", "foxy-product-price-row"]);
+    expect([...element.querySelectorAll(".foxy-product-chip")].map((chip) => [chip.tagName, chip.textContent])).toEqual([
+      ["SPAN", "Clothing"],
+      ["SPAN", "Tees"],
+    ]);
+    expect(parseFloat(getComputedStyle(element.querySelector(".foxy-product-name")!).fontSize)).toBeGreaterThan(
+      parseFloat(getComputedStyle(element.querySelector(".foxy-product-brand")!).fontSize),
+    );
+
+    element.setAttribute("collection-href", "/shop?collection={id}");
+    expect([...element.querySelectorAll<HTMLAnchorElement>("a.foxy-product-chip")].map((chip) => chip.getAttribute("href"))).toEqual([
+      "/shop?collection=12",
+      "/shop?collection=31",
+    ]);
+  });
+
+  it("has no chips for a product in no collection", async () => {
+    const element = await mount(`sku="TEE-ORG"`);
+    expect(element.querySelector(".foxy-product-chips")).toBeNull();
+  });
 });

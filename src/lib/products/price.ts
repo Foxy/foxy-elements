@@ -9,7 +9,7 @@ export function resolveLocale(element: Element): string {
 }
 
 /**
- * The currency to show prices in, from the first of:
+ * The currency the page wants prices in, from the first of:
  *
  * 1. a `currency` attribute on the element or an ancestor (the page decides);
  * 2. the cookie an ancestor's `currency-cookie` attribute names (a
@@ -17,8 +17,9 @@ export function resolveLocale(element: Element): string {
  * 3. the 2.0 cart session's currency, once `foxycart.js` has loaded the cart
  *    (it follows the session's template set).
  *
- * `null` means none of them is known; prices are then shown as plain
- * numbers in the store's currency.
+ * `null` wants none. It is only a wish: it picks a product's own amount for
+ * that currency when there is one, and a price is always formatted in the
+ * currency the catalog says it is in (`productPrice`), never in this one.
  */
 export function resolveCurrency(element: Element): string | null {
   const fromAttribute = element
@@ -64,12 +65,7 @@ function toNumber(value: Amount | undefined): number | null {
   return Number.isFinite(number) ? number : null;
 }
 
-/**
- * `map[currency]` when the product sets an amount for that currency, else
- * the store-currency `amount`. A store that converts currencies converts
- * that amount in the cart; the catalog doesn't say whether it does, so the
- * unconverted amount is what's shown.
- */
+/** `map[currency]` when there is an amount for that currency, else `amount`. */
 export function amountIn(
   amount: Amount | undefined,
   map: PriceMap | undefined,
@@ -85,28 +81,36 @@ export interface ProductPrice {
   price: number | null;
   /** Only when it's higher than `price`, so it can be struck through. */
   listPrice: number | null;
+  /** The currency both are in; `null` when the catalog didn't say. */
+  currency: string | null;
 }
 
+/**
+ * The product's price and the currency it is in. The amount the product
+ * sets for the `requested` currency (`prices[requested]`) when it sets one,
+ * which is in that currency; else its `price`, which is in the currency the
+ * catalog names (`currency_code`), whatever was requested.
+ */
 export function productPrice(
   product: CatalogProduct,
-  currency: string | null,
+  requested: string | null,
 ): ProductPrice {
   const { definition } = product;
-  const price = amountIn(definition.price, definition.prices, currency);
+  const own = requested && definition.prices?.[requested] !== undefined ? requested : null;
+  const price = toNumber(own ? definition.prices![own] : definition.price);
   // A list price in another currency than the price would compare nonsense.
-  const ownCurrency = currency && definition.prices?.[currency] !== undefined;
-  const list = ownCurrency
-    ? amountIn(definition.list_prices?.[currency], undefined, null)
-    : toNumber(definition.list_price);
+  const list = toNumber(own ? definition.list_prices?.[own] : definition.list_price);
   return {
     price,
     listPrice: list !== null && price !== null && list > price ? list : null,
+    currency: own ?? product.currency_code ?? null,
   };
 }
 
 export interface PriceRange {
   min: number;
   max: number;
+  currency: string | null;
 }
 
 /**
@@ -116,15 +120,20 @@ export interface PriceRange {
  */
 export function priceRange(
   product: CatalogProduct,
-  currency: string | null,
+  requested: string | null,
 ): PriceRange | null {
   const variants = product._embedded?.variants ?? [];
   const prices = (variants.length ? variants : [product])
-    .map((item) => productPrice(item, currency).price)
-    .filter((price): price is number => price !== null);
+    .map((item) => productPrice(item, requested))
+    .filter((item): item is ProductPrice & { price: number } => item.price !== null);
 
   if (!prices.length) return null;
-  return { min: Math.min(...prices), max: Math.max(...prices) };
+  const { currency } = prices[0];
+  // Amounts in different currencies have no lowest or highest, so the range
+  // is over the prices in the catalog's own currency.
+  if (requested && prices.some((item) => item.currency !== currency)) return priceRange(product, null);
+  const amounts = prices.map(({ price }) => price);
+  return { min: Math.min(...amounts), max: Math.max(...amounts), currency };
 }
 
 export function formatPrice(

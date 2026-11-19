@@ -6,6 +6,8 @@ export interface Foxy2Global {
   json?: {
     template_set?: string;
     locale_info?: { int_curr_symbol?: string };
+    /** Units in the cart. */
+    item_count?: number;
   };
   client?: { on?: (event: string, handler: () => void) => unknown };
 }
@@ -44,7 +46,7 @@ export function resolveStoreDomain(element: Element): string | null {
   return null;
 }
 
-function stripScheme(value: string): string {
+export function stripScheme(value: string): string {
   return value.replace(/^https?:\/\//, "").replace(/\/+$/, "");
 }
 
@@ -63,6 +65,20 @@ export class CatalogError extends Error {
 
 const productCache = new Map<string, Promise<CatalogProduct | null>>();
 
+const CURRENCY_CODE = /^[A-Za-z]{3}$/;
+
+/**
+ * Gives each product the currency code its amounts are in: its own, else
+ * `inherited` (a variant's parent's, or the list's). Anything that isn't a
+ * code becomes `null`, and the amounts are then shown as plain numbers.
+ */
+export function withCurrency(product: CatalogProduct, inherited: unknown): CatalogProduct {
+  const own = product.currency_code ?? inherited;
+  product.currency_code = typeof own === "string" && CURRENCY_CODE.test(own) ? own.toUpperCase() : null;
+  for (const variant of product._embedded?.variants ?? []) withCurrency(variant, product.currency_code);
+  return product;
+}
+
 /**
  * One product by SKU, or `null` when the store has no such product. Hidden
  * products load here too. Every element on the page shares one request per
@@ -79,7 +95,7 @@ export function fetchProduct(
     request = getJson<CatalogProduct>(
       `https://${store}/s/products/${encodeURIComponent(sku)}`,
     ).then(
-      (product) => product,
+      (product) => withCurrency(product, null),
       (error: unknown) => {
         productCache.delete(key);
         if (error instanceof CatalogError && error.status === 404) return null;
@@ -129,12 +145,14 @@ export async function fetchProducts(
 
   const body = await getJson<{
     total_items?: number;
+    currency_code?: unknown;
     _links?: { next?: { href: string } };
     _embedded?: { "fx:products"?: CatalogProduct[] };
   }>(url);
 
   const products = body._embedded?.["fx:products"] ?? [];
   for (const product of products) {
+    withCurrency(product, body.currency_code);
     // A parent listed without its variants isn't cached as if it had them.
     if (product.product_type !== "parent" || product._embedded?.variants) {
       productCache.set(`${store}\n${product.sku}`, Promise.resolve(product));

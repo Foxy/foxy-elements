@@ -20,7 +20,7 @@ It renders a real `<a href="https://<store>/cart?sku=…" rel="nofollow">` in li
 
 Whatever you put inside the tag shows until the link renders, and again when the product can't be added by a link.
 
-**A parent's SKU can't be added.** The 2.0 cart has nowhere to choose options, so a link has to name a variant. On a parent's SKU the element renders only the content inside the tag and warns in the console, naming a variant to use. A product with a required modifier is treated the same way; both need `foxy-product-form` or `foxy-product-page`.
+**A parent's SKU can't be added.** The 2.0 cart has nowhere to choose options, so a link has to name a variant. On a parent's SKU the element warns in the console, naming a variant to use, and shows the content inside the tag. When the tag is empty it shows a button that says what there is to choose ("Choose colour and size"), which goes to the product's page when the store has saved where its product pages are, and otherwise can't be pressed. A product with a required modifier is treated the same way; both need `foxy-product-form` or `foxy-product-page`.
 
 ## Attributes
 
@@ -33,10 +33,11 @@ Whatever you put inside the tag shows until the link renders, and again when the
 | `show-price` | `showPrice` | Whether the price follows the text ("Add to cart · $16.40"), with the list price struck through when it's higher. Unset, the price shows unless you wrote your own `label`. `show-price` turns it on with a `label`; `show-price="false"` turns it off. |
 | `appearance` | `appearance` | `text` for a plain text link. Default: a button. |
 | `checkout` | `checkout` | Adds `cart=checkout`, so the shopper goes straight to checkout. |
-| `currency` | `currency` | The currency to show the price in. See below. |
+| `currency` | `currency` | The currency the page wants prices in. See below. |
 | `currency-cookie` | — | The name of a cookie holding the currency, for a merchant's own currency switcher. |
 | `lang` | `lang` | The language of the text and price. Defaults to the nearest `lang`, then `en-US`. |
 | `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look. See below. |
+| `analytics` | — | Reports to Google Analytics. `analytics="off"` turns it off. Unset, the store's setting decides. See below. |
 
 The `product` property holds the catalog's product once it has loaded, or `null` when the store has no such SKU.
 
@@ -47,34 +48,42 @@ The `product` property holds the catalog's product once it has loaded, or `null`
 | Before the catalog answers | The link already, without a price |
 | A product without choices, or a variant, in stock | The link |
 | Out of stock | "Sold out", without an `href`, so nothing adds it |
-| Parent with variants, or a required modifier | The content inside the tag, and a `[Foxy]` warning in the console |
+| Parent with variants, or a required modifier | The content inside the tag, or "Choose colour and size" when there is none, and a `[Foxy]` warning in the console |
 | Unknown SKU, or the catalog can't be read | The link without a price; the cart has the last word |
 
 ## Currency
 
-The price shows in the first of: a `currency` attribute on the element or any ancestor; the cookie a `currency-cookie` attribute names; the 2.0 cart session's currency, which follows its template set. The amount is the product's price for that currency when it sets one (`prices`), otherwise its store-currency `price`. A store that converts currencies converts that amount in the cart, so the shown amount can differ from the charged one until the catalog says which currency it's in. Without any currency, the price shows as a plain amount.
+`currency` says which currency the page wants; it never relabels a price. The wanted currency is the first of: a `currency` attribute on the element or any ancestor; the cookie a `currency-cookie` attribute names; the 2.0 cart session's currency, which follows its template set.
+
+Every price is shown in the currency the catalog says that price is in:
+
+- the amount a product sets for the wanted currency (`definition.prices.EUR`) is in that currency, and is the one shown;
+- otherwise the product's `price` is shown in the currency the catalog names with it (`currency_code`), whatever the page wanted;
+- when the catalog names no currency, the price shows as a plain amount, with no symbol, and the schema.org data has no offer.
+
+A parent's range never mixes currencies: if some of its variants have no price in the wanted currency, the range is over their prices in the catalog's currency.
 
 ## The look
 
 All five product elements (`foxy-product-link`, `-form`, `-page`, `-tile`, `-collection`) take their look from four places. The first that sets a value wins:
 
 1. **An attribute on the element, or a CSS variable** on it or any ancestor.
-2. **The store's saved look**, set in the admin under Storefront elements. Each element fetches it once per page from `https://<store>/s/products/store/settings`, so a change there reaches snippets already on a site. If it can't be fetched, the theme applies.
-3. **The element's `theme`.**
-4. **The default theme**, Bold.
+2. **The store's saved settings**, set in the admin under Storefront elements: colours, corners, font, button text, and the store's theme. Each element fetches them once per page from `https://<store>/s/products/store/settings`, so a change there reaches snippets already on a site. If they can't be fetched, the defaults apply.
+3. **The theme**: the element's `theme` attribute, or the store's saved theme when the element has none.
+4. **The default look**, Bold.
 
 | `theme` | |
 | --- | --- |
-| (none) | Bold: near-black buttons, rounded corners, bordered cards, the page's font |
+| (none) | The store's saved theme; Bold when the store saved none |
+| `bold` | Bold, even when the store saved another theme: near-black buttons, rounded corners, bordered cards, the page's font |
 | `plain` | The page's own colours and font, no cards: for a site that brings its own styling |
 | `foxy` | Foxy's purple under a rainbow bar |
 | `soft` | Blue, rounder, soft shadows |
 | `bookshop` | Navy, serif, square, uppercase buttons |
 | `market` | Warm, serif, pill buttons |
-| `cart` | The Foxy 2.0 cart: green, square, Helvetica |
-| `dark` | For a page with a dark background |
+| `dark` | Dark on any page, white or dark: dark cards with light text, a dark backdrop behind a collection and a product page, and a light button with an edge |
 
-A collection's `theme` reaches its tiles.
+Any value that isn't one of these is Bold too. A collection's `theme` reaches its tiles.
 
 | Attribute | CSS variable | Store setting | Default (Bold) |
 | --- | --- | --- | --- |
@@ -91,7 +100,7 @@ A collection's `theme` reaches its tiles.
 
 `font` takes `inherit` (the page's font), `system`, `serif`, or any `font-family` value.
 
-More variables, with no attribute. A theme is a set of these:
+More variables, with no attribute. A theme is a set of these, and this table with the one above is every variable the elements read:
 
 | CSS variable | Default (Bold) | Used for |
 | --- | --- | --- |
@@ -106,6 +115,8 @@ More variables, with no attribute. A theme is a set of these:
 | `--foxy-product-divider-color` | `#E5E7EB` | Table rows, thumbnails |
 | `--foxy-product-on-accent-color`, `--foxy-product-selected-color` | `#FFFFFF`, the accent | A chosen option button's text and fill |
 | `--foxy-product-disabled-color`, `--foxy-product-disabled-text-color`, `--foxy-product-disabled-opacity` | The button's own colours, `0.45` | A button that can't add yet: the button's colours, faded |
+| `--foxy-product-price-color`, `--foxy-product-price-size` | The product text colour; `16px` on a tile, `20px` in a form, `26px` on a page | The price (`.foxy-product-price`) |
+| `--foxy-product-list-price-color`, `--foxy-product-list-price-size` | The muted colour, `0.82em` | The struck-through list price beside it (`.foxy-product-list-price`) |
 | `--foxy-product-notice-color` | `#B91C1C` | Sold out, required, errors |
 | `--foxy-product-success-color` | `#15803D` | In stock, "Only 3 left" |
 | `--foxy-product-radius`, `--foxy-product-field-radius` | `8px` | Photos; fields, option rows and the quantity stepper |
@@ -114,9 +125,13 @@ More variables, with no attribute. A theme is a set of these:
 | `--foxy-product-button-border`, `--foxy-product-button-font`, `--foxy-product-button-weight`, `--foxy-product-button-tracking`, `--foxy-product-button-transform` | `0`, `inherit`, `600`, `0`, `none` | The button's border, font, weight, letter spacing and case |
 | `--foxy-product-form-width` | `420px` | The widest a `foxy-product-form` gets |
 | `--foxy-product-photo-fit` | `contain` | How a page's main photo fills its square: `contain` or `cover` |
+| `--foxy-product-photo-max-height` | `min(70vh, 640px)` | The tallest a page's main photo gets |
+| `--foxy-product-sticky-top` | `16px` | How far from the top of the window a page's buying column stops while its photos scroll; raise it under a fixed header |
 | `--foxy-product-tile-width` | `220px` / `280px` | As `tile-width` above |
 | `--foxy-product-tile-aspect` | `4 / 5` (`1 / 1` in a collection) | A tile's image |
 | `--foxy-product-chevron` | A grey chevron | The arrow image on a drop-down |
+| `--foxy-product-backdrop-color`, `--foxy-product-backdrop-padding` | `transparent`, `0` | What a collection and a product page stand on, and the space around them |
+| `--foxy-product-text-link-background`, `--foxy-product-text-link-padding` | `none`, `0` | Behind a `foxy-product-link` with `appearance="text"` |
 
 ```css
 foxy-product-collection {
@@ -126,4 +141,102 @@ foxy-product-collection {
 }
 ```
 
+**The price.** The price is always a `.foxy-product-price`, and a higher list price is a `<s class="foxy-product-list-price">` inside it, so one rule restyles either:
+
+```css
+foxy-product-page { --foxy-product-price-color: #b45309; --foxy-product-price-size: 30px; --foxy-product-list-price-color: #9ca3af; }
+foxy-product-tile .foxy-product-list-price { text-decoration-thickness: 2px; }
+```
+
+Inside a button or a text link, both take the button's own colour and size.
+
+**The themes as data.** The script publishes the variables each theme sets, built from the same source as its stylesheet, as a starting point for a theme of your own:
+
+```js
+import { themes } from "https://cdn-js.foxy.io/elements@2/foxy-products.js";
+// or, on a page that already loaded the script:
+const { themes } = customElements.get("foxy-product-link");
+
+themes.market["--foxy-theme-button-color"]; // "#B45309"
+Object.keys(themes); // ["bold", "plain", "foxy", "bookshop", "soft", "market", "dark"]
+```
+
+Each theme is a map of CSS variable to value, holding only what that theme sets; `bold` holds the default of every variable that has one fixed default. A `--foxy-theme-*` variable (`font`, `text-color`, `button-color`, `button-text-color`, `button-radius`) gives way to the store's saved setting and to the attribute of the same name; in your own CSS set its `--foxy-product-*` twin instead, which wins over both. To make a theme, copy one into a rule of your own:
+
+```css
+foxy-product-form {
+  --foxy-product-button-color: #b45309;
+  --foxy-product-button-radius: 999px;
+  --foxy-product-surface-color: #fffdf9;
+  --foxy-product-card-border: 1px solid #e7dccb;
+}
+```
+
 **Your own CSS.** Everything renders in light DOM, so the page's CSS reaches it, and every part has a `foxy-product-…` class. The elements' own rules start with the element's name so that a theme's `button`, `label` or `a` styles don't undo them; start yours the same way, as in `foxy-product-tile .foxy-product-price { font-weight: 600 }`. In the store's saved CSS that is enough, because it is added to the page after the elements' own stylesheet. In a stylesheet of the page's own, a rule that sets something the elements also set needs one more selector in front, such as `body foxy-product-tile .foxy-product-price`. The store's saved CSS is added to the page as it is; it isn't scoped to the elements.
+
+## Changing the look on a page that is already showing
+
+Every attribute can change on an element that is on the page, and it updates where it stands:
+
+- `theme`, `font`, the colours, `button-radius`, `tile-width`, `tile-gap` and `image-ratio` only change CSS. Nothing is rebuilt.
+- `label`, `option-style` and `show-quantity` rebuild the controls of a form or page, and keep the photos, the shopper's choices and what they typed. On a link or a tile they rebuild its few nodes.
+- Nothing asks the catalog again, except `sku`, `store` and a collection's query attributes.
+
+**Store settings without a request.** A page can hand the elements a store's settings itself, in place of what `https://<store>/s/products/store/settings` answers, by dispatching a `foxy-product-settings` event on `window`:
+
+```js
+window.dispatchEvent(
+  new CustomEvent("foxy-product-settings", {
+    detail: {
+      store: "example.foxycart.com",
+      settings: { theme: "soft", button_color: "#0b5d3b", button_radius: 6, button_text: "Add to bag" },
+    },
+  }),
+);
+```
+
+`settings` has the fields of that endpoint's answer (`theme`, `text_color`, `button_color`, `button_text_color`, `button_radius`, `button_text`, `font`, `custom_css`, `low_stock_threshold`, `product_url`, `analytics`) and is checked the same way. It replaces the store's settings whole: a field left out is not set. Every element of that store on the page takes the new settings at once, without a request and without loading its product again, and so does any element added later. Sent before the first element is on the page, it spares the request for the settings altogether. This is what a live preview of the settings needs.
+
+The elements listen for this event only, never for messages from other windows. A preview in an iframe passes its parent's messages on itself, with one line in the iframe's page:
+
+```js
+addEventListener("message", (e) => e.source === parent && dispatchEvent(new CustomEvent("foxy-product-settings", { detail: e.data })));
+```
+
+## Analytics
+
+Every product element tells the page what shoppers do with it, as DOM events on the element that bubble (and cross shadow roots), whether or not analytics is on:
+
+| DOM event | Google Analytics 4 event | When |
+| --- | --- | --- |
+| `foxy-product:view-item-list` | `view_item_list` | A collection showed a page of results: once for the first, once for each "Load more" |
+| `foxy-product:select-item` | `select_item` | A shopper followed a tile's link to the product's page |
+| `foxy-product:view-item` | `view_item` | A form or a product page showed a product: once per product, not again when a variant is chosen |
+| `foxy-product:add-to-cart` | `add_to_cart` | The cart took an add from a link, tile, form or page |
+
+`event.detail` is Google Analytics 4's ecommerce object, and holds nothing about the shopper:
+
+```js
+{
+  currency: "USD",
+  value: 62.9,
+  items: [
+    { item_id: "TEE-ORG", item_name: "Organic Cotton Tee", item_variant: "TEE-ORG-BLK-2XL", item_brand: "Foxy Goods", price: 31.45, quantity: 2 },
+  ],
+}
+```
+
+`item_id` is the product's SKU (a parent's, whichever variant is chosen) and `item_variant` the chosen variant's SKU. `price` is for one unit, with the chosen modifiers. In a collection, each item also has its `index` from 0, `item_list_id` (the `collection`, else the `tag`) and `item_list_name` (the collection's `list-name` attribute), and the detail repeats the last two. `currency` and `value` are there only when the catalog says which currency the prices are in.
+
+```js
+document.addEventListener("foxy-product:add-to-cart", (event) => myAnalytics.track("Added to cart", event.detail));
+```
+
+**Google Analytics.** When the store has analytics turned on in its settings, or the element has an `analytics` attribute, the same events also go to Google Analytics 4; `analytics="off"` turns that off for one element, and a collection's `analytics` reaches its tiles. Each event is sent once, by one of two routes:
+
+- On a page with Google's own tag (gtag.js), which defines `gtag`, as `gtag("event", "add_to_cart", detail)`.
+- On any other page, in Tag Manager's form: `dataLayer.push({ ecommerce: null })` to clear the previous event's data, then `dataLayer.push({ event: "add_to_cart", ecommerce: detail })`. `window.dataLayer` is made if it isn't there yet, so a Tag Manager container that loads later still reads the events.
+
+Using only one route is what keeps an event from being counted twice. Put Google's tag snippet before the elements' script, so `gtag` exists when the first event happens.
+
+`add_to_cart` is reported once Foxy 2.0's `foxycart.js` says the cart holds more than before, so a refused add reports nothing. A page that leaves for the cart instead (no 2.0 JavaScript, or a full-page cart) can't know and reports no `add_to_cart`.

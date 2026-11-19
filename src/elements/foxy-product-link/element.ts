@@ -1,5 +1,7 @@
+import { analyticsDetail, analyticsItem } from "@/lib/products/analytics";
 import { ProductElement, SHARED_ATTRIBUTES } from "@/lib/products/element-base";
-import { addToCartHref, renderPrice } from "@/lib/products/light-dom";
+import { addToCartHref, chooseLabel, renderPrice } from "@/lib/products/light-dom";
+import { productPageHref } from "@/lib/products/look";
 import { format, messages } from "@/lib/products/messages";
 import { isOneClick } from "@/lib/products/options";
 
@@ -8,7 +10,8 @@ import { isOneClick } from "@/lib/products/options";
  * `<a href="https://<store>/cart?sku=…">`, in light DOM, so 2.0's
  * `foxycart.js` opens its sidecart for it and it works without JavaScript.
  * For a product without choices or one variant; a parent's SKU can't be
- * added, because the 2.0 cart has nowhere to choose its options.
+ * added, because the 2.0 cart has nowhere to choose its options, so its
+ * link goes to the product's page instead.
  */
 export class ProductLinkElement extends ProductElement {
   static get observedAttributes(): string[] {
@@ -75,6 +78,13 @@ export class ProductLinkElement extends ProductElement {
       return;
     }
 
+    const locale = this.locale;
+    const link = document.createElement("a");
+    link.className = this.appearance === "text" ? "foxy-product-text-link" : "foxy-product-button";
+    const label = document.createElement("span");
+    label.className = "foxy-product-label";
+    link.append(label);
+
     if (product && !isOneClick(product)) {
       const variant = product._embedded?.variants?.[0]?.sku;
       this.warn(
@@ -82,20 +92,26 @@ export class ProductLinkElement extends ProductElement {
           ? `[Foxy] foxy-product-link can't add ${sku}: it comes in variants, and the cart can't ask which. Point the link at one variant's SKU${variant ? ` (such as ${variant})` : ""}, or use foxy-product-form.`
           : `[Foxy] foxy-product-link can't add ${sku}: it has a required choice. Use foxy-product-form.`,
       );
-      this.showFallback();
+      if (this.hasFallback) {
+        this.showFallback();
+        return;
+      }
+      // With nothing of the merchant's to show, it says what is needed and
+      // goes to where that can be chosen, when the store says where that is.
+      label.textContent = chooseLabel(product, locale);
+      const page = productPageHref(this.look.productUrl ?? "", product);
+      if (page) link.href = page;
+      else {
+        link.setAttribute("aria-disabled", "true");
+        link.setAttribute("role", "link");
+      }
+      this.replaceChildren(link);
       return;
     }
 
-    const locale = this.locale;
-    const currency = this.shownCurrency;
-    const link = document.createElement("a");
-    link.className = this.appearance === "text" ? "foxy-product-text-link" : "foxy-product-button";
+    const requested = this.requestedCurrency;
     link.rel = "nofollow";
-
-    const label = document.createElement("span");
-    label.className = "foxy-product-label";
     label.textContent = this.label || this.look.buttonText || format(locale, messages.addToCart);
-    link.append(label);
 
     if (product && !product.is_in_stock) {
       // No href: it isn't a link any more, so neither 2.0 nor a click adds it.
@@ -107,7 +123,16 @@ export class ProductLinkElement extends ProductElement {
         quantity: this.quantity > 1 ? String(this.quantity) : undefined,
         cart: this.checkout ? "checkout" : undefined,
       });
-      if (this.showPrice && product) link.append(" · ", renderPrice(product, currency, locale));
+      if (this.showPrice && product) link.append(" · ", renderPrice(product, requested, locale));
+      if (product) {
+        link.addEventListener("click", () => {
+          const { item, currency } = analyticsItem(product, locale, requested, {
+            chosen: product,
+            quantity: this.quantity,
+          });
+          this.addStarted(analyticsDetail([item], currency));
+        });
+      }
     }
 
     this.replaceChildren(link);

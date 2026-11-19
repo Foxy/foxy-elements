@@ -119,9 +119,39 @@ describe("foxy-product-tile", () => {
     });
   });
 
-  it("leaves the offer out when the currency isn't known", async () => {
-    const element = await mount(`sku="MUG-ENM-WHT"`, "");
+  it("leaves the offer out, and shows a plain amount, when the catalog doesn't say which currency the price is in", async () => {
+    stub = stubCatalog([{ ...plainMug, currency_code: undefined }]);
+    const element = await mount(`sku="MUG-ENM-WHT"`);
     expect(jsonLd(element).offers).toBeUndefined();
+    expect(element.querySelector(".foxy-product-price")?.textContent).toBe("16.40 18.90");
+  });
+
+  it("links to the store's own product page when it has no href, and to its href when it has one", async () => {
+    stub = stubCatalog();
+    stub.look = { product_url: "https://shop.example.com/p/{sku}" };
+    const element = await mount(`sku="TEE-ORG"`);
+    await vi.waitFor(() => expect(action(element)?.getAttribute("href")).toBe("https://shop.example.com/p/TEE-ORG"));
+    expect(element.querySelector(".foxy-product-name a")?.getAttribute("href")).toBe("https://shop.example.com/p/TEE-ORG");
+
+    element.setAttribute("href", "/shop/{sku}");
+    expect(action(element)?.getAttribute("href")).toBe("/shop/TEE-ORG");
+  });
+
+  it("tells the page when a shopper goes from it to the product, and Google when asked", async () => {
+    const element = await mount(`sku="TEE-ORG" href="/shop/{sku}" analytics`);
+    const heard: unknown[] = [];
+    element.addEventListener("click", (event) => event.preventDefault());
+    document.body.addEventListener("foxy-product:select-item", (event) => heard.push((event as CustomEvent).detail), { once: true });
+    element.querySelector<HTMLAnchorElement>(".foxy-product-name a")!.click();
+    await settle();
+    const detail = {
+      currency: "USD",
+      value: 24.95,
+      items: [{ item_id: "TEE-ORG", item_name: "Organic Cotton Tee", item_brand: "Foxy Goods", price: 24.95, quantity: 1 }],
+    };
+    expect(heard).toEqual([detail]);
+    expect(window.dataLayer).toEqual([{ ecommerce: null }, { event: "select_item", ecommerce: detail }]);
+    delete window.dataLayer;
   });
 
   it("can't close its script with a product's name", async () => {
@@ -129,5 +159,28 @@ describe("foxy-product-tile", () => {
     const element = await mount(`sku="TEE-ORG"`);
     expect(element.querySelector("b")).toBeNull();
     expect(jsonLd(element).name).toBe("</script><b>x");
+  });
+
+  it("shows the colours a product comes in, up to five and how many more", async () => {
+    const colors = ["#1d1d1f", "#e8dcc4", "#5b6b3a", "#7a1f1f", "#0057d9", "#b45309", "#f4d35e"];
+    const options = [
+      { name: "size", label: "Size", values: [{ value: "S" }, { value: "M" }] },
+      { name: "color", label: "Colour", values: colors.map((color, index) => ({ value: `Shade ${index + 1}`, color })) },
+    ];
+    stub = stubCatalog([{ ...teeParent, definition: { ...teeParent.definition, options } }]);
+    const element = await mount(`sku="TEE-ORG"`);
+    const list = element.querySelector(".foxy-product-tile-swatches")!;
+    expect(list.getAttribute("aria-label")).toBe("Colour");
+    expect(list.querySelectorAll(".foxy-product-tile-swatch")).toHaveLength(5);
+    expect(getComputedStyle(list.querySelector(".foxy-product-tile-swatch")!).backgroundColor).toBe("rgb(29, 29, 31)");
+    expect(list.textContent).toBe("Shade 1Shade 2Shade 3Shade 4Shade 5+2and 2 more");
+    // Name, brand, colours, then the price.
+    const order = [...element.querySelector(".foxy-product-tile-body")!.children].map((child) => child.className.split(" ")[0]);
+    expect(order.slice(0, 4)).toEqual(["foxy-product-name", "foxy-product-brand", "foxy-product-tile-swatches", "foxy-product-tile-price"]);
+  });
+
+  it("shows no colours for a product without them", async () => {
+    const element = await mount(`sku="MUG-ENM-WHT"`);
+    expect(element.querySelector(".foxy-product-tile-swatches")).toBeNull();
   });
 });

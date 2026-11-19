@@ -36,7 +36,7 @@ export class ProductFormElement extends PurchaseElement {
     const summary = document.createElement("div");
     summary.className = "foxy-product-summary";
     const { brand, name, price, note } = this.summary(product);
-    summary.append(...(brand ? [brand] : []), name, price, note);
+    summary.append(name, ...(brand ? [brand] : []), price, note);
     card.append(summary, purchase.controls);
     return [card];
   }

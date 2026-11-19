@@ -4,6 +4,7 @@ import { format, messages } from "@/lib/products/messages";
 import { productDescription, productName } from "@/lib/products/price";
 import { PURCHASE_ATTRIBUTES, PurchaseElement } from "@/lib/products/purchase-element";
 import type { Purchase } from "@/lib/products/purchase";
+import { accordion, splitSections, tabs, type Section } from "@/lib/products/sections";
 import { productJsonLd } from "@/lib/products/structured-data";
 import type { CatalogProduct, ProductImage } from "@/lib/products/types";
 
@@ -24,9 +25,40 @@ export class ProductPageElement extends PurchaseElement {
   #images: ProductImage[] = [];
   #photo = 0;
   #skuValue: HTMLElement | null = null;
+  #sections: {
+    block: HTMLElement | null;
+    list: Section[];
+    kind: "tabs" | "accordion" | null;
+    selected: number;
+    sku: string;
+  } | null = null;
+  #resizes: ResizeObserver | null = null;
 
   static get observedAttributes(): string[] {
-    return [...PURCHASE_ATTRIBUTES, "sku-param"];
+    return [...PURCHASE_ATTRIBUTES, "sku-param", "description-layout", "collection-href"];
+  }
+
+  /**
+   * How the description's top-level headings are shown: `none` (as written,
+   * the default), `tabs`, `accordion`, or `auto` (with three or more, tabs
+   * when the element is wide and an accordion when it is narrow).
+   */
+  get descriptionLayout(): "none" | "tabs" | "accordion" | "auto" {
+    const value = this.getAttribute("description-layout");
+    return value === "tabs" || value === "accordion" || value === "auto" ? value : "none";
+  }
+
+  set descriptionLayout(value: "none" | "tabs" | "accordion" | "auto") {
+    this.setAttribute("description-layout", value);
+  }
+
+  /** The page for a collection the product is in, with `{id}` for its id; unset, its name isn't a link. */
+  get collectionHref(): string {
+    return this.getAttribute("collection-href") ?? "";
+  }
+
+  set collectionHref(value: string) {
+    this.setAttribute("collection-href", value);
   }
 
   /**
@@ -67,18 +99,11 @@ export class ProductPageElement extends PurchaseElement {
     const { brand, name, price, note } = this.summary(product);
     const priceRow = el("div", "foxy-product-price-row");
     priceRow.append(price, note);
-    summary.append(...(brand ? [brand] : []), name, priceRow);
-    info.append(summary, purchase.controls);
+    const chips = this.#chips(product);
+    summary.append(...(chips ? [chips] : []), name, ...(brand ? [brand] : []), priceRow);
+    info.append(summary);
     main.append(this.#gallery, info);
     page.append(main);
-
-    const below = el("div", "foxy-product-below");
-    const description = productDescription(product, locale);
-    if (description.trim()) {
-      const section = el("section", "foxy-product-description");
-      section.append(renderMarkdown(description));
-      below.append(section);
-    }
 
     const details = el("section", "foxy-product-details");
     const list = document.createElement("dl");
@@ -96,12 +121,114 @@ export class ProductPageElement extends PurchaseElement {
     for (const [property, value] of Object.entries(definition.properties ?? {})) {
       row(property, Array.isArray(value) ? value.join(", ") : String(value));
     }
-    details.append(el("h2", "", t(messages.details)), list);
-    below.append(details);
+
+    const below = el("div", "foxy-product-below");
+    const description = productDescription(product, locale);
+    const rendered = renderMarkdown(description);
+    const { intro, sections } = splitSections(rendered);
+    const layout = this.descriptionLayout;
+    // Three or more headings are what make sections worth their clicks;
+    // fewer leave the details beside the description.
+    const many = sections.length >= 3;
+    const wanted = layout === "tabs" || layout === "accordion" || (layout === "auto" && many);
+
+    let lead: HTMLElement | null = null;
+    const parts: Section[] = [];
+    if (wanted) {
+      // A single short paragraph before the first heading reads as the
+      // product's lead, beside the price; anything longer is a section.
+      const [only] = intro.filter((node) => node instanceof HTMLElement);
+      const blocks = intro.filter((node) => node instanceof HTMLElement || node.textContent?.trim());
+      if (blocks.length === 1 && only instanceof HTMLParagraphElement && only.textContent!.length <= 280) {
+        lead = only;
+      } else if (blocks.length) {
+        parts.push({ label: t(messages.descriptionSection), nodes: intro });
+      }
+      parts.push(...sections);
+      if (many) {
+        // A section of the merchant's that is already called "Details" takes the list too.
+        const label = t(messages.details);
+        const same = parts.find((part) => part.label.toLocaleLowerCase(locale) === label.toLocaleLowerCase(locale));
+        if (same) same.nodes.push(list);
+        else parts.push({ label, nodes: [list] });
+      }
+    }
+
+    if (wanted && parts.length >= 2) {
+      if (lead) {
+        lead.className = "foxy-product-lead";
+        summary.append(lead);
+      }
+      const sku = product.sku;
+      // A re-render keeps the shopper's section.
+      const selected = this.#sections?.sku === sku ? this.#sections.selected : 0;
+      this.#sections = { block: null, list: parts, kind: null, selected, sku };
+      this.#placeSections();
+      below.append(this.#sections.block!);
+      if (layout === "auto") this.#watchWidth();
+      if (!many) {
+        details.append(el("h2", "", t(messages.details)), list);
+        below.append(details);
+      }
+    } else {
+      this.#sections = null;
+      if (description.trim()) {
+        const section = el("section", "foxy-product-description");
+        section.append(rendered);
+        below.append(section);
+      }
+      details.append(el("h2", "", t(messages.details)), list);
+      below.append(details);
+    }
+    info.append(purchase.controls);
     page.append(below);
 
     const url = location.href.split("#")[0];
-    return [page, jsonLdScript(productJsonLd(product, productName(product, locale), this.shownCurrency, url))];
+    return [page, jsonLdScript(productJsonLd(product, productName(product, locale), this.requestedCurrency, url))];
+  }
+
+  /** The collections the product is in, root first, as chips; links when `collection-href` says where. */
+  #chips(product: CatalogProduct): HTMLElement | null {
+    const collections = (product.collections ?? []).filter((collection) => collection?.name);
+    if (!collections.length) return null;
+    const list = document.createElement("ul");
+    list.className = "foxy-product-chips";
+    const pattern = this.collectionHref.trim();
+    for (const { id, name } of collections) {
+      const item = document.createElement("li");
+      const chip = document.createElement(pattern ? "a" : "span");
+      chip.className = "foxy-product-chip";
+      chip.textContent = name;
+      if (pattern) (chip as HTMLAnchorElement).href = pattern.replaceAll("{id}", encodeURIComponent(String(id)));
+      item.append(chip);
+      list.append(item);
+    }
+    return list;
+  }
+
+  /** Tabs when the element is wide enough for two columns, else an accordion; `auto` decides by width. */
+  #placeSections(): void {
+    const sections = this.#sections;
+    if (!sections) return;
+    const layout = this.descriptionLayout;
+    const kind = layout === "auto" ? (this.getBoundingClientRect().width >= 720 ? "tabs" : "accordion") : layout === "accordion" ? "accordion" : "tabs";
+    if (kind === sections.kind) return;
+    sections.kind = kind;
+    const block = (kind === "tabs" ? tabs : accordion)(sections.list, sections.selected, (index) => (sections.selected = index));
+    sections.block?.replaceWith(block);
+    sections.block = block;
+  }
+
+  #watchWidth(): void {
+    if (this.#resizes) return;
+    // Swapped in the next frame: changing the layout while the observer is
+    // reporting would make it report again in the same frame.
+    this.#resizes = new ResizeObserver(() =>
+      requestAnimationFrame(() => {
+        if (this.descriptionLayout === "auto") this.#placeSections();
+      }),
+    );
+    this.#resizes.observe(this);
   }
 
   protected chosenChanged(product: CatalogProduct, chosen: CatalogProduct | undefined): void {

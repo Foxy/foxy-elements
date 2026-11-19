@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { FIXTURE_STORE, stubCatalog, type CatalogStub } from "@/lib/products/fixtures";
+import { FIXTURE_STORE, plainMug, stubCatalog, type CatalogStub } from "@/lib/products/fixtures";
 import { listenLikeFoxy2, settle } from "@/lib/products/foxy2-test-utils";
 import "./element";
 
@@ -98,8 +98,24 @@ describe("foxy-product-link", () => {
     expect(link(element)?.textContent).toBe("Add to cart · €15.20");
 
     element.removeAttribute("currency");
-    expect(element.querySelector(".foxy-product-price")?.textContent).toBe("16.40 18.90");
-    expect(element.querySelector("s")?.getAttribute("aria-label")).toBe("Was 18.90");
+    expect(element.querySelector(".foxy-product-price")?.textContent).toBe("$16.40 $18.90");
+    expect(element.querySelector("s")?.getAttribute("aria-label")).toBe("Was $18.90");
+  });
+
+  it("shows the price in the currency the catalog says it is in, not the one the page wants", async () => {
+    stub = stubCatalog();
+    // The mug has no GBP price, and the catalog says its price is in USD.
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" currency="GBP"></foxy-product-link>`);
+    await settle();
+    expect(stub.requests).toEqual(["/s/products/MUG-ENM-WHT"]);
+    expect(link(element)?.textContent).toBe("Add to cart · $16.40 $18.90");
+  });
+
+  it("shows a plain amount when the catalog doesn't say which currency the price is in", async () => {
+    stub = stubCatalog([{ ...plainMug, currency_code: undefined }]);
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" currency="GBP"></foxy-product-link>`);
+    await settle();
+    expect(link(element)?.textContent).toBe("Add to cart · 16.40 18.90");
   });
 
   it("is sold out without an href, so nothing can add it", async () => {
@@ -126,9 +142,33 @@ describe("foxy-product-link", () => {
   it("treats a required modifier like a parent", async () => {
     stub = stubCatalog();
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-ENGRAVE"></foxy-product-link>`);
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-ENGRAVE"><a href="/mug">See the mug</a></foxy-product-link>`);
     await settle();
     expect(link(element)).toBeNull();
+    expect(element.textContent).toBe("See the mug");
+  });
+
+  it("stays on the page for a parent's SKU when the merchant wrote nothing inside it, saying what to choose", async () => {
+    stub = stubCatalog();
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="TEE-ORG">
+    </foxy-product-link>`);
+    await settle();
+    expect(link(element)?.textContent).toBe("Choose colour and size");
+    expect(link(element)?.hasAttribute("href")).toBe(false);
+    expect(link(element)?.getAttribute("aria-disabled")).toBe("true");
+    expect(link(element)!.getBoundingClientRect().height).toBeGreaterThan(40);
+  });
+
+  it("sends a parent's SKU to the product's page when the store says where that is", async () => {
+    stub = stubCatalog();
+    stub.look = { product_url: "/products/{sku}" };
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="TEE-ORG"></foxy-product-link>`);
+    await settle();
+    expect(link(element)?.getAttribute("href")).toBe("/products/TEE-ORG");
+    expect(link(element)?.textContent).toBe("Choose colour and size");
+    expect(link(element)?.hasAttribute("aria-disabled")).toBe(false);
   });
 
   it("keeps the plain link when the catalog can't be read", async () => {
@@ -166,7 +206,7 @@ describe("foxy-product-link", () => {
 describe("foxy-product-link's look", () => {
   const background = (element: HTMLElement) => getComputedStyle(link(element)!).backgroundColor;
 
-  it("is the bold theme by default, and the 2.0 cart's with theme=\"cart\"", async () => {
+  it("is the bold theme by default, and dark on any page with theme=\"dark\"", async () => {
     stub = stubCatalog();
     const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-link>`);
     await settle();
@@ -175,10 +215,87 @@ describe("foxy-product-link's look", () => {
     expect(style.color).toBe("rgb(255, 255, 255)");
     expect(style.borderRadius).toBe("8px");
 
+    // A light button with an edge, so it shows on a white page too.
+    element.setAttribute("theme", "dark");
+    expect(style.backgroundColor).toBe("rgb(249, 250, 251)");
+    expect(style.color).toBe("rgb(17, 24, 39)");
+    expect(style.borderTopWidth).toBe("1px");
+
+    // A text link stands on a dark patch of its own.
+    element.setAttribute("appearance", "text");
+    const text = getComputedStyle(link(element)!);
+    expect(text.backgroundColor).toBe("rgb(17, 24, 39)");
+    expect(text.color).toBe("rgb(249, 250, 251)");
+
     element.setAttribute("theme", "cart");
-    expect(style.backgroundColor).toBe("rgb(63, 138, 46)");
-    expect(style.borderRadius).toBe("0px");
-    expect(style.fontFamily).toContain("Helvetica Neue");
+    expect(getComputedStyle(link(element)!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  });
+
+  it("uses the store's theme unless it names one of its own, and theme=\"bold\" is the default look", async () => {
+    stub = stubCatalog();
+    stub.look = { theme: "soft" };
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-link>`);
+    await vi.waitFor(() => expect(background(element)).toBe("rgb(37, 99, 235)"));
+    expect(getComputedStyle(link(element)!).borderRadius).toBe("12px");
+
+    element.setAttribute("theme", "foxy");
+    expect(background(element)).toBe("rgb(91, 42, 134)");
+    element.setAttribute("theme", "bold");
+    expect(background(element)).toBe("rgb(17, 24, 39)");
+    expect(getComputedStyle(link(element)!).borderRadius).toBe("8px");
+    element.removeAttribute("theme");
+    expect(background(element)).toBe("rgb(37, 99, 235)");
+  });
+
+  it("takes settings the page gives it, in place and without a request", async () => {
+    stub = stubCatalog();
+    stub.look = { button_color: "#0057d9" };
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" show-price="false"></foxy-product-link>`);
+    await vi.waitFor(() => expect(background(element)).toBe("rgb(0, 87, 217)"));
+    const fetched = vi.spyOn(window, "fetch");
+
+    window.dispatchEvent(
+      new CustomEvent("foxy-product-settings", {
+        detail: {
+          store: `https://${FIXTURE_STORE}/`,
+          settings: { button_color: "#0b5d3b", button_radius: 2, button_text: "Add to bag", theme: "dark" },
+        },
+      }),
+    );
+    expect(background(element)).toBe("rgb(11, 93, 59)");
+    expect(getComputedStyle(link(element)!).borderRadius).toBe("2px");
+    expect(getComputedStyle(link(element)!).color).toBe("rgb(17, 24, 39)");
+    expect(link(element)?.textContent).toBe("Add to bag");
+
+    // What isn't in the new settings goes back to the default; another store's are ignored.
+    window.dispatchEvent(new CustomEvent("foxy-product-settings", { detail: { store: FIXTURE_STORE, settings: {} } }));
+    window.dispatchEvent(
+      new CustomEvent("foxy-product-settings", { detail: { store: "other.foxycart.com", settings: { button_color: "#ff0000" } } }),
+    );
+    expect(background(element)).toBe("rgb(17, 24, 39)");
+    expect(link(element)?.textContent).toBe("Add to cart");
+
+    // An element added later starts from them too.
+    const later = document.createElement("foxy-product-link");
+    later.setAttribute("store", FIXTURE_STORE);
+    later.setAttribute("sku", "MUG-ENM-WHT");
+    window.dispatchEvent(
+      new CustomEvent("foxy-product-settings", { detail: { store: FIXTURE_STORE, settings: { button_color: "#0b5d3b" } } }),
+    );
+    document.body.append(later);
+    await vi.waitFor(() => expect(background(later)).toBe("rgb(11, 93, 59)"));
+    expect(fetched).not.toHaveBeenCalled();
+  });
+
+  it("isn't overwritten by a request for the store's settings that answers after the page gave its own", async () => {
+    stub = stubCatalog();
+    stub.look = { button_color: "#0057d9" };
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-link>`);
+    window.dispatchEvent(
+      new CustomEvent("foxy-product-settings", { detail: { store: FIXTURE_STORE, settings: { button_color: "#0b5d3b" } } }),
+    );
+    await settle();
+    expect(background(element)).toBe("rgb(11, 93, 59)");
   });
 
   it("lets the store's look and an attribute win over a theme", async () => {
@@ -273,6 +390,45 @@ describe("foxy-product-link's look", () => {
   });
 });
 
+describe("the themes it publishes", () => {
+  it("lists the variables each theme sets, which are the ones the stylesheet uses", async () => {
+    const { themes } = customElements.get("foxy-product-link") as unknown as {
+      themes: Record<string, Record<string, string>>;
+    };
+    expect(Object.keys(themes)).toEqual(["bold", "plain", "foxy", "bookshop", "soft", "market", "dark"]);
+    expect(themes.market["--foxy-theme-button-color"]).toBe("#B45309");
+    expect(themes.bold["--foxy-theme-button-radius"]).toBe("8px");
+    expect(Object.keys(themes.dark)).toContain("--foxy-product-backdrop-color");
+
+    stub = stubCatalog();
+    const element = mount(`<foxy-product-link theme="market" store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-link>`);
+    await settle();
+    for (const [name, variables] of Object.entries(themes)) {
+      element.setAttribute("theme", name);
+      const style = getComputedStyle(link(element)!);
+      const probe = document.createElement("i");
+      probe.style.color = variables["--foxy-theme-button-color"] ?? themes.bold["--foxy-theme-button-color"];
+      probe.style.borderRadius = variables["--foxy-theme-button-radius"] ?? themes.bold["--foxy-theme-button-radius"];
+      element.append(probe);
+      if (name !== "plain") expect(style.backgroundColor).toBe(getComputedStyle(probe).color);
+      expect(style.borderTopLeftRadius).toBe(getComputedStyle(probe).borderTopLeftRadius);
+      probe.remove();
+    }
+  });
+
+  it("styles the price and the list price by their own classes and variables", async () => {
+    stub = stubCatalog();
+    document.body.innerHTML = `<style>foxy-product-link { --foxy-product-price-color: rgb(180, 83, 9); --foxy-product-list-price-color: rgb(20, 20, 200); --foxy-product-list-price-size: 11px; }</style><p><foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-link></p>`;
+    const element = document.body.querySelector<HTMLElement>("foxy-product-link")!;
+    await settle();
+    const was = element.querySelector(".foxy-product-price .foxy-product-list-price")!;
+    expect(was.textContent).toBe("$18.90");
+    expect(getComputedStyle(was).fontSize).toBe("11px");
+    // Inside the link both take the link's own colour, as its text does.
+    expect(getComputedStyle(was).color).toBe(getComputedStyle(link(element)!).color);
+  });
+});
+
 describe("foxy-product-link after a 2.0 add", () => {
   it("keeps the shopper's focus, re-rendering only for a new currency", async () => {
     const handlers: Record<string, () => void> = {};
@@ -295,5 +451,82 @@ describe("foxy-product-link after a 2.0 add", () => {
     handlers["cart-submit.done"]();
     expect(element.querySelector(".foxy-product-price")?.textContent).toBe("€15.20");
     delete window.FC;
+  });
+});
+
+describe("foxy-product-link's analytics", () => {
+  const added = {
+    currency: "USD",
+    value: 32.8,
+    items: [{ item_id: "MUG-ENM-WHT", item_name: "Enamel Camp Mug, White", item_brand: "Foxy Goods", price: 16.4, quantity: 2 }],
+  };
+
+  /** A page with 2.0's foxycart.js, whose cart takes the next add when `takes`. */
+  async function withFoxy2(html: string) {
+    const handlers: Record<string, () => void> = {};
+    window.FC = {
+      json: { item_count: 3 },
+      client: { on: (event: string, handler: () => void) => (handlers[event] = handler) },
+    };
+    const element = mount(html);
+    element.addEventListener("click", (event) => event.preventDefault());
+    await vi.waitFor(() => expect(handlers["cart-submit.done"]).toBeDefined());
+    await settle();
+    return {
+      element,
+      async add(takes: boolean) {
+        link(element)!.click();
+        if (takes) window.FC!.json!.item_count! += 2;
+        handlers["cart-submit.done"]();
+        await settle();
+      },
+    };
+  }
+
+  afterEach(() => {
+    delete window.FC;
+    delete window.dataLayer;
+    delete window.gtag;
+  });
+
+  it("tells the page of an add once the cart took it, and Google only when the store says to", async () => {
+    stub = stubCatalog();
+    const heard: unknown[] = [];
+    document.body.addEventListener("foxy-product:add-to-cart", (event) => heard.push((event as CustomEvent).detail), { once: true });
+    const { add } = await withFoxy2(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" quantity="2"></foxy-product-link>`);
+    await add(true);
+    expect(heard).toEqual([added]);
+    expect(window.dataLayer).toBeUndefined();
+  });
+
+  it("pushes add_to_cart to the dataLayer, clearing ecommerce first, when the store has analytics on", async () => {
+    stub = stubCatalog();
+    stub.look = { analytics: true };
+    const { add } = await withFoxy2(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" quantity="2"></foxy-product-link>`);
+    await add(false);
+    expect(window.dataLayer).toBeUndefined();
+    await add(true);
+    expect(window.dataLayer).toEqual([{ ecommerce: null }, { event: "add_to_cart", ecommerce: added }]);
+  });
+
+  it("goes through gtag instead when the page has Google's own tag, so nothing is counted twice", async () => {
+    stub = stubCatalog();
+    const gtag = (window.gtag = vi.fn());
+    window.dataLayer = [];
+    const { add } = await withFoxy2(`<foxy-product-link analytics store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" quantity="2"></foxy-product-link>`);
+    await add(true);
+    expect(gtag.mock.calls).toEqual([["event", "add_to_cart", added]]);
+    expect(window.dataLayer).toEqual([]);
+  });
+
+  it("pushes nothing with analytics=\"off\", whatever the store says", async () => {
+    stub = stubCatalog();
+    stub.look = { analytics: true };
+    const heard = vi.fn();
+    document.body.addEventListener("foxy-product:add-to-cart", heard, { once: true });
+    const { add } = await withFoxy2(`<foxy-product-link analytics="off" store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-link>`);
+    await add(true);
+    expect(heard).toHaveBeenCalledTimes(1);
+    expect(window.dataLayer).toBeUndefined();
   });
 });

@@ -1,14 +1,15 @@
 import "../foxy-product-tile/element";
+import { analyticsDetail, analyticsItem, tileLists, track } from "@/lib/products/analytics";
 import { fetchProducts, resolveStoreDomain, type CatalogQuery } from "@/lib/products/catalog";
-import { loadLook } from "@/lib/products/element-base";
-import { ensureStyles, whenParsed } from "@/lib/products/light-dom";
+import { followLook } from "@/lib/products/element-base";
+import { ensureStyles, themes, whenParsed } from "@/lib/products/light-dom";
 import { LOOK_ATTRIBUTES, syncLookAttributes } from "@/lib/products/look";
 import { format, messages } from "@/lib/products/messages";
-import { resolveLocale } from "@/lib/products/price";
+import { resolveCurrency, resolveLocale } from "@/lib/products/price";
 import type { CatalogProduct } from "@/lib/products/types";
 
 const QUERY_ATTRIBUTES = ["store", "collection", "tag", "in-stock", "sort", "limit", "variant-prices"];
-const TILE_ATTRIBUTES = ["product-href", "quick-add", "heading-level", "lang", "show-count", "show-sort"];
+const TILE_ATTRIBUTES = ["product-href", "quick-add", "heading-level", "theme", "analytics", "lang", "show-count", "show-sort"];
 
 const SORTS = [
   ["name", messages.sortName],
@@ -27,6 +28,7 @@ export class ProductCollectionElement extends HTMLElement {
   #products: CatalogProduct[] = [];
   #total = 0;
   #lookStore = "";
+  #unfollowLook: (() => void) | null = null;
   #next: string | null = null;
   #loading = false;
   #failed = false;
@@ -38,6 +40,9 @@ export class ProductCollectionElement extends HTMLElement {
   #list = document.createElement("ul");
   #more = document.createElement("div");
   #status = document.createElement("p");
+
+  /** The CSS variables each theme sets, as on the other product elements. */
+  static readonly themes = themes;
 
   static get observedAttributes(): string[] {
     return [...QUERY_ATTRIBUTES, ...TILE_ATTRIBUTES, ...Object.keys(LOOK_ATTRIBUTES)];
@@ -89,7 +94,10 @@ export class ProductCollectionElement extends HTMLElement {
     else this.setAttribute("limit", String(value));
   }
 
-  /** The merchant's product page for each tile, such as `/shop/{sku}`. */
+  /**
+   * The merchant's product page for each tile, such as `/shop/{sku}`.
+   * Unset, the store's own setting is used.
+   */
   get productHref(): string {
     return this.getAttribute("product-href") ?? "";
   }
@@ -129,6 +137,15 @@ export class ProductCollectionElement extends HTMLElement {
     this.toggleAttribute("show-sort", value);
   }
 
+  /** What Google Analytics calls this list in its reports. */
+  get listName(): string {
+    return this.getAttribute("list-name") ?? "";
+  }
+
+  set listName(value: string) {
+    this.setAttribute("list-name", value);
+  }
+
   get products(): CatalogProduct[] {
     return [...this.#products];
   }
@@ -148,6 +165,9 @@ export class ProductCollectionElement extends HTMLElement {
 
   disconnectedCallback(): void {
     this.#started = false;
+    this.#unfollowLook?.();
+    this.#unfollowLook = null;
+    this.#lookStore = "";
   }
 
   attributeChangedCallback(name: string): void {
@@ -193,8 +213,9 @@ export class ProductCollectionElement extends HTMLElement {
     }
     if (store !== this.#lookStore) {
       this.#lookStore = store;
+      this.#unfollowLook?.();
       // The tiles inherit the variables; the look's text is theirs to read.
-      loadLook(this, store, () => {});
+      this.#unfollowLook = followLook(this, store, () => {});
     }
     const request = ++this.#request;
     this.#loading = true;
@@ -204,11 +225,12 @@ export class ProductCollectionElement extends HTMLElement {
     try {
       const page = await fetchProducts(store, this.#query(), next);
       if (request !== this.#request) return;
+      const first = this.#list.children.length;
       this.#products.push(...page.products);
       this.#total = page.total;
       this.#next = page.next;
-      const first = this.#list.children.length;
-      this.#appendTiles(page.products);
+      this.#appendTiles(page.products, first);
+      this.#trackList(store, page.products, first);
       if (next) {
         // "Load more" goes away while loading, so focus moves to what it loaded.
         queueMicrotask(() =>
@@ -227,9 +249,26 @@ export class ProductCollectionElement extends HTMLElement {
     }
   }
 
-  #tile(product: CatalogProduct): HTMLLIElement {
+  /** What analytics is told of this list: the collection's id, else the tag. */
+  #listIdentity(): { id?: string; name?: string } {
+    return { id: this.collection || this.tag || undefined, name: this.listName || undefined };
+  }
+
+  /** Reports the products one page of results added, once. */
+  #trackList(store: string, products: CatalogProduct[], first: number): void {
+    if (!products.length) return;
+    const list = this.#listIdentity();
+    const requested = resolveCurrency(this);
+    const items = products.map((product, index) =>
+      analyticsItem(product, resolveLocale(this), requested, { list: { ...list, index: first + index } }),
+    );
+    void track(this, store, "view_item_list", analyticsDetail(items.map(({ item }) => item), items[0].currency, list));
+  }
+
+  #tile(product: CatalogProduct, index: number): HTMLLIElement {
     const item = document.createElement("li");
     const tile = document.createElement("foxy-product-tile");
+    tileLists.set(tile, { ...this.#listIdentity(), index });
     const store = resolveStoreDomain(this);
     if (store) tile.setAttribute("store", store);
     this.#applyTileAttributes(tile);
@@ -245,6 +284,9 @@ export class ProductCollectionElement extends HTMLElement {
       ["product-href", "href"],
       ["quick-add", "quick-add"],
       ["heading-level", "heading-level"],
+      // A tile reads the store's theme itself, so the collection's own has to be on it to win.
+      ["theme", "theme"],
+      ["analytics", "analytics"],
     ]) {
       const value = this.getAttribute(from);
       if (value === null) tile.removeAttribute(to);
@@ -252,8 +294,8 @@ export class ProductCollectionElement extends HTMLElement {
     }
   }
 
-  #appendTiles(products: CatalogProduct[]): void {
-    this.#list.append(...products.map((product) => this.#tile(product)));
+  #appendTiles(products: CatalogProduct[], first: number): void {
+    this.#list.append(...products.map((product, index) => this.#tile(product, first + index)));
   }
 
   #renderTiles(): void {

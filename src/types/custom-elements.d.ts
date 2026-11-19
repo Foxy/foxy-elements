@@ -119,7 +119,8 @@ type ProductElementSharedProps = {
   store?: string;
   currency?: string;
   "currency-cookie"?: string;
-  theme?: "plain" | "foxy" | "soft" | "bookshop" | "market" | "cart" | "dark";
+  theme?: "bold" | "plain" | "foxy" | "soft" | "bookshop" | "market" | "dark";
+  analytics?: boolean | "off";
   font?: string;
   "text-color"?: string;
   "button-color"?: string;
@@ -172,6 +173,10 @@ type ProductPageElementProps = Omit<
     "option-style"?: "buttons" | "rows" | "select";
     skuParam?: string;
     "sku-param"?: string;
+    descriptionLayout?: "none" | "tabs" | "accordion" | "auto";
+    "description-layout"?: "none" | "tabs" | "accordion" | "auto";
+    collectionHref?: string;
+    "collection-href"?: string;
   };
 
 type ProductTileElementProps = DetailedHTMLProps<
@@ -206,6 +211,8 @@ type ProductCollectionElementProps = DetailedHTMLProps<
     "show-count"?: boolean;
     showSort?: boolean;
     "show-sort"?: boolean;
+    listName?: string;
+    "list-name"?: string;
   };
 
 type ExpressCheckoutElementProps = Omit<

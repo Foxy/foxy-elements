@@ -1,4 +1,5 @@
 import { clearCatalogCache } from "./catalog";
+import { forgetFoxy2Session } from "./light-dom";
 import { clearLookCache } from "./look";
 import type { CatalogProduct, ProductModifier } from "./types";
 
@@ -70,6 +71,7 @@ function teeVariant(
   return {
     sku,
     product_type: "variant",
+    currency_code: "USD",
     display_name: `Organic Cotton Tee - ${size} / ${color}`,
     is_in_stock: stock > 0,
     stock_level: stock,
@@ -95,6 +97,7 @@ function teeVariant(
 export const teeParent: CatalogProduct = {
   sku: "TEE-ORG",
   product_type: "parent",
+  currency_code: "USD",
   display_name: "Organic Cotton Tee",
   display_price: 24.95,
   is_in_stock: true,
@@ -117,6 +120,7 @@ export const teeParent: CatalogProduct = {
 export const engravedMug: CatalogProduct = {
   sku: "MUG-ENM-ENGRAVE",
   product_type: "standalone",
+  currency_code: "USD",
   display_name: "Engraved Enamel Mug",
   display_price: 21.5,
   is_in_stock: true,
@@ -141,6 +145,7 @@ export const engravedMug: CatalogProduct = {
 export const plainMug: CatalogProduct = {
   sku: "MUG-ENM-WHT",
   product_type: "standalone",
+  currency_code: "USD",
   display_name: "Enamel Camp Mug, White",
   display_price: 16.4,
   is_in_stock: true,
@@ -159,6 +164,7 @@ export const plainMug: CatalogProduct = {
 export const soldOutBeans: CatalogProduct = {
   sku: "COF-HUILA-340",
   product_type: "standalone",
+  currency_code: "USD",
   display_name: "Huila Single Origin, 340 g",
   display_price: 17.25,
   is_in_stock: false,
@@ -178,6 +184,7 @@ export const soldOutBeans: CatalogProduct = {
 export const legacyParent: CatalogProduct = {
   sku: "SOCK-WOOL",
   product_type: "parent",
+  currency_code: "USD",
   display_name: "Merino Hiking Socks",
   is_in_stock: true,
   variant_count: 3,
@@ -258,6 +265,7 @@ export function stubCatalog(products: CatalogProduct[] = fixtureProducts): Catal
       window.fetch = realFetch;
       clearCatalogCache();
       clearLookCache();
+      forgetFoxy2Session();
       document.querySelectorAll("style[data-foxy-store-css]").forEach((style) => style.remove());
     },
   };

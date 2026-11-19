@@ -77,6 +77,11 @@ export interface ProductDefinition {
 /** One product from the public catalog (`/s/products`). */
 export interface CatalogProduct {
   sku: string;
+  /**
+   * The currency `definition.price`, `list_price` and the `price_mod`s are
+   * in, as an ISO 4217 code. A variant without one is in its parent's.
+   */
+  currency_code?: string | null;
   product_type: ProductType;
   definition: ProductDefinition;
   display_name?: string | null;
@@ -87,6 +92,8 @@ export interface CatalogProduct {
   hidden?: boolean;
   option_values?: Record<string, string> | null;
   variant_count?: number;
+  /** The collections the product is in, from the top one down to its own. */
+  collections?: Array<{ id: string | number; name: string }> | null;
   _links?: Record<string, { href: string } | undefined>;
   _embedded?: { variants?: CatalogProduct[] };
 }

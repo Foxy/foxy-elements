@@ -6,13 +6,14 @@ const OUT_OF_STOCK = "https://schema.org/OutOfStock";
 
 /**
  * schema.org `Product` for a tile or a product page. Search engines want a currency with a
- * price, so the offer is left out when the currency isn't known. A parent
- * gets an `AggregateOffer` over its variants' prices.
+ * price, so the offer is left out when the catalog doesn't say which
+ * currency the price is in. A parent gets an `AggregateOffer` over its
+ * variants' prices.
  */
 export function productJsonLd(
   product: CatalogProduct,
   name: string,
-  currency: string | null,
+  requested: string | null,
   url: string | null,
 ): Record<string, unknown> {
   const { definition } = product;
@@ -28,30 +29,30 @@ export function productJsonLd(
   if (definition.mpn) data.mpn = definition.mpn;
   if (url) data.url = url;
 
-  if (currency) {
-    const availability = product.is_in_stock ? IN_STOCK : OUT_OF_STOCK;
-    const variants = product._embedded?.variants ?? [];
-    const range = priceRange(product, currency);
-    if (product.product_type === "parent" && variants.length && range) {
+  const availability = product.is_in_stock ? IN_STOCK : OUT_OF_STOCK;
+  const variants = product._embedded?.variants ?? [];
+  const range = priceRange(product, requested);
+  if (product.product_type === "parent" && variants.length && range) {
+    if (range.currency) {
       data.offers = {
         "@type": "AggregateOffer",
-        priceCurrency: currency,
+        priceCurrency: range.currency,
         lowPrice: range.min.toFixed(2),
         highPrice: range.max.toFixed(2),
         offerCount: variants.length,
         availability,
       };
-    } else {
-      const { price } = productPrice(product, currency);
-      if (price !== null) {
-        data.offers = {
-          "@type": "Offer",
-          priceCurrency: currency,
-          price: price.toFixed(2),
-          availability,
-          ...(url ? { url } : {}),
-        };
-      }
+    }
+  } else {
+    const { price, currency } = productPrice(product, requested);
+    if (price !== null && currency) {
+      data.offers = {
+        "@type": "Offer",
+        priceCurrency: currency,
+        price: price.toFixed(2),
+        availability,
+        ...(url ? { url } : {}),
+      };
     }
   }
 

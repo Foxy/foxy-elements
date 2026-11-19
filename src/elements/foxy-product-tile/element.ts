@@ -1,19 +1,22 @@
+import { analyticsDetail, analyticsItem, tileLists } from "@/lib/products/analytics";
 import { ProductElement, SHARED_ATTRIBUTES } from "@/lib/products/element-base";
 import {
   addToCartHref,
+  chooseLabel,
   jsonLdScript,
   productImage,
   renderPrice,
   stockNote,
 } from "@/lib/products/light-dom";
-import { chooseMessage, format, messages } from "@/lib/products/messages";
+import { productPageHref } from "@/lib/products/look";
+import { format, messages } from "@/lib/products/messages";
 import { isOneClick, productOptions } from "@/lib/products/options";
 import { productName } from "@/lib/products/price";
 import { productJsonLd } from "@/lib/products/structured-data";
 import type { CatalogProduct } from "@/lib/products/types";
 
 /**
- * One product in a grid: image, brand, name, price, and either a one-click
+ * One product in a grid: image, name, brand, colours, price, and either a one-click
  * add or a link to the merchant's own product page. A product with options
  * or a required modifier always links to its page, where they can be
  * chosen. Everything renders in light DOM, so 2.0 sees the add link and
@@ -24,7 +27,10 @@ export class ProductTileElement extends ProductElement {
     return [...SHARED_ATTRIBUTES, "href", "quick-add", "heading-level"];
   }
 
-  /** The merchant's page for this product; `{sku}` is replaced with its SKU. */
+  /**
+   * The merchant's page for this product; `{sku}` is replaced with its SKU.
+   * Unset, the store's own setting is used.
+   */
   get href(): string {
     return this.getAttribute("href") ?? "";
   }
@@ -68,8 +74,17 @@ export class ProductTileElement extends ProductElement {
   }
 
   #pageHref(product: CatalogProduct): string | null {
-    const pattern = this.href.trim();
-    return pattern ? pattern.replaceAll("{sku}", encodeURIComponent(product.sku)) : null;
+    return productPageHref(this.href.trim() || this.look.productUrl || "", product);
+  }
+
+  /** The event detail for this product, as listed, or as added in one click. */
+  #detail(product: CatalogProduct, added: boolean) {
+    const list = tileLists.get(this);
+    const { item, currency } = analyticsItem(product, this.locale, this.requestedCurrency, {
+      chosen: added ? product : undefined,
+      list,
+    });
+    return analyticsDetail([item], currency, added ? undefined : list);
   }
 
   protected render(): void {
@@ -82,7 +97,7 @@ export class ProductTileElement extends ProductElement {
     }
 
     const locale = this.locale;
-    const currency = this.shownCurrency;
+    const currency = this.requestedCurrency;
     const name = productName(product, locale);
     const pageHref = this.#pageHref(product);
     const pageUrl = pageHref ? new URL(pageHref, document.baseURI).href : null;
@@ -104,13 +119,6 @@ export class ProductTileElement extends ProductElement {
     const body = document.createElement("div");
     body.className = "foxy-product-tile-body";
 
-    if (product.definition.brand) {
-      const brand = document.createElement("p");
-      brand.className = "foxy-product-brand";
-      brand.textContent = product.definition.brand;
-      body.append(brand);
-    }
-
     const heading = document.createElement(`h${this.headingLevel}`);
     heading.className = "foxy-product-name";
     if (pageHref) {
@@ -122,10 +130,20 @@ export class ProductTileElement extends ProductElement {
       heading.textContent = name;
     }
 
+    body.append(heading);
+    if (product.definition.brand) {
+      const brand = document.createElement("p");
+      brand.className = "foxy-product-brand";
+      brand.textContent = product.definition.brand;
+      body.append(brand);
+    }
+    const swatches = this.#swatches(product, locale);
+    if (swatches) body.append(swatches);
+
     const price = document.createElement("p");
     price.className = "foxy-product-tile-price";
     price.append(renderPrice(product, currency, locale));
-    body.append(heading, price);
+    body.append(price);
 
     const stock = stockNote(product, this.look.lowStockThreshold, locale);
     if (stock) {
@@ -145,7 +163,53 @@ export class ProductTileElement extends ProductElement {
     }
 
     tile.append(media, body, jsonLdScript(productJsonLd(product, name, currency, pageUrl)));
+    if (pageHref) {
+      for (const link of tile.querySelectorAll("a")) {
+        if (link.getAttribute("href") !== pageHref) continue;
+        link.addEventListener("click", () => this.track("select_item", this.#detail(product, false)));
+      }
+    }
     this.replaceChildren(tile);
+  }
+
+  /**
+   * Up to five colours of the first option whose values have one, and how
+   * many more there are, so a shopper sees what it comes in.
+   */
+  #swatches(product: CatalogProduct, locale: string): HTMLElement | null {
+    const option = productOptions(product).find(({ values }) => values.some(({ color }) => color));
+    const colored = option?.values.filter(({ color }) => color) ?? [];
+    if (!option || colored.length < 2) return null;
+    const list = document.createElement("ul");
+    list.className = "foxy-product-tile-swatches";
+    list.setAttribute("aria-label", option.label);
+    for (const value of colored.slice(0, 5)) {
+      const item = document.createElement("li");
+      const dot = document.createElement("span");
+      dot.className = "foxy-product-tile-swatch";
+      dot.setAttribute("aria-hidden", "true");
+      // Set as a property, so a value that isn't a colour is ignored.
+      dot.style.backgroundColor = value.color!;
+      const text = document.createElement("span");
+      text.className = "foxy-product-sr";
+      text.textContent = value.label;
+      item.append(dot, text);
+      list.append(item);
+    }
+    if (colored.length > 5) {
+      const more = document.createElement("li");
+      more.className = "foxy-product-tile-more";
+      const count = colored.length - 5;
+      const shown = document.createElement("span");
+      shown.setAttribute("aria-hidden", "true");
+      shown.textContent = format(locale, messages.moreValues, { count });
+      const text = document.createElement("span");
+      text.className = "foxy-product-sr";
+      text.textContent = format(locale, messages.moreValuesLabel, { count });
+      more.append(shown, text);
+      list.append(more);
+    }
+    return list;
   }
 
   #action(
@@ -169,6 +233,7 @@ export class ProductTileElement extends ProductElement {
     if (oneClick && this.quickAdd === "auto") {
       button.href = addToCartHref(store, product.sku);
       button.rel = "nofollow";
+      button.addEventListener("click", () => this.addStarted(this.#detail(product, true)));
       button.textContent = this.look.buttonText || format(locale, messages.addToCart);
       return button;
     }
@@ -182,18 +247,8 @@ export class ProductTileElement extends ProductElement {
 
     button.classList.add("foxy-product-button-secondary");
     button.href = pageHref;
-    button.textContent = oneClick ? format(locale, messages.viewProduct) : this.#chooseLabel(product, locale);
+    button.textContent = oneClick ? format(locale, messages.viewProduct) : chooseLabel(product, locale);
     return button;
-  }
-
-  /** "Choose size and colour" for one or two options; "Choose options" otherwise. */
-  #chooseLabel(product: CatalogProduct, locale: string): string {
-    const [first, second, ...more] = productOptions(product).map(({ label }) => label.toLowerCase());
-    if (first && second && !more.length) return format(locale, messages.chooseTwo, { first, second });
-    if (first && !second) {
-      return format(locale, chooseMessage(first), { option: first });
-    }
-    return format(locale, messages.chooseOptions);
   }
 }
 

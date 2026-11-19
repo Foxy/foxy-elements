@@ -25,6 +25,7 @@ import type { CatalogProduct, OptionValue, ProductModifier } from "./types";
 export interface PurchaseSettings {
   store: string;
   locale: string;
+  /** The currency the page wants; each price is shown in the one it is in. */
   currency: string | null;
   /** The add button's text; the price follows it. */
   label: string;
@@ -109,7 +110,7 @@ export class Purchase {
   }
 
   /** One unit's price with the chosen modifiers; `null` until a variant is chosen. */
-  get price(): { price: number; listPrice: number | null } | null {
+  get price(): { price: number; listPrice: number | null; currency: string | null } | null {
     return livePrice(this.product, this.state, this.#settings.currency);
   }
 
@@ -122,8 +123,13 @@ export class Purchase {
     return format(this.#settings.locale, descriptor, values);
   }
 
-  #money(amount: number): string {
-    return formatPrice(amount, this.#settings.currency, this.#settings.locale);
+  /** The currency the chosen product's amounts are in, or the parent's until one is chosen. */
+  get #currency(): string | null {
+    return productPrice(this.chosen ?? this.product, this.#settings.currency).currency;
+  }
+
+  #money(amount: number, currency = this.#currency): string {
+    return formatPrice(amount, currency, this.#settings.locale);
   }
 
   /** Brings modifier values and quantity in line with the chosen product. */
@@ -147,7 +153,7 @@ export class Purchase {
       productOptions(product).forEach((option, index) => {
         const style = this.#settings.optionStyle;
         children.push(
-          style === "select"
+          style === "select" || (style === "buttons" && this.#tooManyForButtons(option, index))
             ? this.#optionSelect(option, index)
             : style === "rows"
               ? this.#optionRows(option, index)
@@ -165,11 +171,11 @@ export class Purchase {
       children.push(modifier.type === "text" ? this.#textModifier(modifier) : this.#selectModifier(modifier));
     }
 
+    // What there is to choose sits together, so a page can set it apart.
+    const choices = el("div", "foxy-product-choices");
+    choices.append(...children);
     const quantity = this.#quantity();
-    if (quantity) children.push(quantity);
-    children.push(this.#button());
-
-    this.controls.replaceChildren(...children);
+    this.controls.replaceChildren(...(children.length ? [choices] : []), ...(quantity ? [quantity] : []), this.#button());
     if (focused) this.controls.querySelector<HTMLElement>(`#${CSS.escape(focused)}`)?.focus();
     this.#refresh();
   }
@@ -194,6 +200,12 @@ export class Purchase {
     this.state.choices = keepOffered(this.product, { ...this.state.choices, [name]: value });
     this.#settle();
     this.render();
+  }
+
+  /** More plain values than fit as buttons, such as a long list of sizes, go in a drop-down. */
+  #tooManyForButtons(option: ProductOption, index: number): boolean {
+    const values = this.#optionStates(option, index);
+    return values.length > 8 && !values.some(({ color, image }) => color || image);
   }
 
   #optionStates(option: ProductOption, index: number) {
@@ -287,7 +299,7 @@ export class Purchase {
       label: this.#row(
         value.soldOut ? this.#t(messages.valueSoldOut, { label: value.label }) : value.label,
         value,
-        showPrices ? this.#money(prices[values.indexOf(value)]!) : "",
+        showPrices ? prices[values.indexOf(value)]! : "",
       ),
     }));
   }
@@ -295,7 +307,7 @@ export class Purchase {
   #variantRows(variants: CatalogProduct[]): HTMLElement {
     return this.#radios("variant", el("legend", undefined, this.#t(messages.variant)), "foxy-product-rows", variants, (variant) => {
       const name = variant.definition.name ?? variant.display_name ?? variant.sku;
-      const { price } = productPrice(variant, this.#settings.currency);
+      const { price, currency } = productPrice(variant, this.#settings.currency);
       return {
         checked: variant.sku === this.state.variantSku,
         disabled: !variant.is_in_stock,
@@ -307,7 +319,7 @@ export class Purchase {
         label: this.#row(
           variant.is_in_stock ? name : this.#t(messages.valueSoldOut, { label: name }),
           {},
-          price === null ? "" : this.#money(price),
+          price === null ? "" : this.#money(price, currency),
         ),
       };
     });
@@ -379,7 +391,7 @@ export class Purchase {
     offered.forEach((value, valueIndex) => {
       let text = value.soldOut ? this.#t(messages.valueSoldOut, { label: value.label }) : value.label;
       if (showPrices) {
-        text = this.#t(messages.valuePrice, { label: text, price: this.#money(prices[valueIndex]!) });
+        text = this.#t(messages.valuePrice, { label: text, price: prices[valueIndex]! });
       }
       const item = new Option(text, value.value);
       item.disabled = value.soldOut;
@@ -392,8 +404,8 @@ export class Purchase {
     return field;
   }
 
-  /** The one price every variant with this value has, given the other choices; else `null`. */
-  #valuePrice(option: ProductOption, value: string): number | null {
+  /** The one price every variant with this value has, given the other choices, as text; else `null`. */
+  #valuePrice(option: ProductOption, value: string): string | null {
     const wanted = { ...this.state.choices, [option.name]: value };
     const prices = new Set(
       (this.product._embedded?.variants ?? [])
@@ -402,7 +414,10 @@ export class Purchase {
             ([name, choice]) => variant.option_values?.[name]?.toLowerCase() === choice.toLowerCase(),
           ),
         )
-        .map((variant) => productPrice(variant, this.#settings.currency).price),
+        .map((variant) => {
+          const { price, currency } = productPrice(variant, this.#settings.currency);
+          return price === null ? null : this.#money(price, currency);
+        }),
     );
     const [price] = prices;
     return prices.size === 1 ? (price ?? null) : null;
@@ -469,7 +484,7 @@ export class Purchase {
 
   #textModifier(modifier: ProductModifier): HTMLElement {
     const id = `${this.#id}-${modifier.name}`;
-    const amount = modifierAmount(modifier, "x", this.#settings.currency);
+    const amount = modifierAmount(modifier, "x", this.#currency);
     const field = this.#field(id, modifier.label || modifier.name, this.#modifierHint(modifier, amount));
     const max = modifier.max_length ?? 255;
 
@@ -508,7 +523,7 @@ export class Purchase {
     // unless the merchant declared one.
     if (modifier.required) select.append(new Option(this.#t(messages.choose), ""));
     for (const value of modifier.values ?? []) {
-      const amount = modifierAmount(modifier, value.value, this.#settings.currency);
+      const amount = modifierAmount(modifier, value.value, this.#currency);
       const label = value.label || value.value;
       select.append(
         new Option(

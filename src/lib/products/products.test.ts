@@ -18,7 +18,7 @@ import {
   quantityBounds,
 } from "./choices";
 import { stockNote } from "./light-dom";
-import { fetchLook, parseLook } from "./look";
+import { fetchLook, parseLook, productPageHref } from "./look";
 import { renderMarkdown } from "./markdown";
 import {
   hasOptionControls,
@@ -124,14 +124,37 @@ describe("prices", () => {
   });
 
   it("keeps a list price only when it's higher", () => {
-    expect(productPrice(plainMug, null)).toEqual({ price: 16.4, listPrice: 18.9 });
+    expect(productPrice(plainMug, null)).toEqual({ price: 16.4, listPrice: 18.9, currency: "USD" });
     expect(productPrice({ ...plainMug, definition: { price: "9.99", list_price: "9.99" } }, null).listPrice).toBeNull();
   });
 
   it("computes a parent's range from its variants", () => {
-    expect(priceRange(teeParent, null)).toEqual({ min: 24.95, max: 26.95 });
-    expect(priceRange(teeParent, "EUR")).toEqual({ min: 22.95, max: 24.8 });
-    expect(priceRange(plainMug, null)).toEqual({ min: 16.4, max: 16.4 });
+    expect(priceRange(teeParent, null)).toEqual({ min: 24.95, max: 26.95, currency: "USD" });
+    expect(priceRange(teeParent, "EUR")).toEqual({ min: 22.95, max: 24.8, currency: "EUR" });
+    expect(priceRange(plainMug, null)).toEqual({ min: 16.4, max: 16.4, currency: "USD" });
+  });
+
+  it("says a price is in the currency the catalog gave it, whatever was asked for", () => {
+    // The mug has a EUR price of its own, and none in GBP.
+    expect(productPrice(plainMug, "EUR")).toEqual({ price: 15.2, listPrice: null, currency: "EUR" });
+    expect(productPrice(plainMug, "GBP")).toEqual({ price: 16.4, listPrice: 18.9, currency: "USD" });
+    expect(productPrice({ ...plainMug, currency_code: null }, "GBP").currency).toBeNull();
+  });
+
+  it("never mixes currencies in a parent's range", () => {
+    const [first, ...rest] = teeParent._embedded!.variants!;
+    const mixed = {
+      ...teeParent,
+      _embedded: { variants: [{ ...first, definition: { ...first.definition, prices: {} } }, ...rest] },
+    };
+    // One variant has no EUR price, so the range is over the USD prices.
+    expect(priceRange(mixed, "EUR")).toEqual({ min: 24.95, max: 26.95, currency: "USD" });
+  });
+
+  it("gives a variant without a currency code its parent's", async () => {
+    stub = stubCatalog();
+    const socks = await fetchProduct(FIXTURE_STORE, "SOCK-WOOL");
+    expect(socks?._embedded?.variants?.map((variant) => variant.currency_code)).toEqual(["USD", "USD", "USD"]);
   });
 
   it("formats in the currency, or as a plain amount when none is known", () => {
@@ -251,8 +274,8 @@ describe("choices", () => {
   });
 
   it("adds modifier amounts in the shopper's currency", () => {
-    expect(livePrice(teeParent, state, null)).toEqual({ price: 31.45, listPrice: null });
-    expect(livePrice(teeParent, state, "EUR")).toEqual({ price: 29, listPrice: null });
+    expect(livePrice(teeParent, state, null)).toEqual({ price: 31.45, listPrice: null, currency: "USD" });
+    expect(livePrice(teeParent, state, "EUR")).toEqual({ price: 29, listPrice: null, currency: "EUR" });
     expect(livePrice(teeParent, { ...state, choices: { color: "Black" } }, null)).toBeNull();
   });
 
@@ -291,6 +314,9 @@ describe("the store's look", () => {
         button_text: " Add to bag ",
         font: "system",
         custom_css: "foxy-product-form h2 { letter-spacing: 0.02em; }",
+        theme: "market",
+        product_url: "https://shop.example.com/p?sku={sku}",
+        analytics: true,
       }),
     ).toEqual({
       lowStockThreshold: 3,
@@ -301,6 +327,9 @@ describe("the store's look", () => {
       buttonText: "Add to bag",
       font: "system",
       customCss: "foxy-product-form h2 { letter-spacing: 0.02em; }",
+      theme: "market",
+      productUrl: "https://shop.example.com/p?sku={sku}",
+      analytics: true,
     });
 
     const nothing = parseLook(null);
@@ -314,8 +343,15 @@ describe("the store's look", () => {
         button_text: "Add\tnow",
         font: "toString",
         custom_css: 12,
+        theme: "cart",
+        product_url: "javascript:alert({sku})",
+        analytics: "true",
       }),
     ).toEqual(nothing);
+    for (const product_url of ["//evil.example/{sku}", "/products/all", "/products/{slug}", "/p/{sku}\"onclick", "/p/ {sku}"]) {
+      expect(parseLook({ product_url }).productUrl).toBeNull();
+    }
+    expect(parseLook({ product_url: "/products/{sku}" }).productUrl).toBe("/products/{sku}");
     expect(nothing.lowStockThreshold).toBe(5);
   });
 
@@ -326,6 +362,13 @@ describe("the store's look", () => {
     expect(a).toBe(b);
     expect(a.buttonText).toBe("Add to bag");
     expect(a.lowStockThreshold).toBe(2);
+  });
+});
+
+describe("a product's page", () => {
+  it("fills in the SKU", () => {
+    expect(productPageHref("/p?sku={sku}", { sku: "TEE ORG" })).toBe("/p?sku=TEE%20ORG");
+    expect(productPageHref(" ", { sku: "TEE-ORG" })).toBeNull();
   });
 });
 

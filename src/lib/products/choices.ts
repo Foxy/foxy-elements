@@ -109,17 +109,17 @@ export function modifierAmount(
 
 /**
  * One unit's price with the chosen modifiers, as the cart will compute it,
- * and the list price beside it when it's higher. `null` while no variant is
- * chosen.
+ * the list price beside it when it's higher, and the currency they are in.
+ * `null` while no variant is chosen.
  */
 export function livePrice(
   product: CatalogProduct,
   state: PurchaseState,
-  currency: string | null,
-): { price: number; listPrice: number | null } | null {
+  requested: string | null,
+): { price: number; listPrice: number | null; currency: string | null } | null {
   const chosen = chosenProduct(product, state);
   if (!chosen) return null;
-  const { price, listPrice } = productPrice(chosen, currency);
+  const { price, listPrice, currency } = productPrice(chosen, requested);
   if (price === null) return null;
   const extra = productModifiers(chosen).reduce(
     (sum, modifier) => sum + modifierAmount(modifier, state.modifiers[modifier.name], currency),
@@ -129,6 +129,7 @@ export function livePrice(
   return {
     price: round(price + extra),
     listPrice: listPrice === null ? null : round(listPrice + extra),
+    currency,
   };
 }
 

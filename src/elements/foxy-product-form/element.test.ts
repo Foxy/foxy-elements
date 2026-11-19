@@ -6,7 +6,7 @@ import {
   teeParent,
   type CatalogStub,
 } from "@/lib/products/fixtures";
-import { listenLikeFoxy2 } from "@/lib/products/foxy2-test-utils";
+import { listenLikeFoxy2, settle } from "@/lib/products/foxy2-test-utils";
 import "./element";
 
 let stub: CatalogStub | undefined;
@@ -245,5 +245,163 @@ describe("foxy-product-form", () => {
     expect(getComputedStyle(addButton(element)).backgroundColor).toBe("rgb(11, 93, 59)");
     expect(getComputedStyle(addButton(element)).borderRadius).toBe("6px");
     expect(addButton(element).textContent).toBe("Add to bag · $16.40");
+  });
+
+  it("changes its look, button text and option style where it stands, without asking the catalog again", async () => {
+    const element = await mount(`sku="TEE-ORG" value="color=Black&size=S"`);
+    await settle();
+    const requests = stub!.requests.length;
+    const name = element.querySelector(".foxy-product-name");
+    const card = element.querySelector(".foxy-product-form");
+    const form = cartForm(element);
+
+    for (const [attribute, value] of [
+      ["theme", "dark"],
+      ["button-color", "#0b5d3b"],
+      ["button-text-color", "#fffbe6"],
+      ["button-radius", "2"],
+      ["text-color", "#7a1f1f"],
+      ["accent-color", "#0057d9"],
+      ["font", "serif"],
+      ["label", "Add to bag"],
+      ["option-style", "buttons"],
+    ]) {
+      element.setAttribute(attribute, value);
+    }
+    window.dispatchEvent(
+      new CustomEvent("foxy-product-settings", {
+        detail: { store: FIXTURE_STORE, settings: { low_stock_threshold: 20, button_text: "Buy" } },
+      }),
+    );
+
+    const style = getComputedStyle(addButton(element));
+    expect(style.backgroundColor).toBe("rgb(11, 93, 59)");
+    expect(style.color).toBe("rgb(255, 251, 230)");
+    expect(style.borderRadius).toBe("2px");
+    expect(getComputedStyle(element).fontFamily).toContain("Georgia");
+    expect(getComputedStyle(name!).color).toBe("rgb(122, 31, 31)");
+    expect(getComputedStyle(card!).backgroundColor).toBe("rgb(17, 24, 39)");
+    expect(addButton(element).textContent).toBe("Add to bag · $24.95");
+    expect(element.querySelectorAll(".foxy-product-swatch")).toHaveLength(3);
+    // The store's new threshold says so of the 17 left.
+    expect(element.querySelector(".foxy-product-note")?.textContent).toBe("Only 17 left");
+
+    // The same nodes, the shopper's choices kept, and no request.
+    expect(element.querySelector(".foxy-product-name")).toBe(name);
+    expect(element.querySelector(".foxy-product-form")).toBe(card);
+    expect(cartForm(element)).toBe(form);
+    expect(sent(element)).toEqual(["sku=TEE-ORG", "color=Black", "size=S", "gift_wrap=No"]);
+    expect(stub!.requests).toHaveLength(requests);
+
+    element.removeAttribute("label");
+    expect(addButton(element).textContent).toBe("Buy · $24.95");
+  });
+
+  it("shows every price in the currency the catalog says it is in, not the one the page wants", async () => {
+    // The page wants CAD, which no product has a price in; the catalog's prices are in USD.
+    document.body.innerHTML = `<div currency="CAD"></div>`;
+    stub = stubCatalog();
+    document.body.firstElementChild!.innerHTML = `<foxy-product-form store="${FIXTURE_STORE}" lang="en-US" sku="TEE-ORG" option-style="select"></foxy-product-form>`;
+    const element = document.body.querySelector<HTMLElement>("foxy-product-form")!;
+    await vi.waitFor(() => expect(element.querySelector(".foxy-product-controls")).not.toBeNull());
+    expect(price(element)).toBe("$24.95 – $26.95");
+    await userEvent.selectOptions(control(element, "Colour"), "Black");
+    expect(items(control(element, "Size"))).toContain("2XL · $26.95");
+    await userEvent.selectOptions(control(element, "Size"), "2XL");
+    expect(addButton(element).textContent).toBe("Add to cart · $26.95");
+    expect(items(control(element, "Gift wrap"))).toEqual(["No thanks", "Wrap it +$4.50"]);
+  });
+
+  it("reports the product as viewed once, and an add with the chosen variant, quantity and value", async () => {
+    const handlers: Record<string, () => void> = {};
+    window.FC = {
+      json: { item_count: 1 },
+      client: { on: (event: string, handler: () => void) => (handlers[event] = handler) },
+    };
+    stub = stubCatalog();
+    stub.look = { analytics: true };
+    const viewed = vi.fn();
+    document.body.addEventListener("foxy-product:view-item", viewed);
+    const element = await mount(`sku="TEE-ORG" show-quantity`);
+    await vi.waitFor(() => expect(handlers["cart-submit.done"]).toBeDefined());
+    await settle();
+    expect(window.dataLayer).toEqual([
+      { ecommerce: null },
+      {
+        event: "view_item",
+        ecommerce: {
+          currency: "USD",
+          value: 24.95,
+          items: [{ item_id: "TEE-ORG", item_name: "Organic Cotton Tee", item_brand: "Foxy Goods", price: 24.95, quantity: 1 }],
+        },
+      },
+    ]);
+
+    cartForm(element).addEventListener("submit", (event) => event.preventDefault());
+    await userEvent.selectOptions(control(element, "Colour"), "Black");
+    await userEvent.selectOptions(control(element, "Size"), "2XL");
+    await userEvent.selectOptions(control(element, "Gift wrap"), "Yes");
+    await userEvent.fill(control<HTMLInputElement>(element, "Quantity"), "2");
+    element.setAttribute("label", "Add to bag");
+    await userEvent.click(addButton(element));
+    // The cart refused it: nothing is reported.
+    handlers["cart-submit.done"]();
+    await settle();
+    expect(window.dataLayer).toHaveLength(2);
+
+    await userEvent.click(addButton(element));
+    window.FC.json!.item_count = 3;
+    handlers["cart-submit.done"]();
+    await settle();
+    expect(window.dataLayer!.slice(2)).toEqual([
+      { ecommerce: null },
+      {
+        event: "add_to_cart",
+        ecommerce: {
+          currency: "USD",
+          value: 62.9,
+          items: [
+            { item_id: "TEE-ORG", item_name: "Organic Cotton Tee", item_variant: "TEE-ORG-BLK-2XL", item_brand: "Foxy Goods", price: 31.45, quantity: 2 },
+          ],
+        },
+      },
+    ]);
+    // Choosing a variant, and every re-render, left it at one view.
+    expect(viewed).toHaveBeenCalledTimes(1);
+    document.body.removeEventListener("foxy-product:view-item", viewed);
+    delete window.FC;
+    delete window.dataLayer;
+  });
+
+  it("lets one rule restyle the price and the list price", async () => {
+    document.head.insertAdjacentHTML(
+      "beforeend",
+      `<style data-test>foxy-product-form { --foxy-product-price-color: rgb(180, 83, 9); --foxy-product-price-size: 28px; --foxy-product-list-price-color: rgb(20, 20, 200); --foxy-product-list-price-size: 12px; }</style>`,
+    );
+    const element = await mount(`sku="MUG-ENM-WHT"`);
+    const shown = element.querySelector(".foxy-product-summary .foxy-product-price")!;
+    const was = shown.querySelector(".foxy-product-list-price")!;
+    expect(getComputedStyle(shown).color).toBe("rgb(180, 83, 9)");
+    expect(getComputedStyle(shown).fontSize).toBe("28px");
+    expect(getComputedStyle(was).color).toBe("rgb(20, 20, 200)");
+    expect(getComputedStyle(was).fontSize).toBe("12px");
+    document.head.querySelector("style[data-test]")!.remove();
+  });
+
+  it("offers a long list of plain values in a drop-down even as buttons", async () => {
+    const sizes = ["5", "5.5", "6", "6.5", "7", "7.5", "8", "8.5", "9"];
+    const options = [{ name: "size", label: "Size", values: sizes.map((value) => ({ value })) }];
+    const variants = sizes.map((size, index) => ({
+      ...teeParent._embedded!.variants![0],
+      sku: `SHOE-${index}`,
+      option_values: { size },
+      definition: { ...teeParent._embedded!.variants![0].definition, options },
+    }));
+    stub = stubCatalog([{ ...teeParent, definition: { ...teeParent.definition, options }, _embedded: { variants } }]);
+    document.body.innerHTML = `<foxy-product-form store="${FIXTURE_STORE}" lang="en-US" sku="TEE-ORG" option-style="buttons"></foxy-product-form>`;
+    const element = document.body.querySelector<HTMLElement>("foxy-product-form")!;
+    await vi.waitFor(() => expect(element.querySelector(".foxy-product-controls")).not.toBeNull());
+    expect(items(control(element, "Size"))).toHaveLength(10);
+    expect(element.querySelector(".foxy-product-pill")).toBeNull();
   });
 });

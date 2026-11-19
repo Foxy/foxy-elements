@@ -1,4 +1,7 @@
-import { getJson } from "./catalog";
+import { getJson, stripScheme } from "./catalog";
+import { themes } from "./light-dom";
+
+type Theme = Exclude<keyof typeof themes, "bold">;
 
 /**
  * The look a store saved for its product elements, as the public catalog
@@ -16,6 +19,12 @@ export interface StoreLook {
   /** `inherit` is the page's own font. */
   font: "inherit" | keyof typeof FONT_STACKS | null;
   customCss: string | null;
+  /** The look of an element that has no `theme` attribute. */
+  theme: Theme | null;
+  /** Where a product's own page is, with `{sku}` in it. */
+  productUrl: string | null;
+  /** Whether the elements report to the page's Google Analytics. */
+  analytics: boolean;
 }
 
 export const DEFAULT_LOOK: StoreLook = {
@@ -27,6 +36,9 @@ export const DEFAULT_LOOK: StoreLook = {
   buttonText: null,
   font: null,
   customCss: null,
+  theme: null,
+  productUrl: null,
+  analytics: false,
 };
 
 const FONT_STACKS = {
@@ -35,6 +47,8 @@ const FONT_STACKS = {
 };
 
 const HEX_COLOR = /^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+// A path on the page's own site or a whole address, naming the product.
+const PRODUCT_URL = /^(?:\/(?!\/)|https?:\/\/)[^\s<>"'\\\p{Cc}]*\{sku\}[^\s<>"'\\\p{Cc}]*$/u;
 
 /** Where a store's look is served: beside its public catalog. */
 export function lookUrl(store: string): string {
@@ -53,6 +67,7 @@ export function parseLook(body: unknown): StoreLook {
   const radius = data.button_radius;
   const text = typeof data.button_text === "string" ? data.button_text.trim() : "";
   const css = data.custom_css;
+  const url = data.product_url;
 
   return {
     lowStockThreshold:
@@ -72,6 +87,12 @@ export function parseLook(body: unknown): StoreLook {
         ? (data.font as StoreLook["font"])
         : null,
     customCss: typeof css === "string" && css.trim() && css.length <= 10000 ? css : null,
+    theme:
+      typeof data.theme === "string" && data.theme !== "bold" && Object.hasOwn(themes, data.theme)
+        ? (data.theme as Theme)
+        : null,
+    productUrl: typeof url === "string" && url.length <= 500 && PRODUCT_URL.test(url) ? url : null,
+    analytics: data.analytics === true,
   };
 }
 
@@ -98,6 +119,31 @@ export function clearLookCache(): void {
   lookCache.clear();
 }
 
+/** The event a page dispatches on `window` to set a store's settings itself. */
+export const SETTINGS_EVENT = "foxy-product-settings";
+
+const lookWatchers = new Set<(store: string, look: StoreLook) => void>();
+
+/**
+ * Calls `callback` when the page replaces a store's settings with a
+ * `foxy-product-settings` event. Returns an unsubscribe.
+ */
+export function watchLook(callback: (store: string, look: StoreLook) => void): () => void {
+  lookWatchers.add(callback);
+  return () => lookWatchers.delete(callback);
+}
+
+// Listened for from the start, so settings given before any element is on
+// the page spare that store's request too.
+window.addEventListener(SETTINGS_EVENT, (event) => {
+  const detail = (event as CustomEvent<{ store?: unknown; settings?: unknown } | null>).detail;
+  if (typeof detail?.store !== "string" || !detail.store.trim()) return;
+  const store = stripScheme(detail.store.trim());
+  const look = parseLook(detail.settings);
+  lookCache.set(store, Promise.resolve(look));
+  lookWatchers.forEach((watcher) => watcher(store, look));
+});
+
 const STORE_VARIABLES = [
   "--foxy-store-text-color",
   "--foxy-store-button-color",
@@ -107,7 +153,8 @@ const STORE_VARIABLES = [
 ];
 
 /**
- * Puts the store's look on the element as `--foxy-store-*` variables. The
+ * Puts the store's look on the element: its theme, for the stylesheet to
+ * use when the element names none, and `--foxy-store-*` variables. The
  * stylesheet reads each `--foxy-product-*` variable first, so one set by an
  * attribute or by the page's CSS wins over the store's.
  */
@@ -123,6 +170,8 @@ export function applyLook(element: HTMLElement, store: string, look: StoreLook):
   // would mean the variable's own inherited value.
   if (look.font === "inherit") element.dataset.foxyStoreFont = "inherit";
   else delete element.dataset.foxyStoreFont;
+  if (look.theme) element.dataset.foxyStoreTheme = look.theme;
+  else delete element.dataset.foxyStoreTheme;
   STORE_VARIABLES.forEach((name, index) => {
     const value = values[index];
     if (value) element.style.setProperty(name, value);
@@ -181,4 +230,10 @@ export function syncLookAttributes(element: HTMLElement): void {
     if (value) element.style.setProperty(variable, value);
     else element.style.removeProperty(variable);
   }
+}
+
+/** A product's own page: `pattern` with `{sku}` filled in. `null` without a pattern. */
+export function productPageHref(pattern: string, product: { sku: string }): string | null {
+  const trimmed = pattern.trim();
+  return trimmed ? trimmed.replaceAll("{sku}", encodeURIComponent(product.sku)) : null;
 }

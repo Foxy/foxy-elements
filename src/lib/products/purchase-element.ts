@@ -1,3 +1,4 @@
+import { analyticsDetail, analyticsItem } from "./analytics";
 import { ProductElement, SHARED_ATTRIBUTES } from "./element-base";
 import { priceNodes, renderPrice, stockNote } from "./light-dom";
 import { format, messages } from "./messages";
@@ -15,7 +16,8 @@ export const PURCHASE_ATTRIBUTES = [...SHARED_ATTRIBUTES, "value", "label", "hea
  */
 export abstract class PurchaseElement extends ProductElement {
   #purchase: Purchase | null = null;
-  #purchaseKey = "";
+  #restart = false;
+  #viewed = "";
   #price: HTMLElement | null = null;
   #note: HTMLElement | null = null;
 
@@ -73,51 +75,86 @@ export abstract class PurchaseElement extends ProductElement {
 
   protected attributeChanged(name: string): void {
     // A new `value` starts the shopper's choices over.
-    if (name === "value") this.#purchaseKey = "";
-    this.render();
+    if (name === "value") this.#restart = true;
+    if (name === "label" || name === "option-style" || name === "show-quantity") this.refresh();
+    else this.render();
+  }
+
+  /** Updates the controls, price and stock where they stand, when there is something rendered to update. */
+  protected refresh(): void {
+    const settings = this.#settings();
+    if (!settings || !this.#purchase || this.#purchase.product !== this.product || !this.#price?.isConnected) {
+      this.render();
+      return;
+    }
+    this.#purchase.configure(settings);
+  }
+
+  #settings(): PurchaseSettings | null {
+    const store = this.storeDomain;
+    return store
+      ? {
+          store,
+          locale: this.locale,
+          currency: this.requestedCurrency,
+          label: this.label || this.look.buttonText || "",
+          optionStyle: this.optionStyle,
+          quantityStyle: this.quantityStyle,
+        }
+      : null;
   }
 
   protected render(): void {
     const product = this.product;
-    const store = this.storeDomain;
-    if (!store && this.started) {
+    const settings = this.#settings();
+    if (!settings && this.started) {
       this.warn(`[Foxy] ${this.localName} needs a store attribute or a 2.0 loader.js on the page.`);
     }
-    if (!product || !store) {
+    if (!product || !settings) {
       if (this.#purchase) {
         this.#purchase = null;
-        this.#purchaseKey = "";
         this.showFallback();
       }
       return;
     }
 
-    const settings: PurchaseSettings = {
-      store,
-      locale: this.locale,
-      currency: this.shownCurrency,
-      label: this.label || this.look.buttonText || "",
-      optionStyle: this.optionStyle,
-      quantityStyle: this.quantityStyle,
-    };
-
     const root = this.getRootNode() as Document | ShadowRoot;
     const focused = this.contains(root.activeElement) ? root.activeElement?.id : "";
 
-    const key = `${store}\n${product.sku}`;
-    if (!this.#purchase || key !== this.#purchaseKey) {
-      this.#purchaseKey = key;
+    let purchase = this.#purchase;
+    if (!purchase || purchase.product !== product || this.#restart) {
+      this.#restart = false;
       this.#price = null;
-      this.#purchase = new Purchase(product, settings, parseChoices(this.value), () => this.#changed());
+      const created = (purchase = new Purchase(product, settings, parseChoices(this.value), () => this.#changed()));
+      created.cartForm.addEventListener("submit", () => this.#addStarted(created));
+      this.#purchase = created;
     } else {
-      this.#purchase.configure(settings);
+      purchase.configure(settings);
     }
 
     // The merchant's fallback goes; the hidden cart form stays in light DOM,
     // where 2.0 sees its submit.
-    this.replaceChildren(...this.layout(product, this.#purchase), this.#purchase.cartForm);
+    this.replaceChildren(...this.layout(product, purchase), purchase.cartForm);
     this.#changed();
     if (focused) this.querySelector<HTMLElement>(`#${CSS.escape(focused)}`)?.focus();
+
+    const viewed = `${settings.store}\n${product.sku}`;
+    if (viewed !== this.#viewed) {
+      this.#viewed = viewed;
+      const { item, currency } = analyticsItem(product, settings.locale, settings.currency);
+      this.track("view_item", analyticsDetail([item], currency));
+    }
+  }
+
+  #addStarted(purchase: Purchase): void {
+    const { chosen, price } = purchase;
+    if (!chosen || !price) return;
+    const { item } = analyticsItem(purchase.product, this.locale, this.requestedCurrency, {
+      chosen,
+      price: price.price,
+      quantity: purchase.state.quantity,
+    });
+    this.addStarted(analyticsDetail([item], price.currency));
   }
 
   /** Brand, name, and the price and stock that follow the shopper's choices. */
@@ -145,13 +182,12 @@ export abstract class PurchaseElement extends ProductElement {
     const product = this.product;
     if (!purchase || !product || !this.#price || !this.#note) return;
     const locale = this.locale;
-    const currency = this.shownCurrency;
 
     const live = purchase.price;
     this.#price.replaceChildren(
       ...(live
-        ? priceNodes(live.price, live.listPrice, currency, locale)
-        : renderPrice(product, currency, locale).childNodes),
+        ? priceNodes(live.price, live.listPrice, live.currency, locale)
+        : renderPrice(product, this.requestedCurrency, locale).childNodes),
     );
 
     const chosen = purchase.chosen;
