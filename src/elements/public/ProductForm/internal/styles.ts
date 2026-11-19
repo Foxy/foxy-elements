@@ -88,6 +88,85 @@ export const sectionStyles = css`
     }
   }
 
+  .pd-basics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.75rem;
+  }
+
+  .pd-basics > * {
+    flex: 1 1 9rem;
+    min-width: 0;
+  }
+
+  .pd-basics > .pd-name {
+    flex-basis: 100%;
+    --lumo-font-size-m: var(--lumo-font-size-xl);
+    --lumo-text-field-size: var(--lumo-size-l);
+  }
+
+  .pd-basics > .pd-weight {
+    flex-basis: 6rem;
+  }
+
+  /* One field in two parts: what's charged, then what it was. */
+  .pd-price-pair {
+    display: grid;
+    flex: 2 1 15rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 0.25rem;
+    padding: 0 0.375rem 0.25rem;
+    border: 1px solid var(--lumo-contrast-20pct);
+    border-radius: var(--lumo-border-radius-m);
+  }
+
+  .pd-price-pair > * {
+    min-width: 0;
+  }
+
+  .pd-org {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .pd-org > * {
+    flex: 0 1 auto;
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 0.4375rem 0.75rem;
+    border: 1px solid var(--lumo-contrast-20pct);
+    border-radius: var(--lumo-border-radius-m);
+    cursor: pointer;
+    --lumo-font-size-m: var(--lumo-font-size-s);
+  }
+
+  .pd-org > *:hover {
+    border-color: var(--lumo-contrast-40pct);
+    background: var(--lumo-contrast-5pct);
+  }
+
+  .pd-option-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 0;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--lumo-border-radius-m);
+    background: var(--lumo-contrast-5pct);
+  }
+
+  .pd-option-values dt {
+    font-size: var(--lumo-font-size-xs);
+    color: var(--lumo-secondary-text-color);
+  }
+
+  .pd-option-values dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
   .pd-button {
     height: 2.25rem;
     padding: 0 0.875rem;
@@ -146,19 +225,6 @@ export const sectionStyles = css`
     overflow-wrap: anywhere;
   }
 
-  .pd-chip {
-    padding: 0.1875rem 0.5625rem;
-    border-radius: var(--lumo-border-radius-s);
-    background: var(--lumo-contrast-10pct);
-    font-size: var(--lumo-font-size-xs);
-  }
-
-  .pd-thumb {
-    object-fit: cover;
-    border-radius: var(--lumo-border-radius-m);
-    background: var(--lumo-contrast-10pct);
-  }
-
   .pd-overlay {
     position: fixed;
     top: 0;
@@ -196,7 +262,7 @@ export const sectionStyles = css`
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    width: 26.25rem;
+    width: 32rem;
     max-width: 100%;
     height: 100%;
     background: var(--lumo-base-color);

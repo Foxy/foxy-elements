@@ -338,6 +338,121 @@ describe('ProductForm', () => {
       expect(ctrl?.getAttribute('property')).to.equal('definition.price');
     });
 
+    it('lays out the name, then SKU, price with list price, and weight in one row', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const basics = (await getByTestId(element, 'basics'))!;
+      const infers = (root: Element) =>
+        Array.from(root.querySelectorAll('[infer]')).map(node => node.getAttribute('infer'));
+      expect(infers(basics)).to.deep.equal(['name', 'sku', 'price', 'list-price', 'weight']);
+      expect(infers(basics.querySelector('[data-testid="price-pair"]')!)).to.deep.equal([
+        'price',
+        'list-price',
+      ]);
+      for (const control of Array.from(basics.querySelectorAll('[infer]'))) {
+        expect(control, control.getAttribute('infer')!).to.not.have.attribute('layout');
+      }
+    });
+
+    it('leaves out a price, list price or weight that is emptied, so it inherits again', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      element.edit({
+        definition: { name: 'Bourbon Barrel Stout', price: 14.95, list_price: 17.5 },
+      });
+      const control = (infer: string) =>
+        element.renderRoot.querySelector(
+          `foxy-internal-number-control[infer="${infer}"]`
+        ) as HTMLElement & { setValue: (value: number) => void };
+
+      control('price').setValue(NaN);
+      control('list-price').setValue(16.25);
+      expect(element.form.definition).to.deep.equal({
+        name: 'Bourbon Barrel Stout',
+        list_price: 16.25,
+      });
+    });
+
+    describe('organization', () => {
+      type Picker = HTMLElement & { helperText: string; placeholder: string };
+
+      const picker = (element: ProductForm) =>
+        element.renderRoot.querySelector(
+          'foxy-internal-resource-picker-control[infer="category"]'
+        ) as Picker;
+
+      it('groups the category, template, collection and catalog listing as compact pickers', async () => {
+        const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+        const group = (await getByTestId(element, 'organization'))!;
+        expect(Array.from(group.children).map(child => child.getAttribute('infer'))).to.deep.equal([
+          'category',
+          'template',
+          'collection',
+          'hidden',
+        ]);
+        for (const child of Array.from(group.querySelectorAll('[infer]')).slice(0, 3)) {
+          expect(child).to.have.attribute('layout', 'summary-item');
+        }
+      });
+
+      it('says where an inherited category comes from', async () => {
+        const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+        expect(picker(element).helperText).to.equal('');
+
+        element.parentProduct = {
+          product_type: 'template',
+          compiled_definition: { category_code: 'TICKETS' },
+        } as Data;
+        await element.requestUpdate();
+        expect(picker(element).placeholder).to.equal('TICKETS');
+        expect(picker(element).helperText).to.include('from_template');
+
+        element.parentProduct = {
+          product_type: 'parent',
+          compiled_definition: { category_code: 'TICKETS' },
+        } as Data;
+        await element.requestUpdate();
+        expect(picker(element).helperText).to.include('from_parent');
+
+        element.edit({ definition: { category_code: 'VIP-TICKETS' } });
+        await element.requestUpdate();
+        expect(picker(element).helperText).to.equal('');
+      });
+
+      it("takes a category compiled in that nothing it inherits from sets as its collection's", async () => {
+        const router = createRouter();
+        const product = await getTestData<Data>('https://demo.api/hapi/products/0', router);
+        const element = await fixture<ProductForm>(html`
+          <foxy-product-form
+            .data=${{
+              ...product,
+              definition: { ...product.definition, category_code: undefined },
+              compiled_definition: { ...product.definition, category_code: 'APPAREL' },
+            }}
+          ></foxy-product-form>
+        `);
+        expect(picker(element).placeholder).to.equal('APPAREL');
+        expect(picker(element).helperText).to.include('from_collection');
+      });
+
+      it("shows a collection after its ancestors' names", async () => {
+        const router = createRouter();
+        const element = await fixture<ProductForm>(html`
+          <foxy-product-form
+            href="https://demo.api/hapi/products/1"
+            product-collections="https://demo.api/hapi/product_collections"
+            @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+          ></foxy-product-form>
+        `);
+        await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+        const collections = element.renderRoot.querySelector(
+          'foxy-internal-resource-picker-control[infer="collection"]'
+        ) as HTMLElement & { getDisplayValueOptions: (c: unknown) => { label: string } };
+        const apparel = await getTestData('https://demo.api/hapi/product_collections/1', router);
+        expect(collections.getDisplayValueOptions(apparel)).to.deep.equal({
+          label: 'All Products › Apparel',
+        });
+      });
+    });
+
     it('binds the SKU control directly (top-level field, no nested property)', async () => {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
       const ctrl = element.renderRoot.querySelector(
@@ -1112,7 +1227,7 @@ describe('ProductForm', () => {
       element.edit({ definition: { price: '1999.99' } });
       await element.requestUpdate();
       const row = (infer: string) =>
-        element.renderRoot.querySelector(`foxy-internal-summary-control > [infer="${infer}"]`)!;
+        element.renderRoot.querySelector(`foxy-internal-summary-control [infer="${infer}"]`)!;
       expect(row('name')).to.not.have.class('pd-invalid');
 
       element.submit();
@@ -1124,6 +1239,65 @@ describe('ProductForm', () => {
       element.edit({ sku: 'REVSTAR-01' });
       await element.requestUpdate();
       expect(row('sku')).to.not.have.class('pd-invalid');
+    });
+
+    it("marks a new option's empty fields only once they are left, it is done or a save is tried", async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const options = (await control(element, 'foxy-internal-product-form-options-control'))!;
+      const root = options.renderRoot;
+      const name = () => byTestId(root, 'option-name')[0] as HTMLElement & { invalid: boolean };
+      const marked = () => byTestId(root, 'row-errors').map(node => node.textContent!.trim());
+
+      (byTestId(root, 'add-option')[0] as HTMLElement).click();
+      await settle(element, options);
+      expect(name().invalid, 'fresh name').to.be.false;
+      expect(marked(), 'fresh value').to.deep.equal([]);
+
+      name().dispatchEvent(new FocusEvent('focusout', { bubbles: true, composed: true }));
+      await settle(element, options);
+      expect(name().invalid, 'name left empty').to.be.true;
+      expect(marked(), 'value not reached yet').to.deep.equal([]);
+
+      // Done shows what is still missing, and stays open to fill it in.
+      byTestId(root, 'manage-option')[0].click();
+      await settle(element, options);
+      expect(byTestId(root, 'option-editor')).to.have.length(1);
+      expect(marked()[0]).to.include('v8n_value_required');
+    });
+
+    it('marks every missing option and modifier field once a save is tried', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const options = (await control(element, 'foxy-internal-product-form-options-control'))!;
+      const modifiers = (await control(element, 'foxy-internal-product-form-modifiers-control'))!;
+      (byTestId(options.renderRoot, 'add-option')[0] as HTMLElement).click();
+      (byTestId(modifiers.renderRoot, 'add-modifier')[0] as HTMLElement).click();
+      await settle(element, options);
+      await settle(element, modifiers);
+
+      const invalid = (ctrl: Control, testid: string) =>
+        (byTestId(ctrl.renderRoot, testid)[0] as HTMLElement & { invalid: boolean }).invalid;
+      expect(invalid(options, 'option-name')).to.be.false;
+      expect(invalid(modifiers, 'modifier-name')).to.be.false;
+
+      element.submit();
+      await settle(element, options);
+      await settle(element, modifiers);
+      expect(invalid(options, 'option-name')).to.be.true;
+      expect(byTestId(options.renderRoot, 'row-errors')).to.have.length(1);
+      expect(invalid(modifiers, 'modifier-name')).to.be.true;
+    });
+
+    it('leaves a value added to a saved option unmarked until it is left', async () => {
+      const { element, options } = await withSwatches();
+      (byTestId(options.renderRoot, 'add-value')[0] as HTMLElement).click();
+      await settle(element, options);
+      expect(byTestId(options.renderRoot, 'option-value')).to.have.length(3);
+      expect(byTestId(options.renderRoot, 'row-errors')).to.have.length(0);
+
+      const added = byTestId(options.renderRoot, 'value-value')[2];
+      added.dispatchEvent(new FocusEvent('focusout', { bubbles: true, composed: true }));
+      await settle(element, options);
+      expect(added).to.have.attribute('aria-invalid', 'true');
     });
 
     it('adds a value without losing the one still being typed', async () => {
@@ -1273,6 +1447,10 @@ describe('ProductForm', () => {
         'X-Amz-Signature': '9f2c4e61b7a05d3388c1e4f7a2b6d09c5e7f1a3b',
       };
       const imageUrl = 'https://images.example.test/products/store_1/products/0/01K.png';
+      // A small version that loads, so the swatch keeps it rather than falling back to a placeholder.
+      const thumbnail =
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+      element.getThumbnailUrl = src => (src === imageUrl ? thumbnail : src);
 
       const posts: Request[] = [];
       element.addEventListener('fetch', (evt: Event) => {
@@ -1337,7 +1515,7 @@ describe('ProductForm', () => {
 
       await settle(element, options);
       const row = byTestId(options.renderRoot, 'option-value')[0];
-      expect(row.querySelector('img.pd-swatch-image')).to.have.attribute('src', imageUrl);
+      expect(row.querySelector('img.pd-swatch-image')).to.have.attribute('src', thumbnail);
       const alt = byTestId(row, 'value-image-alt')[0] as HTMLInputElement;
       alt.value = 'Swift Blue finish, close up';
       alt.dispatchEvent(new Event('change'));
@@ -2079,6 +2257,90 @@ describe('ProductForm', () => {
         router
       );
       expect(left._embedded['fx:products'].map((p: Data) => p.sku)).to.deep.equal(['TSHIRT-RED-L']);
+    });
+
+    it("edits a variant's name, images and description in its panel, below its option values", async () => {
+      const { element, router } = await load(1);
+      // The demo API compiles nothing, so give the parent what its variants inherit.
+      element.data = { ...element.data!, compiled_definition: element.data!.definition };
+      await element.requestUpdate();
+      const href = element.variants.find(v => v.sku === 'TSHIRT-BLUE-S')!._links.self.href;
+      element.openVariantPanel(href);
+      await element.requestUpdate();
+
+      const panel = byTestId(element.renderRoot, 'variant-panel')[0];
+      const body = panel.querySelector('.pd-panel-body')!;
+      const order = Array.from(body.children).map(
+        child =>
+          (child as HTMLElement).dataset.testid ??
+          (child.querySelector('[data-testid]') as HTMLElement | null)?.dataset.testid
+      );
+      expect(order.slice(0, 5)).to.deep.equal([
+        'panel-option-values',
+        'panel-name',
+        'panel-images',
+        'panel-description',
+        'panel-sku',
+      ]);
+
+      const values = byTestId(panel, 'panel-option-values')[0];
+      expect(values.querySelectorAll('input, select')).to.have.length(0);
+      expect(
+        Array.from(values.children).map(row => row.textContent!.replace(/\s+/g, ' ').trim())
+      ).to.deep.equal(['Colour Blue', 'Size S']);
+
+      const name = byTestId(panel, 'panel-name')[0] as HTMLInputElement;
+      expect(name.value).to.equal('');
+      expect(name.placeholder).to.equal('Foxy Tee');
+      name.value = 'Foxy Tee in Blue';
+      name.dispatchEvent(new Event('input'));
+
+      const images = byTestId(panel, 'panel-images')[0] as Control;
+      await images.updateComplete;
+      expect(images.renderRoot.textContent, 'says it uses the product images').to.include(
+        'inherited'
+      );
+      (images.renderRoot.querySelector('[data-testid="images-by-url"]') as HTMLElement).click();
+      await images.requestUpdate();
+      const url = images.renderRoot.querySelector(
+        '[data-testid="images-url-input"]'
+      ) as HTMLInputElement;
+      url.value = 'https://cdn.example.test/products/tee-blue-front.jpg';
+      url.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+      const description = byTestId(panel, 'panel-description')[0] as Control & {
+        placeholder: string;
+      };
+      await description.updateComplete;
+      expect(description.placeholder).to.equal('Soft cotton tee with the Foxy logo.');
+      const area = description.renderRoot.querySelector('vaadin-text-area')!;
+      area.value = 'Dyed in small batches, so each blue is a little different.';
+      area.dispatchEvent(new CustomEvent('input'));
+
+      expect(element.variantEdits[href]).to.deep.equal({
+        name: 'Foxy Tee in Blue',
+        images: [
+          { src: 'https://cdn.example.test/products/tee-blue-front.jpg', alt: 'alt_default' },
+        ],
+        description: 'Dyed in small batches, so each blue is a little different.',
+      });
+
+      element.submit();
+      await waitUntil(() => !element.hasChanges, '', { timeout: 5000 });
+      let saved = await getTestData<Data>(href, router);
+      expect(saved.definition.name).to.equal('Foxy Tee in Blue');
+      expect(saved.definition.description).to.equal(
+        'Dyed in small batches, so each blue is a little different.'
+      );
+      expect(saved.definition.images).to.have.length(1);
+      expect(saved.definition.modifiers, 'keeps the rest of its definition').to.have.length(1);
+
+      // Emptied, each goes back to the parent's.
+      element.editVariant(href, { name: ' ', description: '', images: [] });
+      element.submit();
+      await waitUntil(() => !element.hasChanges, '', { timeout: 5000 });
+      saved = await getTestData<Data>(href, router);
+      expect(saved.definition).to.not.have.any.keys('name', 'description', 'images');
     });
 
     it('lets a product with variants gain values but not options', async () => {

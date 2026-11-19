@@ -634,12 +634,13 @@ export const links: Links = {
       : {}),
   }),
 
-  product_collections: ({ id, store_id, parent_id }) => ({
+  product_collections: ({ id, store_id, parent_id, item_category_uri }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:products': { href: `./products?store_id=${store_id}&collection_id=${id}` },
     ...(parent_id != null
       ? { 'fx:parent_collection': { href: `./product_collections/${parent_id}` } }
       : {}),
+    ...(item_category_uri ? { 'fx:item_category': { href: item_category_uri } } : {}),
   }),
 
   product_tags: ({ store_id, product_id }) => ({

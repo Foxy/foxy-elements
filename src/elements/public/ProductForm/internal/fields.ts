@@ -11,6 +11,8 @@ export interface FieldParams {
   locked: boolean;
   testid: string;
   error?: string;
+  /** Where `error` comes from, which `leftField` reports once the field loses focus. */
+  path?: string;
   placeholder?: string;
   helperText?: string;
   className?: string;
@@ -22,6 +24,7 @@ export function textField(params: FieldParams): TemplateResult {
     <vaadin-text-field
       class=${params.className ?? 'w-full'}
       data-testid=${params.testid}
+      data-field=${ifDefined(params.path)}
       label=${params.label}
       placeholder=${ifDefined(params.placeholder)}
       helper-text=${ifDefined(params.helperText)}
@@ -36,6 +39,20 @@ export function textField(params: FieldParams): TemplateResult {
     >
     </vaadin-text-field>
   `;
+}
+
+/**
+ * Whether what the merchant is done with covers `path`: a field they have left, an entry
+ * they closed (its path), or everything once a save was tried (`''`).
+ */
+export function isShown(path: string, shown: readonly string[]): boolean {
+  return shown.some(done => done === '' || path === done || path.startsWith(`${done}.`));
+}
+
+/** The `path` of the field that a `focusout` event left, if it was one. */
+export function leftField(evt: Event): string | undefined {
+  const field = (evt.composedPath() as HTMLElement[]).find(node => node.dataset?.field);
+  return field?.dataset.field;
 }
 
 export const ACCEPTED_IMAGE_TYPES = 'image/jpeg,image/png,image/gif,image/webp';
@@ -189,6 +206,7 @@ export function rowField(
         ? 'pd-mono'
         : ''}"
       data-testid=${params.testid}
+      data-field=${ifDefined(params.path)}
       aria-label=${params.label}
       aria-invalid=${params.error ? 'true' : 'false'}
       placeholder=${ifDefined(params.placeholder)}

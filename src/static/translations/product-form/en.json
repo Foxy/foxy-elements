@@ -24,6 +24,9 @@
   "general": {
     "label": "General",
     "helper_text": "Core product details.",
+    "basics_note": "Prices are in your store's currency and weight in its weight unit. A price or list price set here replaces all the pricing this product would inherit.",
+    "organization": "Organization",
+    "organization_note": "Item categories set tax and shipping; collections organize the catalog.",
     "kind": {
       "label": "Kind",
       "helper_text": "A template holds details shared by products that aren't variants of each other. It's never sold or listed in the catalog.",
@@ -39,26 +42,26 @@
     "sku": {
       "label": "SKU",
       "placeholder": "e.g. WIDGET-001",
-      "helper_text": "Unique within this store.",
+      "helper_text": "",
       "v8n_required": "Required.",
       "v8n_too_long": "Must be 255 characters or fewer."
     },
     "price": {
       "label": "Price",
       "placeholder": "0.00",
-      "helper_text": "In the store's currency. Setting a price or list price here replaces all the pricing this product would inherit.",
+      "helper_text": "",
       "v8n_negative": "Must be zero or greater."
     },
     "list-price": {
-      "label": "List price",
+      "label": "List price (was)",
       "placeholder": "",
-      "helper_text": "The regular price, shown struck through beside a lower price. Never charged. Setting it here replaces all the pricing this product would inherit.",
+      "helper_text": "",
       "v8n_negative": "Must be zero or greater."
     },
     "template": {
       "label": "Template",
       "placeholder": "None",
-      "helper_text": "Inherit shared details, such as a description, weight or properties, from a template.",
+      "helper_text": "",
       "value": "{{label}}",
       "value_busy": "Loading…",
       "value_fail": "Unknown product",
@@ -108,9 +111,9 @@
     },
     "collection": {
       "label": "Collection",
-      "placeholder": "Choose a collection",
-      "helper_text": "How the catalog is organized. Separate from item categories, which set tax and shipping.",
-      "value": "{{ resource.name }}",
+      "placeholder": "None",
+      "helper_text": "",
+      "value": "{{label}}",
       "select": "Select",
       "view": "View",
       "clear": "Clear",
@@ -141,14 +144,14 @@
       "unchecked": "Listed"
     },
     "weight": {
-      "label": "Shipping weight",
+      "label": "Weight",
       "placeholder": "0",
-      "helper_text": "Used to work out shipping rates, in your store's weight unit."
+      "helper_text": ""
     },
     "category": {
       "label": "Item category",
       "placeholder": "Store default",
-      "helper_text": "Sets this product's tax, shipping and delivery type. Without one, it uses your store's default category.",
+      "helper_text": "",
       "value": "{{label}}",
       "value_busy": "Loading…",
       "value_fail": "Unknown category",
@@ -181,7 +184,10 @@
             }
           }
         }
-      }
+      },
+      "from_template": "From its template",
+      "from_parent": "From the parent product",
+      "from_collection": "From its collection"
     }
   },
   "option-values": {
@@ -712,14 +718,15 @@
     "save_failed": "Couldn't save {{sku}}; the changes after it weren't saved either.",
     "panel_eyebrow": "Variant of {{name}}",
     "panel_close": "Close",
+    "panel_name": "Name",
+    "panel_name_help": "Leave blank to use the product's name.",
+    "panel_description_help": "Markdown. Leave blank to use the product's description.",
     "panel_sku": "SKU",
     "panel_price": "Price",
     "panel_price_help": "Leave blank to use the product's price.",
     "panel_stock": "Stock",
     "panel_weight": "Shipping weight",
-    "panel_own_image": "Has its own image",
-    "panel_product_image": "Uses the product image",
-    "panel_open_page": "Open this variant to edit its images and other details",
+    "panel_open_page": "Open this variant's own page",
     "panel_delete": "Delete variant",
     "panel_cancel": "Cancel",
     "panel_done": "Done",

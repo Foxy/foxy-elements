@@ -30,6 +30,8 @@ export interface ProductCollection extends Graph {
     'fx:store': Rels.Store;
     'fx:products': Products;
     'fx:parent_collection': ProductCollection;
+    /** Present only when the collection has an item category. */
+    'fx:item_category': Rels.ItemCategory;
     /** Present only when accessed via the admin Lambda. */
     'fx:create_upload_url'?: any;
   };
@@ -44,6 +46,8 @@ export interface ProductCollection extends Graph {
     /** Public CDN URL (uploaded via `fx:create_upload_url`). */
     image: string | null;
     sort_order: number;
+    /** Item category for products in this collection that have none of their own or inherited. */
+    item_category_uri: string | null;
     date_created: string | null;
     date_modified: string | null;
   };

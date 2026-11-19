@@ -1164,6 +1164,7 @@ export const defaults: Defaults = {
     path: '',
     image: null,
     sort_order: 0,
+    item_category_uri: null,
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

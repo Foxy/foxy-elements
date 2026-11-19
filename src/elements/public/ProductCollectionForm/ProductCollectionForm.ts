@@ -6,6 +6,7 @@ import type { Data } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { getResourceId } from '@foxy.io/sdk/core';
 import { html } from 'lit-html';
 
 const NS = 'product-collection-form';
@@ -27,6 +28,7 @@ export class ProductCollectionForm extends Base<Data> {
     return {
       ...super.properties,
       productCollections: { attribute: 'product-collections' },
+      itemCategories: { attribute: 'item-categories' },
     };
   }
 
@@ -43,6 +45,24 @@ export class ProductCollectionForm extends Base<Data> {
   /** Link to the `fx:product_collections` collection used by the parent picker. */
   productCollections: string | null = null;
 
+  /** Link to the store's `fx:item_categories`, used by the item category picker. */
+  itemCategories: string | null = null;
+
+  // The picker works in hrefs; the collection stores parent_id. A collection's
+  // href is /product_collections/{id} at the API's root.
+  private readonly __parentGetValue = () => {
+    const id = this.form.parent_id;
+    if (typeof id !== 'number') return undefined;
+    const base = this.data?._links.self.href ?? this.productCollections;
+    if (!base) return undefined;
+    return new URL(`${this.data ? '..' : '../..'}/product_collections/${id}`, base).toString();
+  };
+
+  private readonly __parentSetValue = (href: string) => {
+    const id = href ? getResourceId(href) : null;
+    this.edit({ parent_id: typeof id === 'number' ? id : null });
+  };
+
   renderBody(): TemplateResult {
     return html`
       ${this.renderHeader()}
@@ -56,6 +76,18 @@ export class ProductCollectionForm extends Base<Data> {
           infer="parent"
           property="parent_id"
           item="foxy-product-collection-card"
+          .getValue=${this.__parentGetValue}
+          .setValue=${this.__parentSetValue}
+        >
+        </foxy-internal-resource-picker-control>
+        <foxy-internal-resource-picker-control
+          layout="summary-item"
+          first=${ifDefined(this.itemCategories ?? undefined)}
+          infer="item-category"
+          property="item_category_uri"
+          item="foxy-item-category-card"
+          .searchFields=${['name', 'code']}
+          .setValue=${(href: string) => this.edit({ item_category_uri: href || null })}
         >
         </foxy-internal-resource-picker-control>
         <foxy-internal-number-control

@@ -7,6 +7,7 @@ import '../../internal/InternalForm/index';
 import './internal/InternalProductCollectionTreeControl/index';
 
 import '../ProductCollectionCard/index';
+import '../ItemCategoryCard/index';
 import '../I18n/index';
 
 import { ProductCollectionForm } from './ProductCollectionForm';

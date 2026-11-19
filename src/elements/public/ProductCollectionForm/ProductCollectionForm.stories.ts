@@ -13,7 +13,13 @@ const summary: Summary = {
   configurable: {
     sections: ['timestamps', 'header', 'general'],
     buttons: ['delete', 'create', 'submit', 'undo', 'header:copy-id', 'header:copy-json'],
-    inputs: ['general:name', 'general:slug', 'general:parent', 'general:sort-order'],
+    inputs: [
+      'general:name',
+      'general:slug',
+      'general:parent',
+      'general:item-category',
+      'general:sort-order',
+    ],
   },
 };
 

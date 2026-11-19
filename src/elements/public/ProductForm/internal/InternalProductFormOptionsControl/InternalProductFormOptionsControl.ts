@@ -19,6 +19,8 @@ import {
   amountSummary,
   disclosure,
   iconButton,
+  isShown,
+  leftField,
   listActions,
   move,
   parseWeight,
@@ -52,6 +54,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
       __urlError: { attribute: false },
       __uploadError: { attribute: false },
       __managed: { attribute: false },
+      __shown: { attribute: false },
     };
   }
 
@@ -67,6 +70,9 @@ export class InternalProductFormOptionsControl extends InternalControl {
 
   /** The product's active variants, to tell how many use each value. */
   variants: Data[] = [];
+
+  /** What the merchant is done with, whose mistakes show: see `isShown`. */
+  private __shown: string[] = [];
 
   /** Whether each option's editor is open, by name, where the merchant chose. */
   private __managed: Record<string, boolean> = {};
@@ -95,11 +101,14 @@ export class InternalProductFormOptionsControl extends InternalControl {
     const errors = validateOptions(options, this.modifierNames);
     const error = (path: string) => {
       const found = errors.find((e: CatalogError) => e.path === path);
-      return found ? this.t(found.code) : undefined;
+      if (!found) return undefined;
+      // A wrong value shows at once; a missing one only once the merchant is done with it.
+      const missing = found.code.endsWith('_required');
+      return missing && !isShown(path, this.__shown) ? undefined : this.t(found.code);
     };
 
     return html`
-      <div class="grid gap-m">
+      <div class="grid gap-m" @focusout=${this.__handleFocusOut}>
         <div>
           <h3 class="text-m font-semibold">${this.t('label')}</h3>
           ${error('options')
@@ -142,6 +151,16 @@ export class InternalProductFormOptionsControl extends InternalControl {
       </div>
     `;
   }
+
+  /** Shows the mistakes of every option, as a save does. */
+  reportValidity(): void {
+    this.__shown = [''];
+  }
+
+  private readonly __handleFocusOut = (evt: Event) => {
+    const path = leftField(evt);
+    if (path && !isShown(path, this.__shown)) this.__shown = [...this.__shown, path];
+  };
 
   /** How many active variants have this value for this option. */
   private __usedBy(option: string, value: string): number {
@@ -246,7 +265,14 @@ export class InternalProductFormOptionsControl extends InternalControl {
             data-testid="manage-option"
             aria-expanded=${managed ? 'true' : 'false'}
             aria-label=${this.t('manage_option', { option: option.label || option.name })}
-            @click=${() => (this.__managed = { ...this.__managed, [option.name]: !managed })}
+            @click=${() => {
+              // Done with mistakes in it shows them, and stays open to fix them.
+              if (managed && errors.some(e => e.path.startsWith(`${path}.`))) {
+                this.__shown = [...this.__shown, path];
+              } else {
+                this.__managed = { ...this.__managed, [option.name]: !managed };
+              }
+            }}
           >
             ${this.t(managed ? 'done' : 'manage')}
           </button>
@@ -299,6 +325,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
             placeholder: 'color',
             value: option.name,
             error: error(`${path}.name`),
+            path: `${path}.name`,
             locked,
             testid: 'option-name',
             onChange: name => setOption({ ...option, name }),
@@ -309,6 +336,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
             placeholder: option.name || 'Color',
             value: option.label,
             error: error(`${path}.label`),
+            path: `${path}.label`,
             locked,
             testid: 'option-label',
             onChange: label => setOption(withField(option, 'label', label)),
@@ -433,6 +461,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
             placeholder: 'Black',
             value: value.value,
             error: error(`${path}.value`),
+            path: `${path}.value`,
             locked,
             testid: 'value-value',
             onChange: changed => onChange({ ...value, value: changed }),
@@ -442,6 +471,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
             placeholder: value.value,
             value: value.label,
             error: error(`${path}.label`),
+            path: `${path}.label`,
             locked,
             testid: 'value-label',
             onChange: label => onChange(withField(value, 'label', label)),
@@ -451,6 +481,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
             placeholder: value.value ? defaultSkuCode(value.value) : '',
             value: value.sku_code,
             error: error(`${path}.sku_code`),
+            path: `${path}.sku_code`,
             locked,
             mono: true,
             testid: 'value-sku-code',
@@ -598,6 +629,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
                   placeholder: '0.00',
                   value: value.price_mod,
                   error: amountErrors[0],
+                  path: `${path}.price_mod`,
                   locked,
                   visibleLabel: true,
                   testid: 'value-price-mod',
@@ -609,6 +641,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
                   placeholder: '0',
                   value: value.weight_mod,
                   error: amountErrors[1],
+                  path: `${path}.weight_mod`,
                   locked,
                   visibleLabel: true,
                   testid: 'value-weight-mod',
@@ -623,6 +656,10 @@ export class InternalProductFormOptionsControl extends InternalControl {
 
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
+    // Once nothing is wrong, a field added later starts out unmarked again.
+    if (this.__shown.length && !validateOptions(this.__options, this.modifierNames).length) {
+      this.__shown = [];
+    }
     if (!this.__focusNext) return;
     const [path, testid] = this.__focusNext;
     this.__focusNext = null;

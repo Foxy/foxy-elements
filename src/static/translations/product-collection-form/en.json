@@ -17,11 +17,12 @@
     }
   },
   "general": {
-    "label": "General",
+    "label": "",
     "helper_text": "",
     "name": {
       "label": "Name",
       "placeholder": "e.g. Apparel",
+      "helper_text": "",
       "v8n_required": "Required.",
       "v8n_too_long": "Must be 255 characters or fewer."
     },
@@ -36,7 +37,75 @@
     "parent": {
       "label": "Parent collection",
       "placeholder": "Choose a parent (optional)",
-      "helper_text": "Leave blank for a root collection."
+      "helper_text": "Leave blank for a root collection.",
+      "value": "{{ resource.name }}",
+      "value_busy": "Loading…",
+      "value_fail": "Unknown collection",
+      "select": "Select",
+      "clear": "Clear",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select a parent collection",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No collections found",
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
+              }
+            }
+          }
+        }
+      }
+    },
+    "item-category": {
+      "label": "Item category",
+      "placeholder": "Store default",
+      "helper_text": "Products in this collection use this category unless they set their own or inherit one from a template.",
+      "value": "{{ resource.name }}",
+      "value_busy": "Loading…",
+      "value_fail": "Unknown category",
+      "select": "Select",
+      "clear": "Clear",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select an item category",
+        "search": "Find a category by name or code",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No item categories found",
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
+              }
+            }
+          }
+        }
+      }
     },
     "sort-order": {
       "label": "Sort order",

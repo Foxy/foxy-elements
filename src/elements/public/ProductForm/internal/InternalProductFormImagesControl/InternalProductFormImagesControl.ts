@@ -33,6 +33,8 @@ export class InternalProductFormImagesControl extends InternalControl {
       __error: { attribute: false },
       __byUrl: { attribute: false },
       __urlError: { attribute: false },
+      getImages: { attribute: false },
+      setImages: { attribute: false },
     };
   }
 
@@ -117,6 +119,12 @@ export class InternalProductFormImagesControl extends InternalControl {
       `,
     ];
   }
+
+  /** Reads images other than the form's own, such as a variant's. Uploads still use the form's product. */
+  getImages: (() => ProductDefinitionImage[]) | null = null;
+
+  /** Keeps the images that `getImages` reads. */
+  setImages: ((images: ProductDefinitionImage[]) => void) | null = null;
 
   private __uploading = 0;
 
@@ -229,7 +237,7 @@ export class InternalProductFormImagesControl extends InternalControl {
           evt.preventDefault();
           const from = this.__dragFrom;
           this.__endDrag();
-          if (from !== index) this.__setImages(move(images, from, index));
+          if (from !== index) this.__changeImages(move(images, from, index));
         }}
       >
         <img
@@ -255,7 +263,7 @@ export class InternalProductFormImagesControl extends InternalControl {
             aria-label=${this.t(isMain ? 'main' : 'make_main')}
             title=${this.t(isMain ? 'main' : 'make_main')}
             ?disabled=${locked && !isMain}
-            @click=${() => isMain || this.__setImages(move(images, index, 0))}
+            @click=${() => isMain || this.__changeImages(move(images, index, 0))}
           >
             ${icon('star', isMain)}
           </button>
@@ -264,14 +272,14 @@ export class InternalProductFormImagesControl extends InternalControl {
             label: this.t('move_up'),
             testid: 'image-move-left',
             disabled: locked || isMain,
-            onClick: () => this.__setImages(move(images, index, index - 1)),
+            onClick: () => this.__changeImages(move(images, index, index - 1)),
           })}
           ${iconButton({
             icon: 'right',
             label: this.t('move_down'),
             testid: 'image-move-right',
             disabled: locked || index === images.length - 1,
-            onClick: () => this.__setImages(move(images, index, index + 1)),
+            onClick: () => this.__changeImages(move(images, index, index + 1)),
           })}
           <span class="flex-1"></span>
           ${iconButton({
@@ -279,7 +287,7 @@ export class InternalProductFormImagesControl extends InternalControl {
             label: this.t('remove'),
             testid: 'image-remove',
             disabled: locked,
-            onClick: () => this.__setImages(images.filter((_, i) => i !== index)),
+            onClick: () => this.__changeImages(images.filter((_, i) => i !== index)),
             danger: true,
           })}
         </div>
@@ -293,7 +301,7 @@ export class InternalProductFormImagesControl extends InternalControl {
           ?disabled=${locked}
           @change=${(evt: Event) => {
             const alt = (evt.currentTarget as HTMLInputElement).value;
-            this.__setImages(images.map((v, i) => (i === index ? { ...v, alt } : v)));
+            this.__changeImages(images.map((v, i) => (i === index ? { ...v, alt } : v)));
           }}
         />
       </div>
@@ -318,7 +326,7 @@ export class InternalProductFormImagesControl extends InternalControl {
       this.__urlError = this.t('url_invalid');
       return;
     }
-    this.__setImages([...this.__images, { src, alt: this.__defaultAlt }]);
+    this.__changeImages([...this.__images, { src, alt: this.__defaultAlt }]);
     this.__toggleUrl(false);
   }
 
@@ -335,11 +343,14 @@ export class InternalProductFormImagesControl extends InternalControl {
   }
 
   private get __images(): ProductDefinitionImage[] {
+    if (this.getImages) return this.getImages();
     const form = this.nucleon as ProductForm | null;
     return form?.form.definition?.images ?? [];
   }
 
-  private __setImages(images: ProductDefinitionImage[]) {
+  // Not `__setImages`: Lit keeps the `setImages` property's value under that name.
+  private __changeImages(images: ProductDefinitionImage[]) {
+    if (this.setImages) return this.setImages(images);
     const form = this.nucleon as ProductForm | null;
     form?.edit({ definition: { ...form.form.definition, images } });
   }
@@ -357,7 +368,7 @@ export class InternalProductFormImagesControl extends InternalControl {
     for (const file of files) {
       try {
         const src = await form.uploadImage(file);
-        this.__setImages([...this.__images, { src, alt: this.__defaultAlt }]);
+        this.__changeImages([...this.__images, { src, alt: this.__defaultAlt }]);
       } catch (err) {
         const key = err instanceof ImageTooLargeError ? 'error_too_large' : 'error_upload';
         this.__error = this.t(key, { file: file.name });

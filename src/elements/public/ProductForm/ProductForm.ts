@@ -3,7 +3,14 @@ import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { BooleanSelector, Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
-import type { Data, ProductDefinition, ProductModifier, ProductOption } from './types';
+import type { ListedCollection } from '../ProductList/listing';
+import type {
+  Data,
+  ProductDefinition,
+  ProductDefinitionImage,
+  ProductModifier,
+  ProductOption,
+} from './types';
 
 import { getResourceId } from '@foxy.io/sdk/core';
 import {
@@ -21,22 +28,29 @@ import { html } from 'lit-html';
 import { css } from 'lit-element';
 import {
   DEFAULT_LOW_STOCK_THRESHOLD,
+  collectionTree,
   groupProducts,
+  loadAll,
   loadAllProducts,
   stockSummary,
 } from '../ProductList/listing';
-import { previewFallback, previewSrc } from './internal/fields';
 import { sectionStyles } from './internal/styles';
 
 const NS = 'product-form';
 const Base = TranslatableMixin(InternalForm, NS);
 
-/** Unsaved changes to one variant, as typed. `delete` marks it for deletion on save. */
+/**
+ * Unsaved changes to one variant, as typed. An emptied name, description or image list
+ * goes back to the parent's. `delete` marks it for deletion on save.
+ */
 export interface VariantEdit {
   sku?: string;
   price?: string;
   stock?: string;
   weight?: string;
+  name?: string;
+  description?: string;
+  images?: ProductDefinitionImage[];
   delete?: boolean;
 }
 
@@ -297,6 +311,13 @@ export class ProductForm extends Base<Data> {
     this.edit({ collection_id: typeof id === 'number' ? id : null });
   };
 
+  /** Each collection's name after its ancestors', by path, such as "Apparel › T-Shirts". */
+  private __collectionTrails = new Map<string, string>();
+
+  private readonly __collectionGetDisplayValueOptions = (collection: ListedCollection | null) => ({
+    label: (collection && this.__collectionTrails.get(collection.path)) ?? collection?.name ?? '',
+  });
+
   private get __itemCategoriesHref(): string | undefined {
     if (this.itemCategories) return this.itemCategories;
     const store = this.data?._links['fx:store']?.href;
@@ -392,6 +413,7 @@ export class ProductForm extends Base<Data> {
     const modifierNames = modifiers.map(modifier => modifier.name);
     const properties = Object.keys(this.form.definition?.properties ?? {});
     const missing = this.__missingCombinations;
+    const categoryFrom = this.__inheritedCategory;
     const invalid = (prefix: string) =>
       this.__saveAttempted && this.errors.some(error => error.startsWith(prefix))
         ? 'pd-invalid'
@@ -417,99 +439,133 @@ export class ProductForm extends Base<Data> {
         'general',
         this.__generalSummary,
         html`
-          <foxy-internal-summary-control infer="general" .label=${''} .helperText=${''}>
-            <foxy-internal-radio-group-control
-              layout="summary-item"
-              infer="kind"
-              .options=${this.__kindOptions}
-              .getValue=${this.__kindGetValue}
-              .setValue=${this.__kindSetValue}
-            >
-            </foxy-internal-radio-group-control>
+          ${this.hiddenSelector.matches('general:kind', true)
+            ? ''
+            : html`
+                <foxy-internal-summary-control infer="general" .label=${''} .helperText=${''}>
+                  <foxy-internal-radio-group-control
+                    layout="summary-item"
+                    infer="kind"
+                    .options=${this.__kindOptions}
+                    .getValue=${this.__kindGetValue}
+                    .setValue=${this.__kindSetValue}
+                  >
+                  </foxy-internal-radio-group-control>
+                </foxy-internal-summary-control>
+              `}
 
-            <foxy-internal-text-control
-              layout="summary-item"
-              infer="name"
-              class=${invalid('name:')}
-              property="definition.name"
-              placeholder=${ifDefined(inherited?.name ?? undefined)}
-            >
-            </foxy-internal-text-control>
+          <foxy-internal-summary-control
+            infer="general"
+            layout="section"
+            .label=${''}
+            .helperText=${''}
+          >
+            <div class="pd-basics" data-testid="basics">
+              <foxy-internal-text-control
+                infer="name"
+                class="pd-name ${invalid('name:')}"
+                property="definition.name"
+                placeholder=${ifDefined(inherited?.name ?? undefined)}
+              >
+              </foxy-internal-text-control>
 
-            <foxy-internal-text-control layout="summary-item" infer="sku" class=${invalid('sku:')}>
-            </foxy-internal-text-control>
+              <foxy-internal-text-control infer="sku" class=${invalid('sku:')}>
+              </foxy-internal-text-control>
 
-            <foxy-internal-number-control
-              layout="summary-item"
-              infer="price"
-              class=${invalid('price:')}
-              min="0"
-              property="definition.price"
-              placeholder=${ifDefined(inherited?.price?.toString() ?? undefined)}
-            >
-            </foxy-internal-number-control>
+              <div class="pd-price-pair" data-testid="price-pair">
+                <foxy-internal-number-control
+                  infer="price"
+                  class=${invalid('price:')}
+                  min="0"
+                  property="definition.price"
+                  placeholder=${ifDefined(inherited?.price?.toString() ?? undefined)}
+                  .setValue=${(value: number) => this.__setDefinitionNumber('price', value)}
+                >
+                </foxy-internal-number-control>
 
-            <foxy-internal-number-control
-              layout="summary-item"
-              infer="list-price"
-              min="0"
-              property="definition.list_price"
-              placeholder=${ifDefined(inherited?.list_price?.toString() ?? undefined)}
-            >
-            </foxy-internal-number-control>
+                <foxy-internal-number-control
+                  infer="list-price"
+                  min="0"
+                  property="definition.list_price"
+                  placeholder=${ifDefined(inherited?.list_price?.toString() ?? undefined)}
+                  .setValue=${(value: number) => this.__setDefinitionNumber('list_price', value)}
+                >
+                </foxy-internal-number-control>
+              </div>
 
-            <foxy-internal-number-control
-              layout="summary-item"
-              infer="weight"
-              min="0"
-              placeholder=${ifDefined(inherited?.weight?.toString() ?? undefined)}
-              .getValue=${() => this.form.definition?.weight}
-              .setValue=${(value: number) => this.__setDefinitionNumber('weight', value)}
-            >
-            </foxy-internal-number-control>
+              <foxy-internal-number-control
+                infer="weight"
+                class="pd-weight"
+                min="0"
+                placeholder=${ifDefined(inherited?.weight?.toString() ?? undefined)}
+                .getValue=${() => this.form.definition?.weight}
+                .setValue=${(value: number) => this.__setDefinitionNumber('weight', value)}
+              >
+              </foxy-internal-number-control>
+            </div>
+            <p class="text-xs text-secondary">${this.t('general.basics_note')}</p>
+          </foxy-internal-summary-control>
 
-            <foxy-internal-resource-picker-control
-              layout="summary-item"
-              first=${ifDefined(this.__itemCategoriesHref)}
-              infer="category"
-              item="foxy-item-category-card"
-              placeholder=${ifDefined(inherited?.category_code ?? undefined)}
-              .searchFields=${['name', 'code']}
-              .getValue=${this.__categoryGetValue}
-              .setValue=${this.__categorySetValue}
-              .getDisplayValueOptions=${this.__categoryGetDisplayValueOptions}
-            >
-            </foxy-internal-resource-picker-control>
+          <foxy-internal-summary-control
+            infer="general"
+            layout="section"
+            .label=${''}
+            .helperText=${''}
+          >
+            <div class="grid gap-xs">
+              <h3 class="text-s font-medium text-secondary">${this.t('general.organization')}</h3>
+              <div class="pd-org" data-testid="organization">
+                <foxy-internal-resource-picker-control
+                  layout="summary-item"
+                  first=${ifDefined(this.__itemCategoriesHref)}
+                  infer="category"
+                  item="foxy-item-category-card"
+                  placeholder=${ifDefined(categoryFrom?.code)}
+                  .helperText=${categoryFrom
+                    ? this.t(`general.category.from_${categoryFrom.from}`)
+                    : ''}
+                  .searchFields=${['name', 'code']}
+                  .getValue=${this.__categoryGetValue}
+                  .setValue=${this.__categorySetValue}
+                  .getDisplayValueOptions=${this.__categoryGetDisplayValueOptions}
+                >
+                </foxy-internal-resource-picker-control>
 
-            <foxy-internal-resource-picker-control
-              layout="summary-item"
-              first=${ifDefined(this.__productsHref)}
-              infer="template"
-              item="foxy-product-card"
-              .getValue=${this.__templateGetValue}
-              .setValue=${this.__templateSetValue}
-              .extendFilter=${this.__templateExtendFilter}
-              .searchFields=${['sku']}
-              .getDisplayValueOptions=${(resource: Data | null) => {
-                const name = (resource?.compiled_definition as ProductDefinition | undefined)?.name;
-                return { label: name ? `${name} (${resource?.sku})` : resource?.sku ?? '' };
-              }}
-            >
-            </foxy-internal-resource-picker-control>
+                <foxy-internal-resource-picker-control
+                  layout="summary-item"
+                  first=${ifDefined(this.__productsHref)}
+                  infer="template"
+                  item="foxy-product-card"
+                  .getValue=${this.__templateGetValue}
+                  .setValue=${this.__templateSetValue}
+                  .extendFilter=${this.__templateExtendFilter}
+                  .searchFields=${['sku']}
+                  .getDisplayValueOptions=${(resource: Data | null) => {
+                    const name = (resource?.compiled_definition as ProductDefinition | undefined)
+                      ?.name;
+                    return { label: name ? `${name} (${resource?.sku})` : resource?.sku ?? '' };
+                  }}
+                >
+                </foxy-internal-resource-picker-control>
 
-            <foxy-internal-resource-picker-control
-              layout="summary-item"
-              first=${ifDefined(this.__collectionsHref)}
-              infer="collection"
-              property="collection_id"
-              .getValue=${this.__collectionGetValue}
-              .setValue=${this.__collectionSetValue}
-              .searchFields=${['name', 'path']}
-              item="foxy-product-collection-card"
-            >
-            </foxy-internal-resource-picker-control>
+                <foxy-internal-resource-picker-control
+                  layout="summary-item"
+                  first=${ifDefined(this.__collectionsHref)}
+                  infer="collection"
+                  property="collection_id"
+                  .getValue=${this.__collectionGetValue}
+                  .setValue=${this.__collectionSetValue}
+                  .getDisplayValueOptions=${this.__collectionGetDisplayValueOptions}
+                  .searchFields=${['name', 'path']}
+                  item="foxy-product-collection-card"
+                >
+                </foxy-internal-resource-picker-control>
 
-            <foxy-internal-switch-control infer="hidden"></foxy-internal-switch-control>
+                <foxy-internal-switch-control infer="hidden" helper-text-as-tooltip>
+                </foxy-internal-switch-control>
+              </div>
+              <p class="text-xs text-secondary">${this.t('general.organization_note')}</p>
+            </div>
           </foxy-internal-summary-control>
 
           ${isVariant && this.__parentOptions.length
@@ -814,17 +870,20 @@ export class ProductForm extends Base<Data> {
     const variant = this.variants.find(v => v._links.self.href === href);
     if (!variant) return;
 
-    const saved: Record<string, string> = {
+    const definition = variant.definition ?? {};
+    const saved: Record<string, unknown> = {
       sku: variant.sku,
-      price: String(variant.definition?.price ?? ''),
+      price: String(definition.price ?? ''),
       stock: String(variant.stock_level ?? ''),
-      weight: String(variant.definition?.weight ?? ''),
+      weight: String(definition.weight ?? ''),
+      name: definition.name ?? '',
+      description: definition.description ?? '',
+      images: definition.images ?? [],
     };
     const edit = { ...this.variantEdits[href], ...changes } as Record<string, unknown>;
     for (const key of Object.keys(edit)) {
-      if (edit[key] === undefined || edit[key] === false || edit[key] === saved[key]) {
-        delete edit[key];
-      }
+      const unchanged = JSON.stringify(edit[key]) === JSON.stringify(saved[key]);
+      if (edit[key] === undefined || edit[key] === false || unchanged) delete edit[key];
     }
 
     const edits = { ...this.variantEdits };
@@ -911,17 +970,19 @@ export class ProductForm extends Base<Data> {
           if (edit.stock !== undefined) {
             body.stock_level = edit.stock.trim() === '' ? null : Number(edit.stock);
           }
-          if (edit.price !== undefined || edit.weight !== undefined) {
+          const { price, weight, name, description, images } = edit;
+          if ([price, weight, name, description, images].some(value => value !== undefined)) {
             // A definition is replaced whole, so an emptied value is left out of it.
             const definition = { ...variant.definition } as Record<string, unknown>;
-            if (edit.price !== undefined) {
-              if (edit.price.trim() === '') delete definition.price;
-              else definition.price = edit.price.trim();
-            }
-            if (edit.weight !== undefined) {
-              if (edit.weight.trim() === '') delete definition.weight;
-              else definition.weight = Number(edit.weight);
-            }
+            const put = (key: string, value: unknown, empty: boolean) => {
+              if (empty) delete definition[key];
+              else definition[key] = value;
+            };
+            if (price !== undefined) put('price', price.trim(), !price.trim());
+            if (weight !== undefined) put('weight', Number(weight), !weight.trim());
+            if (name !== undefined) put('name', name.trim(), !name.trim());
+            if (description !== undefined) put('description', description, !description.trim());
+            if (images !== undefined) put('images', images, !images.length);
             body.definition = definition;
           }
           await this._fetch(href, { method: 'PATCH', body: JSON.stringify(body) });
@@ -948,7 +1009,11 @@ export class ProductForm extends Base<Data> {
     if (this.data) this.__variants = await this.__loadVariants(this.data);
   }
 
-  private __setDefinitionNumber(key: 'weight' | 'low_stock_threshold', value: number) {
+  // An emptied field is left out, so the product inherits it again.
+  private __setDefinitionNumber(
+    key: 'price' | 'list_price' | 'weight' | 'low_stock_threshold',
+    value: number
+  ) {
     const definition = { ...(this.form.definition as ProductDefinition | undefined) };
     if (Number.isFinite(value)) definition[key] = value;
     else delete definition[key];
@@ -1078,12 +1143,12 @@ export class ProductForm extends Base<Data> {
     const edit = this.variantEdits[href] ?? {};
     const errors = this.variantEditErrors(variant);
     const inherited = this.data?.compiled_definition;
+    const own = variant.definition ?? {};
     const page = this.getProductPageHref?.(href);
-    const image = variant.definition?.images?.[0];
     const name = inherited?.name || this.data?.sku || '';
     const close = () => (this.__panel = null);
     const field = (
-      key: 'sku' | 'price' | 'stock' | 'weight',
+      key: 'sku' | 'price' | 'stock' | 'weight' | 'name',
       value: string,
       placeholder: string
     ) => html`
@@ -1093,17 +1158,23 @@ export class ProductForm extends Base<Data> {
           id="variant-${key}"
           data-testid="panel-${key}"
           class=${key === 'sku' ? 'pd-mono' : ''}
-          inputmode=${key === 'sku' ? 'text' : key === 'stock' ? 'numeric' : 'decimal'}
-          aria-invalid=${errors[key] ? 'true' : 'false'}
+          inputmode=${key === 'stock'
+            ? 'numeric'
+            : key === 'price' || key === 'weight'
+            ? 'decimal'
+            : 'text'}
+          aria-invalid=${key !== 'name' && errors[key] ? 'true' : 'false'}
           placeholder=${placeholder}
           .value=${edit[key] ?? value}
           @input=${(evt: Event) =>
             this.editVariant(href, { [key]: (evt.currentTarget as HTMLInputElement).value })}
         />
-        ${errors[key]
+        ${key !== 'name' && errors[key]
           ? html`<span class="text-xs text-error">${this.t(`variants.v8n_${key}`)}</span>`
-          : key === 'price'
-          ? html`<span class="text-xs text-secondary">${this.t('variants.panel_price_help')}</span>`
+          : key === 'price' || key === 'name'
+          ? html`<span class="text-xs text-secondary"
+              >${this.t(`variants.panel_${key}_help`)}</span
+            >`
           : ''}
       </div>
     `;
@@ -1125,14 +1196,6 @@ export class ProductForm extends Base<Data> {
               <h2 id="variant-panel-title" class="pd-mono text-l font-semibold">
                 ${edit.sku ?? variant.sku}
               </h2>
-              <div class="flex flex-wrap" style="gap: 0.375rem">
-                ${this.savedOptions.map(option => {
-                  const value = variant.option_values?.[option.name];
-                  return value
-                    ? html`<span class="pd-chip">${option.label || option.name}: ${value}</span>`
-                    : '';
-                })}
-              </div>
             </div>
             <button
               type="button"
@@ -1157,6 +1220,37 @@ export class ProductForm extends Base<Data> {
           </div>
 
           <div class="pd-panel-body">
+            <dl class="pd-option-values" data-testid="panel-option-values">
+              ${this.savedOptions.map(option => {
+                const stored = variant.option_values?.[option.name];
+                const value = option.values.find(
+                  v => v.value.toLowerCase() === stored?.toLowerCase()
+                );
+                return html`
+                  <div>
+                    <dt>${option.label || option.name}</dt>
+                    <dd>${value?.label || value?.value || stored || '—'}</dd>
+                  </div>
+                `;
+              })}
+            </dl>
+            ${field('name', own.name ?? '', inherited?.name ?? '')}
+            <foxy-internal-product-form-images-control
+              infer="images"
+              data-testid="panel-images"
+              .getImages=${() => edit.images ?? own.images ?? []}
+              .setImages=${(images: ProductDefinitionImage[]) => this.editVariant(href, { images })}
+            >
+            </foxy-internal-product-form-images-control>
+            <foxy-internal-product-form-description-control
+              infer="description"
+              data-testid="panel-description"
+              placeholder=${inherited?.description ?? ''}
+              .helperText=${this.t('variants.panel_description_help')}
+              .getValue=${() => edit.description ?? own.description ?? ''}
+              .setValue=${(description: string) => this.editVariant(href, { description })}
+            >
+            </foxy-internal-product-form-description-control>
             ${field('sku', variant.sku, '')}
             ${field(
               'price',
@@ -1179,25 +1273,15 @@ export class ProductForm extends Base<Data> {
                   : ''
               )}
             </div>
-            <div class="flex items-center" style="gap: 0.75rem">
-              <img
-                class="pd-thumb"
-                style="width: 4rem; height: 4rem"
-                src=${previewSrc(image?.src ?? inherited?.images?.[0]?.src, this.getThumbnailUrl)}
-                alt=""
-                @error=${previewFallback(image?.src ?? inherited?.images?.[0]?.src)}
-              />
-              <div class="grid gap-xs text-s">
-                <span class="text-secondary">
-                  ${this.t(image ? 'variants.panel_own_image' : 'variants.panel_product_image')}
-                </span>
-                ${page
-                  ? html`<a class="text-primary font-medium" href=${page} data-testid="panel-page">
-                      ${this.t('variants.panel_open_page')}
-                    </a>`
-                  : ''}
-              </div>
-            </div>
+            ${page
+              ? html`<a
+                  class="text-s text-primary font-medium"
+                  href=${page}
+                  data-testid="panel-page"
+                >
+                  ${this.t('variants.panel_open_page')}
+                </a>`
+              : ''}
           </div>
 
           <div class="pd-panel-footer">
@@ -1473,6 +1557,25 @@ export class ProductForm extends Base<Data> {
     return this.parentProduct?.compiled_definition as ProductDefinition | undefined;
   }
 
+  /**
+   * The category a product without one of its own takes, and where from. A category
+   * compiled in that neither the product nor what it inherits from sets comes from its
+   * collection.
+   */
+  private get __inheritedCategory(): { code: string; from: string } | null {
+    if (this.form.definition?.category_code) return null;
+    const fromParent = this.__inherited?.category_code;
+    if (fromParent) {
+      const from = this.parentProduct?.product_type === 'template' ? 'template' : 'parent';
+      return { code: fromParent, from };
+    }
+    const compiled = this.data?.compiled_definition?.category_code;
+    if (compiled && !this.data?.definition?.category_code) {
+      return { code: compiled, from: 'collection' };
+    }
+    return null;
+  }
+
   protected async _sendGet(): Promise<Data> {
     const product = await super._sendGet();
 
@@ -1481,15 +1584,22 @@ export class ProductForm extends Base<Data> {
     // form only loses placeholders or the add-to-cart link.
     const parentHref = product?._links?.['fx:parent_product']?.href;
     const storeHref = product?._links?.['fx:store']?.href;
-    const [parent, store] = await Promise.all([
+    const collectionsHref = this.__collectionsHref;
+    const [parent, store, collections] = await Promise.all([
       parentHref ? super._fetch<Data>(parentHref).catch(() => null) : null,
       storeHref && ['standalone', 'variant', 'parent'].includes(product.product_type)
         ? super._fetch<Resource<Rels.Store>>(storeHref).catch(() => null)
         : null,
+      collectionsHref
+        ? loadAll<ListedCollection>(collectionsHref, 'fx:product_collections', url =>
+            super._fetch(url)
+          ).catch(() => [])
+        : [],
     ]);
 
     this.parentProduct = parent;
     this.__store = store;
+    this.__collectionTrails = new Map(collectionTree(collections).map(c => [c.path, c.trail]));
     this.__variants = await this.__loadVariants(product);
 
     return product;

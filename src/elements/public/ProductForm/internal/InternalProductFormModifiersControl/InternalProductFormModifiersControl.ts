@@ -12,6 +12,8 @@ import { html } from 'lit-element';
 import {
   amountSummary,
   disclosure,
+  isShown,
+  leftField,
   listActions,
   move,
   parseWeight,
@@ -50,6 +52,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
       optionNames: { attribute: false },
       __detailsOpen: { attribute: false },
       __managed: { attribute: false },
+      __shown: { attribute: false },
     };
   }
 
@@ -62,6 +65,9 @@ export class InternalProductFormModifiersControl extends InternalControl {
 
   /** Where the inherited modifiers come from. */
   inheritedFrom: 'parent' | 'template' = 'parent';
+
+  /** What the merchant is done with, whose mistakes show: see `isShown`. */
+  private __shown: string[] = [];
 
   /** Whether each modifier's editor is open, by name, where the merchant chose. */
   private __managed: Record<string, boolean> = {};
@@ -78,7 +84,10 @@ export class InternalProductFormModifiersControl extends InternalControl {
     const errors = validateModifiers(own, inherited, this.optionNames);
     const error = (path: string) => {
       const found = errors.find(e => e.path === path);
-      return found ? this.t(found.code) : undefined;
+      if (!found) return undefined;
+      // A wrong value shows at once; a missing one only once the merchant is done with it.
+      const missing = found.code.endsWith('_required');
+      return missing && !isShown(path, this.__shown) ? undefined : this.t(found.code);
     };
 
     const rows = this.__rows(inherited, own);
@@ -86,7 +95,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
     const locked = this.disabled || this.readonly;
 
     return html`
-      <div class="grid gap-m">
+      <div class="grid gap-m" @focusout=${this.__handleFocusOut}>
         ${error('modifiers')
           ? html`<p class="text-s text-error" data-testid="modifiers-error">
               ${error('modifiers')}
@@ -316,7 +325,15 @@ export class InternalProductFormModifiersControl extends InternalControl {
             data-testid="manage-modifier"
             aria-expanded=${managed ? 'true' : 'false'}
             aria-label=${this.t('manage_modifier', { name: title })}
-            @click=${() => (this.__managed = { ...this.__managed, [modifier.name]: !managed })}
+            @click=${() => {
+              // Done with mistakes in it shows them, and stays open to fix them.
+              const path = `modifiers.${row.ownIndex}`;
+              if (managed && errors.some(e => e.path.startsWith(`${path}.`))) {
+                this.__shown = [...this.__shown, path];
+              } else {
+                this.__managed = { ...this.__managed, [modifier.name]: !managed };
+              }
+            }}
           >
             ${this.t(managed ? 'done' : 'manage')}
           </button>
@@ -362,6 +379,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
             placeholder: 'gift_wrap',
             value: modifier.name,
             error: error(`${path}.name`),
+            path: `${path}.name`,
             locked: locked || isOverride,
             testid: 'modifier-name',
             onChange: name => set({ ...modifier, name }),
@@ -372,6 +390,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
             placeholder: modifier.name || 'Gift wrap',
             value: modifier.label,
             error: error(`${path}.label`),
+            path: `${path}.label`,
             locked,
             testid: 'modifier-label',
             onChange: label => set(withField(modifier, 'label', label)),
@@ -381,6 +400,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
             label=${this.t('type_label')}
             item-label-path="label"
             item-value-path="value"
+            data-field=${`${path}.type`}
             error-message=${this.t('v8n_type_required')}
             ?invalid=${!!error(`${path}.type`)}
             ?disabled=${locked}
@@ -457,6 +477,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
                   placeholder: String(LIMITS.maxLengthDefault),
                   value: modifier.max_length,
                   error: error(`${path}.max_length`),
+                  path: `${path}.max_length`,
                   locked,
                   testid: 'modifier-max-length',
                   onChange: max => set(withField(modifier, 'max_length', parseWeight(max))),
@@ -500,6 +521,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
         placeholder: '0.00',
         value: modifier.price_mod,
         error: error(`${path}.price_mod`),
+        path: `${path}.price_mod`,
         locked,
         testid: 'price-mod',
         onChange: amount => set(withField(modifier, 'price_mod', amount)),
@@ -510,6 +532,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
         placeholder: '0',
         value: modifier.weight_mod,
         error: error(`${path}.weight_mod`),
+        path: `${path}.weight_mod`,
         locked,
         testid: 'weight-mod',
         onChange: weight => set(withField(modifier, 'weight_mod', parseWeight(weight))),
@@ -552,6 +575,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
             placeholder: 'Yes',
             value: value.value,
             error: error(`${path}.value`),
+            path: `${path}.value`,
             locked,
             testid: 'value-value',
             onChange: changed => onChange({ ...value, value: changed }),
@@ -561,6 +585,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
             placeholder: value.value,
             value: value.label,
             error: error(`${path}.label`),
+            path: `${path}.label`,
             locked,
             testid: 'value-label',
             onChange: label => onChange(withField(value, 'label', label)),
@@ -599,6 +624,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
                   placeholder: '0.00',
                   value: value.price_mod,
                   error: detailErrors[0],
+                  path: `${path}.price_mod`,
                   locked,
                   visibleLabel: true,
                   testid: 'price-mod',
@@ -610,6 +636,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
                   placeholder: '0',
                   value: value.weight_mod,
                   error: detailErrors[1],
+                  path: `${path}.weight_mod`,
                   locked,
                   visibleLabel: true,
                   testid: 'weight-mod',
@@ -620,6 +647,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
                   helperText: this.t('category_code_helper_text'),
                   value: value.category_code,
                   error: detailErrors[2],
+                  path: `${path}.category_code`,
                   locked,
                   visibleLabel: true,
                   testid: 'value-category-code',
@@ -654,6 +682,27 @@ export class InternalProductFormModifiersControl extends InternalControl {
     if (modifier.required) parts.push(this.t('summary_required'));
     return parts.join(' · ');
   }
+
+  /** Shows the mistakes of every modifier, as a save does. */
+  reportValidity(): void {
+    this.__shown = [''];
+  }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+    // Once nothing is wrong, a field added later starts out unmarked again.
+    if (
+      this.__shown.length &&
+      !validateModifiers(this.__own, this.inherited, this.optionNames).length
+    ) {
+      this.__shown = [];
+    }
+  }
+
+  private readonly __handleFocusOut = (evt: Event) => {
+    const path = leftField(evt);
+    if (path && !isShown(path, this.__shown)) this.__shown = [...this.__shown, path];
+  };
 
   private get __own(): Own[] {
     const form = this.nucleon as ProductForm | null;
