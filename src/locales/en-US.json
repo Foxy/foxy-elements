@@ -257,7 +257,6 @@
   "portal_validation_max_length": "Must be {max} characters or fewer.",
   "portal_validation_required": "This field is required.",
   "product_add_to_cart": "Add to cart",
-  "product_add_with_price": "{label} · {price}",
   "product_brand": "Brand",
   "product_choose": "Choose…",
   "product_choose_a": "Choose a {option}",

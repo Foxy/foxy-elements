@@ -1,6 +1,6 @@
 import { chooseMessage, format, messages } from "./messages";
 import { isHttps } from "./markdown";
-import { productOptions } from "./options";
+import { productModifiers, productOptions } from "./options";
 import {
   formatPrice,
   priceRange,
@@ -205,6 +205,9 @@ const success = v("success-color");
 const card = `border: ${v("card-border")}; border-radius: ${v("card-radius")}; box-shadow: ${v("card-shadow")}; background: ${v("card-bar")} top / 100% 4px no-repeat, ${surface};`;
 const cardPadding = (size: string): string => `var(--foxy-product-card-padding, ${size})`;
 
+/** The tallest a page's main photo gets: most of the window, so the add button stays in the first screen. */
+export const PHOTO_MAX_HEIGHT = "var(--foxy-product-photo-max-height, min(70vh, 640px))";
+
 const ELEMENTS =
   "foxy-product-link, foxy-product-form, foxy-product-tile, foxy-product-collection, foxy-product-page";
 
@@ -272,6 +275,16 @@ ${themed("dark")} { color-scheme: dark; }
 }
 :is(foxy-product-link) a.foxy-product-text-link[aria-disabled="true"] { text-decoration: none; cursor: not-allowed; }
 :is(${ELEMENTS}) .foxy-product-button s { color: inherit; opacity: 0.75; }
+/* Without room for the label and the price on one line, the price wraps to a
+   line of its own that has no height, and is cut off. The label wraps only
+   when it doesn't fit by itself. The text is rebuilt when a field changes on
+   blur, which can fall between a press and its release, so the press and
+   release both land on the button itself and still make a click. */
+:is(${ELEMENTS}) .foxy-product-button .foxy-product-button-text {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; column-gap: 0.35em; min-width: 0; overflow: hidden;
+  pointer-events: none;
+}
+:is(${ELEMENTS}) .foxy-product-button .foxy-product-button-price { height: 0; }
 
 :is(${ELEMENTS}) .foxy-product-price { color: var(--foxy-product-price-color, ${nameColor}); }
 :is(${ELEMENTS}) .foxy-product-list-price {
@@ -412,12 +425,12 @@ ${themed("dark")} { color-scheme: dark; }
 }
 :is(foxy-product-page) .foxy-product-gallery { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 :is(foxy-product-page) .foxy-product-gallery[hidden] + .foxy-product-info { grid-column: 1 / -1; max-width: 560px; }
-/* Square, but never taller than most of the window, so the button stays in the first screen. */
-:is(foxy-product-page) .foxy-product-hero {
-  aspect-ratio: 1 / 1; max-height: var(--foxy-product-photo-max-height, min(70vh, 640px)); overflow: hidden;
-  border-radius: ${radius}; background: ${panel};
+/* The element gives the frame the main photo's shape and width; a photo of
+   another shape is fitted inside it. */
+:is(foxy-product-page) .foxy-product-hero { width: 100%; max-height: ${PHOTO_MAX_HEIGHT}; margin-inline: auto; overflow: hidden; border-radius: ${radius}; }
+:is(foxy-product-page) .foxy-product-hero img {
+  display: block; width: 100%; height: 100%; max-height: ${PHOTO_MAX_HEIGHT}; object-fit: var(--foxy-product-photo-fit, contain);
 }
-:is(foxy-product-page) .foxy-product-hero img { display: block; width: 100%; height: 100%; object-fit: var(--foxy-product-photo-fit, contain); }
 :is(foxy-product-page) .foxy-product-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 10px; }
 :is(foxy-product-page) .foxy-product-thumbs button { aspect-ratio: 1 / 1; padding: 0; overflow: hidden; border: 2px solid ${divider}; border-radius: ${radius}; background: ${panel}; cursor: pointer; }
 :is(foxy-product-page) .foxy-product-thumbs button[aria-current="true"] { border-color: ${accent}; }
@@ -455,9 +468,15 @@ ${themed("dark")} { color-scheme: dark; }
 :is(foxy-product-page) .foxy-product-description a { color: inherit; }
 :is(foxy-product-page) .foxy-product-details { display: flex; flex: 1 1 300px; flex-direction: column; gap: 14px; box-sizing: border-box; min-width: 0; padding: ${cardPadding("32px")}; ${card} }
 :is(foxy-product-page) .foxy-product-details h2 { color: ${nameColor}; font-size: 22px; font-weight: 500; }
-:is(foxy-product-page) .foxy-product-details dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; font-size: 14px; }
-:is(foxy-product-page) .foxy-product-details dt { color: ${muted}; }
-:is(foxy-product-page) .foxy-product-details dd { overflow-wrap: anywhere; }
+/* Each label takes the width it needs, up to two fifths, so its value sits
+   close by; every other row is tinted to lead the eye across. */
+:is(foxy-product-page) .foxy-product-detail-list { display: grid; grid-template-columns: fit-content(40%) minmax(0, 1fr); font-size: 14px; line-height: 1.45; }
+:is(foxy-product-page) .foxy-product-detail-list > div {
+  display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; gap: 20px; padding: 8px 12px; border-radius: ${fieldRadius};
+}
+:is(foxy-product-page) .foxy-product-detail-list > div:nth-child(odd) { background: ${panel}; }
+:is(foxy-product-page) .foxy-product-detail-list dt { color: ${prose}; }
+:is(foxy-product-page) .foxy-product-detail-list dd { color: ${body}; overflow-wrap: anywhere; }
 
 :is(foxy-product-page) .foxy-product-sections {
   flex: 1 1 100%; box-sizing: border-box; min-width: 0; padding: ${cardPadding("8px 32px 32px")}; ${card}
@@ -471,9 +490,6 @@ ${themed("dark")} { color-scheme: dark; }
 :is(foxy-product-page) .foxy-product-panel thead tr { background: ${header}; }
 :is(foxy-product-page) .foxy-product-panel tbody tr { border-top: 1px solid ${divider}; }
 :is(foxy-product-page) .foxy-product-panel a { color: inherit; }
-:is(foxy-product-page) .foxy-product-panel dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; font-size: 14px; }
-:is(foxy-product-page) .foxy-product-panel dt { color: ${muted}; }
-:is(foxy-product-page) .foxy-product-panel dd { overflow-wrap: anywhere; }
 :is(foxy-product-page) .foxy-product-tablist { display: flex; gap: 4px; margin-bottom: 24px; overflow-x: auto; border-bottom: 1px solid ${divider}; }
 :is(foxy-product-page) .foxy-product-tab {
   flex: none; margin-bottom: -1px; padding: 16px 14px 14px; border: 0; border-bottom: 2px solid transparent; background: none;
@@ -533,6 +549,23 @@ export function priceNodes(
   return nodes;
 }
 
+/** A button's text, `Add to cart · $24.95`, with the price in its own part that gives way when space is short. */
+export function buttonText(label: string, price?: Node | string): HTMLSpanElement {
+  const text = document.createElement("span");
+  text.className = "foxy-product-button-text";
+  const name = document.createElement("span");
+  name.className = "foxy-product-label";
+  name.textContent = label;
+  text.append(name);
+  if (price) {
+    const after = document.createElement("span");
+    after.className = "foxy-product-button-price";
+    after.append(" · ", price);
+    text.append(after);
+  }
+  return text;
+}
+
 /**
  * The price as text nodes: `$24.95`, a struck-through list price beside it,
  * or `$22.00 – $26.00` for a parent whose variants differ. Each amount is
@@ -585,9 +618,17 @@ export function stockNote(
   return null;
 }
 
-/** "Choose size and colour" for one or two options; "Choose options" otherwise. */
-export function chooseLabel(product: CatalogProduct, locale: string): string {
-  const [first, second, ...more] = productOptions(product).map(({ label }) => label.toLowerCase());
+/**
+ * What is left to choose before one click can add it: a parent's options,
+ * or else the required modifiers without a value in `modifiers` (a
+ * variant's options are already its own values). "Choose size and colour"
+ * for one or two; "Choose options" otherwise.
+ */
+export function chooseLabel(product: CatalogProduct, locale: string, modifiers: Record<string, string> = {}): string {
+  const missing = product.product_type === "parent"
+    ? productOptions(product)
+    : productModifiers(product).filter(({ name, required }) => required && !modifiers[name]);
+  const [first, second, ...more] = missing.map(({ name, label }) => (label || name).toLowerCase());
   if (first && second && !more.length) return format(locale, messages.chooseTwo, { first, second });
   if (first && !second) return format(locale, chooseMessage(first), { option: first });
   return format(locale, messages.chooseOptions);

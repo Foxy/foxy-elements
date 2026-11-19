@@ -46,10 +46,10 @@ A product's description is Markdown, written by the merchant, and it's untrusted
 
 | `description-layout` | |
 | --- | --- |
-| `none` (default) | The description as written, with the details beside it |
+| `auto` (default) | With three or more headings, tabs while the element is 720px wide or more and an accordion below that; with fewer, as written |
 | `tabs` | One tab per heading |
 | `accordion` | One disclosure per heading, the first open |
-| `auto` | With three or more headings, tabs while the element is 720px wide or more and an accordion below that; with fewer, as written |
+| `none` | The description as written, with the details beside it |
 
 ```md
 Steel with a glossy enamel coat and a rolled rim.
@@ -70,7 +70,7 @@ Ships in two days; returns within 30 days.
 - Tabs follow the WAI-ARIA tabs pattern: arrow keys move between tabs, Home and End go to the first and last, and only the chosen tab is in the tab order. Every panel stays in the page (`hidden="until-found"`), so search engines read all of it and the browser's find in page opens the tab its match is in.
 - An accordion is native `<details>` and `<summary>`, each title an `<h2>`; find in page opens a closed one too.
 
-`none` is the default because sections hide text behind a click, which a merchant should choose.
+`auto` is the default because it only makes sections of a description long enough to have three headings, and still shows short ones as written. Sections hide text behind a click; `none` keeps every description as written.
 
 ## Attributes
 
@@ -79,11 +79,11 @@ Ships in two days; returns within 30 days.
 | `sku` | `sku` | A product's, parent's or variant's SKU. |
 | `sku-param` | `skuParam` | The name of a query parameter of the page's address that holds the SKU. `sku` wins when both are set. |
 | `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
-| `value` | `value` | Preselected options, as a query string: `color=Black&size=M`. |
+| `value` | `value` | Preselected options and modifiers, as a query string: `color=Black&size=M&gift_wrap=Yes`. As for `foxy-product-form`. |
 | `option-style` | `optionStyle` | As for `foxy-product-form`: `buttons` (the default), `rows` or `select`. |
-| `label` | `label` | The add button's text; the price follows it. Default: the store's saved button text, else "Add to cart". |
+| `label` | `label` | The add button's text; the price follows it when the button is wide enough for both on one line. Default: the store's saved button text, else "Add to cart". |
 | `heading-level` | `headingLevel` | The name's heading level. Default `1`. |
-| `description-layout` | `descriptionLayout` | `none` (default), `tabs`, `accordion` or `auto`. See Sections above. |
+| `description-layout` | `descriptionLayout` | `auto` (default), `tabs`, `accordion` or `none`. See Sections above. |
 | `collection-href` | `collectionHref` | Makes the collection chips links: `{id}` is replaced with the collection's id, as in `/shop?collection={id}`. Unset, the chips are plain text. |
 | `currency`, `currency-cookie`, `lang` | `currency` | As for `foxy-product-link`. |
 | `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. Changing one, `label` or `option-style` updates the page where it stands and keeps the photos and the shopper's choices. |
@@ -103,6 +103,6 @@ The layout follows the element's own width, not the window's, so it fits whateve
 | 720px to 959px | Two equal columns: photos on the left, the rest on the right |
 | 960px and wider | Photos in three fifths, the rest in two fifths |
 
-In two columns, the right one stays in view while taller photos scroll (`--foxy-product-sticky-top` sets how far from the top; default `16px`). The main photo is square but never taller than `--foxy-product-photo-max-height` (default `min(70vh, 640px)`), so the add button stays in the first screen. A product with no photo gives the whole width to the right column's content. The description and the details sit below, side by side when there is room. The look's attributes and CSS variables are listed under `foxy-product-link`. Classes, besides `foxy-product-form`'s: `.foxy-product-chips`, `.foxy-product-chip`, `.foxy-product-lead`, `.foxy-product-choices`, `.foxy-product-sections` (with `data-layout="tabs"` or `"accordion"`), `.foxy-product-tablist`, `.foxy-product-tab`, `.foxy-product-panel`, `.foxy-product-section`, `.foxy-product-section-title`, `.foxy-product-page`, `.foxy-product-main`, `.foxy-product-gallery`, `.foxy-product-hero`, `.foxy-product-thumbs`, `.foxy-product-info`, `.foxy-product-description`, `.foxy-product-details`. The price is `.foxy-product-price` and a struck-through list price `.foxy-product-list-price`; their variables are listed under `foxy-product-link`.
+In two columns, the right one stays in view while taller photos scroll (`--foxy-product-sticky-top` sets how far from the top; default `16px`). The main photo is shown at its own shape, with nothing around it, as wide as the column unless that would make it taller than `--foxy-product-photo-max-height` (default `min(70vh, 640px)`), so the add button stays in the first screen; a taller photo is that tall, narrower, and centred. Its shape comes from the image's `width` and `height` until it loads. A photo of another shape, chosen from the thumbnails, is fitted inside the same frame, so the thumbnails don't move (`--foxy-product-photo-fit: cover` fills the frame instead). Thumbnails are square. A product with no photo gives the whole width to the right column's content. The description and the details sit below, side by side when there is room. The look's attributes and CSS variables are listed under `foxy-product-link`. Classes, besides `foxy-product-form`'s: `.foxy-product-chips`, `.foxy-product-chip`, `.foxy-product-lead`, `.foxy-product-choices`, `.foxy-product-sections` (with `data-layout="tabs"` or `"accordion"`), `.foxy-product-tablist`, `.foxy-product-tab`, `.foxy-product-panel`, `.foxy-product-section`, `.foxy-product-section-title`, `.foxy-product-page`, `.foxy-product-main`, `.foxy-product-gallery`, `.foxy-product-hero`, `.foxy-product-thumbs`, `.foxy-product-info`, `.foxy-product-description`, `.foxy-product-details`, `.foxy-product-detail-list` (each row a `<div>` holding a `<dt>` and a `<dd>`). The price is `.foxy-product-price` and a struck-through list price `.foxy-product-list-price`; their variables are listed under `foxy-product-link`.
 
 It doesn't set the page's `<title>` or meta description, and has no breadcrumbs: the catalog doesn't publish a collection's name or path.

@@ -68,7 +68,7 @@ describe("foxy-product-tile", () => {
   it("links a product with a required modifier to its page instead of adding", async () => {
     const element = await mount(`sku="MUG-ENM-ENGRAVE" href="/shop/{sku}"`);
     expect(action(element)?.getAttribute("href")).toBe("/shop/MUG-ENM-ENGRAVE");
-    expect(action(element)?.textContent).toBe("Choose options");
+    expect(action(element)?.textContent).toBe("Choose an engraving");
   });
 
   it("shows a parent given without its variants at its own price, with no request", async () => {

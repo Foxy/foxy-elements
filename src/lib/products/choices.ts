@@ -133,6 +133,29 @@ export function livePrice(
   };
 }
 
+/**
+ * The values in `preset` the cart would take for this product's own
+ * modifiers: a select's declared value (matched without case, sent as
+ * declared), or text within its length. Anything else is left out.
+ */
+export function presetModifiers(
+  product: CatalogProduct,
+  preset: Record<string, string>,
+): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const modifier of productModifiers(product)) {
+    const value = preset[modifier.name]?.trim();
+    if (!value) continue;
+    if (modifier.type === "select") {
+      const declared = modifier.values?.find((v) => v.value.toLowerCase() === value.toLowerCase());
+      if (declared) values[modifier.name] = declared.value;
+    } else if (value.length <= (modifier.max_length ?? 255)) {
+      values[modifier.name] = value;
+    }
+  }
+  return values;
+}
+
 /** The offered modifiers whose value the cart would refuse, with why. */
 export function invalidModifiers(
   product: CatalogProduct,

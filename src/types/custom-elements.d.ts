@@ -132,11 +132,12 @@ type ProductElementSharedProps = {
   "image-ratio"?: string;
 };
 
-type ProductLinkElementProps = DetailedHTMLProps<
-  HTMLAttributes<ProductLinkElement>,
-  ProductLinkElement
+type ProductLinkElementProps = Omit<
+  DetailedHTMLProps<HTMLAttributes<ProductLinkElement>, ProductLinkElement>,
+  "value"
 > &
   ProductElementSharedProps & {
+    value?: string;
     quantity?: number | string;
     label?: string;
     checkout?: boolean;

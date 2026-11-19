@@ -52,6 +52,16 @@ describe("foxy-product-form", () => {
     expect(element.querySelector(".foxy-product-brand")?.textContent).toBe("Foxy Goods");
   });
 
+  it("shows the price in the add button only when there is room for it beside the label", async () => {
+    const element = await mount(`sku="MUG-ENM-WHT"`);
+    const box = (selector: string) => element.querySelector(selector)!.getBoundingClientRect();
+    const priceShown = () => box(".foxy-product-button-price").top < box(".foxy-product-button-text").bottom;
+    expect(priceShown()).toBe(true);
+    element.style.width = "220px";
+    expect(priceShown()).toBe(false);
+    expect(addButton(element).textContent).toBe("Add to cart · $16.40");
+  });
+
   it("chooses nothing for the shopper, and says what's missing", async () => {
     const element = await mount(`sku="TEE-ORG"`);
     expect(price(element)).toBe("$24.95 – $26.95");
@@ -121,6 +131,21 @@ describe("foxy-product-form", () => {
 
     await userEvent.selectOptions(control(element, "Size"), "M");
     expect(sent(element)).toEqual(["sku=TEE-ORG", "color=Natural", "size=M", "gift_wrap=No"]);
+  });
+
+  it("presets modifiers from value, which the shopper can still change, ignoring what the cart would refuse", async () => {
+    const element = await mount(`sku="MUG-ENM-ENGRAVE" value="engraving=JF&gift_wrap=yes"`);
+    expect(control<HTMLInputElement>(element, "Engraving").value).toBe("JF");
+    expect(control(element, "Gift wrap").value).toBe("Yes");
+    expect(addButton(element).textContent).toBe("Add to cart · $32.00");
+    expect(sent(element)).toEqual(["sku=MUG-ENM-ENGRAVE", "engraving=JF", "gift_wrap=Yes"]);
+
+    await userEvent.selectOptions(control(element, "Gift wrap"), "No");
+    expect(addButton(element).textContent).toBe("Add to cart · $27.50");
+
+    element.setAttribute("value", `engraving=${"x".repeat(21)}&gift_wrap=Maybe`);
+    expect(control<HTMLInputElement>(element, "Engraving").value).toBe("");
+    expect(control(element, "Gift wrap").value).toBe("No");
   });
 
   it("starts an optional choice on its first value and adds no None", async () => {

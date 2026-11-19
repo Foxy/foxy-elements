@@ -40,7 +40,7 @@ Each option only offers the values that exist with the choices made for the opti
 - a value no variant has with those choices is left out; hidden variants count as not existing;
 - a value whose variants are all out of stock is shown, marked "(sold out)", and can't be chosen.
 
-A later choice that an earlier one rules out is cleared, and the shopper chooses it again. `value` preselects options the same way: a value that doesn't exist or is sold out is ignored.
+A later choice that an earlier one rules out is cleared, and the shopper chooses it again. `value` preselects options the same way: a value that doesn't exist or is sold out is ignored. It presets modifiers too, as a starting value the shopper can change.
 
 ## Modifiers
 
@@ -60,10 +60,10 @@ With `show-quantity`, a stepper from the product's `quantity_min` (else 1) up to
 | --- | --- | --- |
 | `sku` | `sku` | Required. A product's, parent's or variant's SKU. |
 | `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
-| `value` | `value` | Preselected options, as a query string: `color=Black&size=M`. Changing it starts the choices over. |
+| `value` | `value` | Preselected options and modifiers, as a query string: `color=Black&size=M&gift_wrap=Yes`. A modifier's value is kept only when it is one of a select's values (any case) or text that fits its length, as for `foxy-product-link`; the shopper can still change it. Changing the attribute starts the choices over. |
 | `option-style` | `optionStyle` | How a parent's options are offered: `buttons` (the default; a swatch for a value with a colour or photo), `rows` (a list, each value with its price once it has one) or `select` (drop-downs). |
 | `show-quantity` | `showQuantity` | Shows the quantity stepper. |
-| `label` | `label` | The add button's text; the price follows it. Default: the store's saved button text, else "Add to cart". |
+| `label` | `label` | The add button's text; the price follows it when the button is wide enough for both on one line. Default: the store's saved button text, else "Add to cart". |
 | `heading-level` | `headingLevel` | The name's heading level. Default `2`. |
 | `currency`, `currency-cookie`, `lang` | `currency` | As for `foxy-product-link`. |
 | `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. Changing one, `label` or `option-style` updates the form where it stands and keeps the shopper's choices. |

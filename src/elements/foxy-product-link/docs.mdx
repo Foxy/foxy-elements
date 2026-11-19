@@ -20,7 +20,7 @@ It renders a real `<a href="https://<store>/cart?sku=…" rel="nofollow">` in li
 
 Whatever you put inside the tag shows until the link renders, and again when the product can't be added by a link.
 
-**A parent's SKU can't be added.** The 2.0 cart has nowhere to choose options, so a link has to name a variant. On a parent's SKU the element warns in the console, naming a variant to use, and shows the content inside the tag. When the tag is empty it shows a button that says what there is to choose ("Choose colour and size"), which goes to the product's page when the store has saved where its product pages are, and otherwise can't be pressed. A product with a required modifier is treated the same way; both need `foxy-product-form` or `foxy-product-page`.
+**A parent's SKU can't be added.** The 2.0 cart has nowhere to choose options, so a link has to name a variant. On a parent's SKU the element warns in the console, naming a variant to use, and shows the content inside the tag. When the tag is empty it shows a button that says what there is to choose ("Choose colour and size"), which goes to the product's page when the store has saved where its product pages are, and otherwise can't be pressed. A product or variant with a required modifier is treated the same way, the button naming what is left ("Choose a tailpiece"), unless `value` gives that modifier a value; otherwise both need `foxy-product-form` or `foxy-product-page`. A variant's own option values are already chosen.
 
 ## Attributes
 
@@ -29,8 +29,9 @@ Whatever you put inside the tag shows until the link renders, and again when the
 | `sku` | `sku` | Required. The SKU of a product without choices, or of a variant. Hidden products work too. |
 | `store` | `store` | The store's domain, such as `example.foxycart.com`. Defaults to the domain 2.0's `loader.js` was loaded for. |
 | `quantity` | `quantity` | Units to add. Default `1`. |
+| `value` | `value` | Values for the product's modifiers, as a query string: `value="tailpiece=Stop tailpiece"`. They are added to the cart link, and their amounts to the price shown, so a product with a required modifier adds in one click. A select's value must be one of its values (any case); a text value must fit its length; anything else, and any name that isn't one of the product's modifiers, is left out. |
 | `label` | `label` | The link's text. Default: the store's saved button text, else "Add to cart". |
-| `show-price` | `showPrice` | Whether the price follows the text ("Add to cart · $16.40"), with the list price struck through when it's higher. Unset, the price shows unless you wrote your own `label`. `show-price` turns it on with a `label`; `show-price="false"` turns it off. |
+| `show-price` | `showPrice` | Whether the price follows the text ("Add to cart · $16.40"), with the list price struck through when it's higher. Unset, the price shows unless you wrote your own `label`. `show-price` turns it on with a `label`; `show-price="false"` turns it off. A button too narrow for its text and the price on one line leaves the price out; it stays in the link's text for screen readers. |
 | `appearance` | `appearance` | `text` for a plain text link. Default: a button. |
 | `checkout` | `checkout` | Adds `cart=checkout`, so the shopper goes straight to checkout. |
 | `currency` | `currency` | The currency the page wants prices in. See below. |
@@ -48,7 +49,7 @@ The `product` property holds the catalog's product once it has loaded, or `null`
 | Before the catalog answers | The link already, without a price |
 | A product without choices, or a variant, in stock | The link |
 | Out of stock | "Sold out", without an `href`, so nothing adds it |
-| Parent with variants, or a required modifier | The content inside the tag, or "Choose colour and size" when there is none, and a `[Foxy]` warning in the console |
+| Parent with variants, or a required modifier without a `value` | The content inside the tag, or "Choose colour and size" ("Choose a tailpiece" for a modifier) when there is none, and a `[Foxy]` warning in the console |
 | Unknown SKU, or the catalog can't be read | The link without a price; the cart has the last word |
 
 ## Currency
@@ -108,7 +109,7 @@ More variables, with no attribute. A theme is a set of these, and this table wit
 | `--foxy-product-muted-color` | `#6B7280` | Brand, hints, counts |
 | `--foxy-product-description-color` | `#4B5563` | The page's description |
 | `--foxy-product-surface-color` | `#FFFFFF` | Cards, fields |
-| `--foxy-product-panel-color` | `#F3F4F6` | Image placeholders, quantity buttons, a chosen row |
+| `--foxy-product-panel-color` | `#F3F4F6` | Image placeholders, quantity buttons, a chosen row, every other row of a page's details |
 | `--foxy-product-header-color` | `#F9FAFB` | Table headers, a sold-out option |
 | `--foxy-product-border-color` | `#D1D5DB` | Options, secondary buttons |
 | `--foxy-product-field-border-color` | `#D1D5DB` | Text fields and selects |
@@ -124,7 +125,7 @@ More variables, with no attribute. A theme is a set of these, and this table wit
 | `--foxy-product-card-bar` | `none` | An image (a gradient) drawn 4px tall across the top of a card |
 | `--foxy-product-button-border`, `--foxy-product-button-font`, `--foxy-product-button-weight`, `--foxy-product-button-tracking`, `--foxy-product-button-transform` | `0`, `inherit`, `600`, `0`, `none` | The button's border, font, weight, letter spacing and case |
 | `--foxy-product-form-width` | `420px` | The widest a `foxy-product-form` gets |
-| `--foxy-product-photo-fit` | `contain` | How a page's main photo fills its square: `contain` or `cover` |
+| `--foxy-product-photo-fit` | `contain` | How a photo of another shape than the main photo fills a page's photo frame: `contain` or `cover` |
 | `--foxy-product-photo-max-height` | `min(70vh, 640px)` | The tallest a page's main photo gets |
 | `--foxy-product-sticky-top` | `16px` | How far from the top of the window a page's buying column stops while its photos scroll; raise it under a fixed header |
 | `--foxy-product-tile-width` | `220px` / `280px` | As `tile-width` above |

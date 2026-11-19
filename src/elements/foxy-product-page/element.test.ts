@@ -263,6 +263,12 @@ describe("foxy-product-page", () => {
     expect(stub!.requests).toHaveLength(requests);
   });
 
+  it("presets the chosen variant's modifiers from value, with its options", async () => {
+    const element = await mount(`sku="TEE-ORG" value="color=Black&size=S&gift_wrap=Yes"`);
+    expect(addButton(element).textContent).toBe("Add to cart · $29.45");
+    expect(sent(element)).toEqual(["sku=TEE-ORG", "color=Black", "size=S", "gift_wrap=Yes"]);
+  });
+
   it("reports the product as viewed once, however often it re-renders", async () => {
     const viewed: unknown[] = [];
     document.body.addEventListener("foxy-product:view-item", (event) => viewed.push((event as CustomEvent).detail));
@@ -308,6 +314,55 @@ describe("foxy-product-page", () => {
     expect(getComputedStyle(element.querySelector(".foxy-product-info")!).position).toBe("static");
   });
 
+  it("shows the main photo at its own shape across the column, with nothing around it, up to its cap", async () => {
+    const hero = async (width: number, height: number) => {
+      stub?.restore();
+      const images = [{ src: "https://images.example.com/mug-shape.jpg", alt: "Enamel camp mug", width, height }];
+      stub = stubCatalog([{ ...plainMug, definition: { ...plainMug.definition, images } }]);
+      document.body.innerHTML = `<div style="width: 560px"><foxy-product-page store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-page></div>`;
+      const element = document.body.querySelector<HTMLElement>("foxy-product-page")!;
+      await vi.waitFor(() => expect(element.querySelector(".foxy-product-hero img")).not.toBeNull());
+      return element.querySelector<HTMLElement>(".foxy-product-hero")!;
+    };
+
+    const wide = await hero(1600, 900);
+    const { width } = wide.getBoundingClientRect();
+    expect(width).toBe(wide.parentElement!.getBoundingClientRect().width);
+    expect(wide.getBoundingClientRect().height).toBeCloseTo((width * 900) / 1600, 0);
+    expect(getComputedStyle(wide).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(getComputedStyle(wide).paddingTop).toBe("0px");
+
+    const square = await hero(1000, 1000);
+    expect(square.getBoundingClientRect().height).toBeCloseTo(square.getBoundingClientRect().width, 0);
+
+    // Taller than the cap at the column's width: as tall as the cap, and narrower, centred.
+    const tall = await hero(900, 1600);
+    const cap = Math.min(innerHeight * 0.7, 640);
+    const frame = tall.getBoundingClientRect();
+    const column = tall.parentElement!.getBoundingClientRect();
+    expect(frame.height).toBeCloseTo(cap, 0);
+    expect(frame.width).toBeCloseTo((cap * 900) / 1600, 0);
+    expect(frame.left - column.left).toBeCloseTo(column.right - frame.right, 0);
+    expect(tall.querySelector("img")!.getBoundingClientRect().height).toBeCloseTo(cap, 0);
+  });
+
+  it("lists the details with each label as wide as it needs, its value close beside it, and every other row tinted", async () => {
+    const element = await mount(`sku="TEE-ORG" description-layout="none"`);
+    const rows = [...element.querySelectorAll<HTMLElement>(".foxy-product-detail-list > div")];
+    expect(rows.length).toBeGreaterThan(2);
+    for (const row of rows) {
+      const term = row.querySelector("dt")!.getBoundingClientRect();
+      const value = row.querySelector("dd")!.getBoundingClientRect();
+      expect(value.top).toBe(term.top);
+      expect(value.left - term.right).toBe(20);
+      // "Material", the longest label, sets the column.
+      expect(term.width).toBeLessThan(80);
+    }
+    expect(new Set(rows.map((row) => row.querySelector("dd")!.getBoundingClientRect().left)).size).toBe(1);
+    expect(getComputedStyle(rows[0]).backgroundColor).toBe("rgb(243, 244, 246)");
+    expect(getComputedStyle(rows[1]).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  });
+
   it("gives what is bought the whole width when the product has no photo", async () => {
     stub = stubCatalog([{ ...plainMug, definition: { ...plainMug.definition, images: [] } }]);
     document.body.innerHTML = `<div style="width: 1180px"><foxy-product-page store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-page></div>`;
@@ -347,8 +402,14 @@ describe("foxy-product-page", () => {
     const tabs = (element: HTMLElement) => [...element.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
     const panels = (element: HTMLElement) => [...element.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
 
-    it("shows the description as written by default", async () => {
+    it("makes sections of three or more headings by default", async () => {
       const element = await page("");
+      expect((element as HTMLElementTagNameMap["foxy-product-page"]).descriptionLayout).toBe("auto");
+      expect(element.querySelector(".foxy-product-sections")?.getAttribute("data-layout")).toBe("tabs");
+    });
+
+    it("shows the description as written with none", async () => {
+      const element = await page(`description-layout="none"`);
       expect(element.querySelector(".foxy-product-sections")).toBeNull();
       expect([...element.querySelectorAll(".foxy-product-description h2")].map((h) => h.textContent)).toEqual(["Size", "Care", "Delivery", "Returns"]);
       expect(text(element, ".foxy-product-details h2")).toBe("Details");

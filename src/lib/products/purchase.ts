@@ -7,10 +7,11 @@ import {
   modifierAmount,
   modifierValues,
   offeredModifiers,
+  presetModifiers,
   quantityBounds,
   type PurchaseState,
 } from "./choices";
-import { productImage } from "./light-dom";
+import { buttonText, productImage } from "./light-dom";
 import { chooseMessage, format, messages, type MessageDescriptor } from "./messages";
 import {
   hasOptionControls,
@@ -92,6 +93,8 @@ export class Purchase {
       modifiers: {},
       quantity: 1,
     };
+    // `value` presets modifiers too, as a link's does.
+    this.state.modifiers = presetModifiers(this.chosen ?? product, initialChoices);
     this.#settle();
 
     this.controls.noValidate = true;
@@ -600,10 +603,12 @@ export class Purchase {
       } else if (!chosen || !price) {
         button.textContent = this.#t(messages.unavailable);
       } else {
-        button.textContent = this.#t(messages.addWithPrice, {
-          label: this.#settings.label || this.#t(messages.addToCart),
-          price: this.#money(Math.round(price.price * state.quantity * 100) / 100),
-        });
+        button.replaceChildren(
+          buttonText(
+            this.#settings.label || this.#t(messages.addToCart),
+            this.#money(Math.round(price.price * state.quantity * 100) / 100),
+          ),
+        );
       }
       button.disabled = !chosen || !chosen.is_in_stock || !price;
     });

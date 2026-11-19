@@ -160,16 +160,16 @@ export function productModifiers(product: CatalogProduct): ProductModifier[] {
 
 /**
  * Whether one click is enough to buy it: anything but a parent with
- * variants (the cart refuses those), with no required modifier (optional
- * ones are simply left off).
+ * variants (the cart refuses those), with no required modifier left
+ * without a value in `modifiers` (optional ones are simply left off).
  */
-export function isOneClick(product: CatalogProduct): boolean {
+export function isOneClick(product: CatalogProduct, modifiers: Record<string, string> = {}): boolean {
   const hasVariants =
     product.product_type === "parent" &&
     ((product.variant_count ?? 0) > 0 ||
       (product._embedded?.variants?.length ?? 0) > 0);
   return (
     !hasVariants &&
-    !productModifiers(product).some((modifier) => modifier.required)
+    !productModifiers(product).some((modifier) => modifier.required && !modifiers[modifier.name])
   );
 }

@@ -1,9 +1,10 @@
 import { analyticsDetail, analyticsItem } from "@/lib/products/analytics";
 import { ProductElement, SHARED_ATTRIBUTES } from "@/lib/products/element-base";
-import { addToCartHref, chooseLabel, renderPrice } from "@/lib/products/light-dom";
+import { livePrice, presetModifiers } from "@/lib/products/choices";
+import { addToCartHref, buttonText, chooseLabel, priceNodes, renderPrice } from "@/lib/products/light-dom";
 import { productPageHref } from "@/lib/products/look";
 import { format, messages } from "@/lib/products/messages";
-import { isOneClick } from "@/lib/products/options";
+import { isOneClick, parseChoices } from "@/lib/products/options";
 
 /**
  * A link that adds one product to the cart:
@@ -15,7 +16,21 @@ import { isOneClick } from "@/lib/products/options";
  */
 export class ProductLinkElement extends ProductElement {
   static get observedAttributes(): string[] {
-    return [...SHARED_ATTRIBUTES, "quantity", "label", "checkout", "show-price", "appearance"];
+    return [...SHARED_ATTRIBUTES, "quantity", "label", "checkout", "show-price", "appearance", "value"];
+  }
+
+  /**
+   * Values for the product's modifiers, as a query string:
+   * `tailpiece=Stop tailpiece`. Sent with the add, so a product with a
+   * required modifier can be added in one click; a value the cart would
+   * refuse is left out.
+   */
+  get value(): string {
+    return this.getAttribute("value") ?? "";
+  }
+
+  set value(value: string) {
+    this.setAttribute("value", value);
   }
 
   /** Units to add; 1 when unset. */
@@ -81,16 +96,14 @@ export class ProductLinkElement extends ProductElement {
     const locale = this.locale;
     const link = document.createElement("a");
     link.className = this.appearance === "text" ? "foxy-product-text-link" : "foxy-product-button";
-    const label = document.createElement("span");
-    label.className = "foxy-product-label";
-    link.append(label);
 
-    if (product && !isOneClick(product)) {
+    const modifiers = product ? presetModifiers(product, parseChoices(this.value)) : {};
+    if (product && !isOneClick(product, modifiers)) {
       const variant = product._embedded?.variants?.[0]?.sku;
       this.warn(
         product.product_type === "parent"
           ? `[Foxy] foxy-product-link can't add ${sku}: it comes in variants, and the cart can't ask which. Point the link at one variant's SKU${variant ? ` (such as ${variant})` : ""}, or use foxy-product-form.`
-          : `[Foxy] foxy-product-link can't add ${sku}: it has a required choice. Use foxy-product-form.`,
+          : `[Foxy] foxy-product-link can't add ${sku}: it needs a value for a required modifier. Give it one in the link's value attribute, or use foxy-product-form.`,
       );
       if (this.hasFallback) {
         this.showFallback();
@@ -98,7 +111,7 @@ export class ProductLinkElement extends ProductElement {
       }
       // With nothing of the merchant's to show, it says what is needed and
       // goes to where that can be chosen, when the store says where that is.
-      label.textContent = chooseLabel(product, locale);
+      link.append(buttonText(chooseLabel(product, locale, modifiers)));
       const page = productPageHref(this.look.productUrl ?? "", product);
       if (page) link.href = page;
       else {
@@ -111,23 +124,34 @@ export class ProductLinkElement extends ProductElement {
 
     const requested = this.requestedCurrency;
     link.rel = "nofollow";
-    label.textContent = this.label || this.look.buttonText || format(locale, messages.addToCart);
+    const label = this.label || this.look.buttonText || format(locale, messages.addToCart);
 
     if (product && !product.is_in_stock) {
       // No href: it isn't a link any more, so neither 2.0 nor a click adds it.
       link.setAttribute("aria-disabled", "true");
       link.setAttribute("role", "link");
-      label.textContent = format(locale, messages.soldOut);
+      link.append(buttonText(format(locale, messages.soldOut)));
     } else {
       link.href = addToCartHref(store, sku, {
+        ...modifiers,
         quantity: this.quantity > 1 ? String(this.quantity) : undefined,
         cart: this.checkout ? "checkout" : undefined,
       });
-      if (this.showPrice && product) link.append(" · ", renderPrice(product, requested, locale));
+      // One unit, with the modifiers' amounts, as the cart will charge it.
+      const live = product && Object.keys(modifiers).length
+        ? livePrice(product, { choices: {}, variantSku: null, modifiers, quantity: 1 }, requested)
+        : null;
+      let price: HTMLElement | undefined;
+      if (this.showPrice && product) {
+        price = renderPrice(product, requested, locale);
+        if (live) price.replaceChildren(...priceNodes(live.price, live.listPrice, live.currency, locale));
+      }
+      link.append(buttonText(label, price));
       if (product) {
         link.addEventListener("click", () => {
           const { item, currency } = analyticsItem(product, locale, requested, {
             chosen: product,
+            price: live?.price,
             quantity: this.quantity,
           });
           this.addStarted(analyticsDetail([item], currency));

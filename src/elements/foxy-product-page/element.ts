@@ -1,4 +1,4 @@
-import { jsonLdScript, productImage } from "@/lib/products/light-dom";
+import { jsonLdScript, PHOTO_MAX_HEIGHT, productImage } from "@/lib/products/light-dom";
 import { renderMarkdown } from "@/lib/products/markdown";
 import { format, messages } from "@/lib/products/messages";
 import { productDescription, productName } from "@/lib/products/price";
@@ -39,13 +39,13 @@ export class ProductPageElement extends PurchaseElement {
   }
 
   /**
-   * How the description's top-level headings are shown: `none` (as written,
-   * the default), `tabs`, `accordion`, or `auto` (with three or more, tabs
-   * when the element is wide and an accordion when it is narrow).
+   * How the description's top-level headings are shown: `auto` (the
+   * default: with three or more, tabs when the element is wide and an
+   * accordion when it is narrow), `tabs`, `accordion`, or `none` (as written).
    */
   get descriptionLayout(): "none" | "tabs" | "accordion" | "auto" {
     const value = this.getAttribute("description-layout");
-    return value === "tabs" || value === "accordion" || value === "auto" ? value : "none";
+    return value === "tabs" || value === "accordion" || value === "none" ? value : "auto";
   }
 
   set descriptionLayout(value: "none" | "tabs" | "accordion" | "auto") {
@@ -106,11 +106,12 @@ export class ProductPageElement extends PurchaseElement {
     page.append(main);
 
     const details = el("section", "foxy-product-details");
-    const list = document.createElement("dl");
+    const list = el("dl", "foxy-product-detail-list");
     const row = (term: string, value: string) => {
-      const dd = document.createElement("dd");
-      dd.textContent = value;
-      list.append(Object.assign(document.createElement("dt"), { textContent: term }), dd);
+      const dd = el("dd", "", value);
+      const group = el("div", "");
+      group.append(el("dt", "", term), dd);
+      list.append(group);
       return dd;
     };
     const { definition } = product;
@@ -256,11 +257,23 @@ export class ProductPageElement extends PurchaseElement {
     hero.className = "foxy-product-hero";
     const children: HTMLElement[] = [hero];
     const buttons: HTMLButtonElement[] = [];
+    // The frame takes the main photo's shape, from its stated size until it
+    // loads, so a photo shown from the thumbnails fits inside it rather than
+    // moving them. It is the column's width unless that would make it taller
+    // than the cap, so the main photo is never letterboxed.
+    const main = productImage(images[0], false);
+    const shape = (width = 0, height = 0): void => {
+      if (!width || !height) return;
+      hero.style.aspectRatio = `${width} / ${height}`;
+      hero.style.width = `min(100%, ${PHOTO_MAX_HEIGHT} * ${width / height})`;
+    };
+    shape(images[0]?.width, images[0]?.height);
+    main?.addEventListener("load", () => shape(main.naturalWidth, main.naturalHeight), { once: true });
     // Shows a photo without rebuilding the thumbnails, which would end the
     // hover or take the focus that chose it.
     const show = (index: number): void => {
       this.#photo = index;
-      const shown = productImage(images[index], false);
+      const shown = index === 0 ? main : productImage(images[index], false);
       hero.replaceChildren(...(shown ? [shown] : []));
       buttons.forEach((button, at) => button.setAttribute("aria-current", String(at === index)));
     };

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { FIXTURE_STORE, plainMug, stubCatalog, type CatalogStub } from "@/lib/products/fixtures";
+import { FIXTURE_STORE, engravedMug, plainMug, stubCatalog, teeParent, type CatalogStub } from "@/lib/products/fixtures";
+import type { CatalogProduct } from "@/lib/products/types";
 import { listenLikeFoxy2, settle } from "@/lib/products/foxy2-test-utils";
 import "./element";
 
@@ -55,6 +56,35 @@ describe("foxy-product-link", () => {
     expect(link(element)?.className).toBe("foxy-product-text-link");
     expect(link(element)?.textContent).toBe("Add a mug · $16.40 $18.90");
     expect(getComputedStyle(link(element)!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  });
+
+  it("leaves the price out of a button too narrow for it, keeping the label on one line", async () => {
+    stub = stubCatalog();
+    document.body.innerHTML = `<div id="frame" style="width: 420px"><foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" currency="USD" theme="bookshop"></foxy-product-link></div>`;
+    const element = document.body.querySelector<HTMLElement>("foxy-product-link")!;
+    await settle();
+    const frame = document.getElementById("frame")!;
+    const box = (selector: string) => element.querySelector(selector)!.getBoundingClientRect();
+    const lineHeight = () => parseFloat(getComputedStyle(element.querySelector(".foxy-product-label")!).lineHeight);
+    const priceShown = () => box(".foxy-product-button-price").top < box(".foxy-product-button-text").bottom;
+
+    expect(priceShown()).toBe(true);
+    expect(box(".foxy-product-button-price").top).toBe(box(".foxy-product-label").top);
+
+    frame.style.width = "200px";
+    expect(priceShown()).toBe(false);
+    expect(box(".foxy-product-label").height).toBeLessThanOrEqual(lineHeight());
+    expect(box(".foxy-product-button").width).toBeLessThanOrEqual(200);
+    // Still in the link's text, for screen readers.
+    expect(link(element)?.textContent).toBe("Add to cart · $16.40 $18.90");
+
+    // Too narrow for the label alone, it wraps rather than being cut off.
+    frame.style.width = "100px";
+    expect(box(".foxy-product-label").height).toBeGreaterThan(lineHeight());
+    expect(box(".foxy-product-button-text").height).toBe(box(".foxy-product-label").height);
+
+    frame.style.width = "420px";
+    expect(priceShown()).toBe(true);
   });
 
   it("is picked up by 2.0's delegated click handler", async () => {
@@ -169,6 +199,65 @@ describe("foxy-product-link", () => {
     expect(link(element)?.getAttribute("href")).toBe("/products/TEE-ORG");
     expect(link(element)?.textContent).toBe("Choose colour and size");
     expect(link(element)?.hasAttribute("aria-disabled")).toBe(false);
+  });
+
+  describe("a variant with a required modifier", () => {
+    // A variant's definition carries its parent's options, which its own
+    // option values have already chosen; only the gift box is left.
+    const [blackSmall] = teeParent._embedded!.variants!;
+    const boxed: CatalogProduct = {
+      ...blackSmall,
+      definition: {
+        ...blackSmall.definition,
+        modifiers: [
+          { name: "gift_box", label: "Gift box", type: "select", required: true, values: [
+            { value: "Kraft" },
+            { value: "Black linen", price_mod: "3.75" },
+          ] },
+        ],
+      },
+    };
+    const mountBoxed = async (attributes = "") => {
+      stub = stubCatalog([boxed, engravedMug]);
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="TEE-ORG-BLK-S" currency="USD" ${attributes}></foxy-product-link>`);
+      await settle();
+      return element;
+    };
+
+    it("asks only for what is missing, and goes to the product's page when the store says where that is", async () => {
+      stub = stubCatalog([boxed]);
+      stub.look = { product_url: "/products/{sku}" };
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="TEE-ORG-BLK-S"></foxy-product-link>`);
+      await settle();
+      expect(link(element)?.textContent).toBe("Choose a gift box");
+      expect(link(element)?.getAttribute("href")).toBe("/products/TEE-ORG-BLK-S");
+    });
+
+    it("adds in one click with the modifier preset by value, priced with it", async () => {
+      const element = await mountBoxed(`value="gift_box=black linen"`);
+      expect(link(element)?.href).toBe(`https://${FIXTURE_STORE}/cart?sku=TEE-ORG-BLK-S&gift_box=Black+linen`);
+      expect(link(element)?.textContent).toBe("Add to cart · $28.70");
+    });
+
+    it("ignores a preset the cart would refuse", async () => {
+      const element = await mountBoxed(`value="gift_box=Velvet&colour=Red"`);
+      expect(link(element)?.textContent).toBe("Choose a gift box");
+      expect(link(element)?.hasAttribute("href")).toBe(false);
+    });
+
+    it("takes a text modifier's preset, within its length", async () => {
+      stub = stubCatalog([engravedMug]);
+      const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-ENGRAVE" currency="USD" value="engraving=Jo%20%26%20Sam"></foxy-product-link>`);
+      await settle();
+      expect(link(element)?.href).toBe(`https://${FIXTURE_STORE}/cart?sku=MUG-ENM-ENGRAVE&engraving=Jo+%26+Sam`);
+      expect(link(element)?.textContent).toBe("Add to cart · $27.50 $30.00");
+
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      element.setAttribute("value", `engraving=${"x".repeat(21)}`);
+      expect(link(element)?.textContent).toBe("Choose an engraving");
+    });
   });
 
   it("keeps the plain link when the catalog can't be read", async () => {

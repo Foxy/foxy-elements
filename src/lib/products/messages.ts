@@ -103,10 +103,6 @@ export const messages = defineMessages({
     id: "product_choose_two",
     defaultMessage: "Choose {first} and {second}",
   },
-  addWithPrice: {
-    id: "product_add_with_price",
-    defaultMessage: "{label} · {price}",
-  },
   onlyLeft: {
     id: "product_only_left",
     defaultMessage: "Only {count} left",
