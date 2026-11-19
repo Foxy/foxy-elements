@@ -3,6 +3,7 @@ import type { FxCustomerPortalSettings } from '../../../../../types/hapi';
 import type { ScopedElementsMap } from '@open-wc/scoped-elements';
 
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
+import '../../../../../utils/composed-vaadin-input';
 import { SignUpChangeEvent } from './SignUpChangeEvent';
 import { I18N, Section } from '../../../../private/index';
 import { Translatable } from '../../../../../mixins/translatable';

@@ -1,4 +1,5 @@
 import '@vaadin/vaadin-text-field/vaadin-password-field';
+import '../../../utils/composed-vaadin-input';
 import '../../public/CopyToClipboard/index';
 import '../InternalEditableControl/index';
 import './vaadinStyles';

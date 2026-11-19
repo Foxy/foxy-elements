@@ -2,6 +2,7 @@ import 'webcomponent-qr-code';
 import '@vaadin/vaadin-text-field/vaadin-email-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
+import '../../../utils/composed-vaadin-input';
 import '@vaadin/vaadin-checkbox';
 import '../../internal/InternalButton/index';
 import '@vaadin/vaadin-lumo-styles/icons';

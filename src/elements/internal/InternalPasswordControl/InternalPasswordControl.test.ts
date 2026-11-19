@@ -225,6 +225,18 @@ describe('InternalTextControl', () => {
     expect(control).to.have.property('testValue', 'test_value');
   });
 
+  it('writes to "_value" when a password manager fills the inner input', async () => {
+    const layout = html`<test-internal-password-control></test-internal-password-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-password-field')!;
+    const input = field.shadowRoot!.querySelector('input')!;
+
+    input.value = 'Kq7v2Rm9xTz4Lp3W';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+
+    expect(control).to.have.property('testValue', 'Kq7v2Rm9xTz4Lp3W');
+  });
+
   it('submits the host nucleon form on Enter', async () => {
     const layout = html`<test-internal-password-control></test-internal-password-control>`;
     const control = await fixture<TestControl>(layout);

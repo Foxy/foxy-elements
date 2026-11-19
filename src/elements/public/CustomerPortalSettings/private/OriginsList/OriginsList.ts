@@ -1,6 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '../../../../internal/InternalButton/index';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
+import '../../../../../utils/composed-vaadin-input';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
