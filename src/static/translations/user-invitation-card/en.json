@@ -37,7 +37,7 @@
     "taxes": "taxes",
     "templates": "templates",
     "transactions": "transactions",
-    "user_invitations": "user invitations",
+    "user_invitations": "users and permissions",
     "webhooks": "webhooks"
   },
   "spinner": {

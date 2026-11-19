@@ -1,6 +1,6 @@
 import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { Option } from '../../../../internal/InternalSelectControl/types';
-import type { Level, Selection } from '../../../../../utils/invitation-scope';
+import type { Level, Role, Selection } from '../../../../../utils/invitation-scope';
 
 import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { COLLECTIONS, RESENDABLE } from '../../../../../utils/group-invitation-scopes';
@@ -11,13 +11,17 @@ import { html } from 'lit-html';
 import {
   canGrantLevel,
   canGrantReadPreset,
+  canGrantRole,
   canGrantResend,
   getGrantable,
+  getRole,
   parseScope,
+  ROLES,
   serializeScope,
 } from '../../../../../utils/invitation-scope';
 
 type Preset = 'store' | 'read' | 'custom';
+type PresetOption = Preset | Role;
 
 /**
  * Lets an admin choose which scopes an invitation grants, offering only what the granting
@@ -35,6 +39,8 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
       ...super.properties,
       granterScope: { attribute: 'granter-scope' },
       __customSelected: { attribute: false },
+      __isCustomPicked: { attribute: false },
+      __isErrorVisible: { attribute: false },
     };
   }
 
@@ -78,6 +84,11 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
           .matrix {
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
           }
+
+          /* Rows can be hidden, so an odd last row spans both columns instead of leaving a hole. */
+          .matrix > :last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+          }
         }
 
         /*
@@ -109,6 +120,9 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
    */
   private __customSelected = false;
 
+  /** Set only when the admin picks `Custom` itself, so the select stops showing a matching role. */
+  private __isCustomPicked = false;
+
   /**
    * Cached outcome of `__hasUnreachableGrant` from the most recently completed `renderControl()`
    * pass. Read by `updated()` below -- see its doc comment for why the lock needs to land on
@@ -116,10 +130,20 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
    */
   private __isLocked = false;
 
+  /** Set by `reportValidity`. Only used while the preset select, which shows errors, is absent. */
+  private __isErrorVisible = false;
+
+  reportValidity(): void {
+    this.__isErrorVisible = true;
+    super.reportValidity();
+  }
+
   renderControl(): TemplateResult {
     const selection = parseScope(this.__scope);
     const grantable = getGrantable(this.granterScope ?? void 0);
     const currentPreset = this.__preset(selection);
+    // A role parses as `custom`, so the matrix stays open; only the select shows its name.
+    const currentRole = this.__isCustomPicked ? null : getRole(selection);
     const presets: Preset[] = [];
 
     if (grantable.storeFullAccess) presets.push('store');
@@ -161,29 +185,50 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     const readonly = this.readonly || isLocked;
     const helperText = isLocked ? this.t('helper_text_locked') : this.helperText;
 
-    const presetOptions: Option[] = renderedPresets.map(preset => ({
+    // Roles sit before `custom`. A role is hidden unless fully grantable or already current.
+    const optionValues: PresetOption[] = [
+      ...renderedPresets.filter(preset => preset !== 'custom'),
+      ...(Object.keys(ROLES) as Role[]).filter(
+        role => role === currentRole || canGrantRole(grantable, role)
+      ),
+      'custom',
+    ];
+
+    const presetOptions: Option[] = optionValues.map(preset => ({
       label: `preset_${preset}`,
       value: preset,
     }));
 
+    // `custom` is always last, so a single option is always `custom`. Nothing to choose, so it
+    // applies without a pick and its select is not rendered.
+    const isSingleOption = optionValues.length === 1;
+
     return html`
       <div class="grid gap-m">
         <foxy-internal-summary-control infer="" label=${this.label} helper-text=${helperText}>
-          <foxy-internal-select-control
-            layout="summary-item"
-            infer=""
-            label=${this.t('preset_label')}
-            helper-text=""
-            data-preset=""
-            ?disabled=${this.disabled}
-            ?readonly=${readonly}
-            .options=${presetOptions}
-            .getValue=${() => currentPreset ?? undefined}
-            .setValue=${(newValue: unknown) => this.__selectPreset(newValue as Preset)}
-          >
-          </foxy-internal-select-control>
+          ${isSingleOption
+            ? ''
+            : html`<foxy-internal-select-control
+                layout="summary-item"
+                infer=""
+                label=${this.t('preset_label')}
+                helper-text=""
+                data-preset=""
+                ?disabled=${this.disabled}
+                ?readonly=${readonly}
+                .options=${presetOptions}
+                .getValue=${() => currentRole ?? currentPreset ?? undefined}
+                .setValue=${(newValue: unknown) => this.__selectPreset(newValue as PresetOption)}
+              >
+              </foxy-internal-select-control>`}
         </foxy-internal-summary-control>
-        ${currentPreset === 'custom'
+        ${isSingleOption && this.__isErrorVisible && this._errorMessage && !readonly
+          ? // The custom-empty message points at an option above, which is not shown here.
+            html`<p class="text-xs text-error" style="margin-top: -0.5rem">
+              ${this.t('v8n_required')}
+            </p>`
+          : ''}
+        ${isSingleOption || currentPreset === 'custom'
           ? html`
               <div class="matrix">
                 ${COLLECTIONS.map(collection =>
@@ -275,7 +320,7 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     selection: Selection,
     grantable: ReturnType<typeof getGrantable>,
     readonly: boolean
-  ): TemplateResult {
+  ): TemplateResult | string {
     const allLevels: Level[] = ['none', 'read', 'full'];
     const currentLevel = selection.levels[collection] ?? 'none';
 
@@ -289,6 +334,9 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     // that value stays displayable without being treated as an unreachable grant.
     const offerable: Level[] = collection === 'stores' ? ['read', 'full'] : allLevels;
     const available = offerable.filter(level => canGrantLevel(grantable, collection, level));
+
+    // A row the granter can't grant at all is noise. It still shows when the invitation holds it.
+    if (currentLevel === 'none' && available.every(level => level === 'none')) return '';
 
     // The option list must be the grantable levels for this row, PLUS the row's current level
     // if it is not grantable/offerable. `vaadin-combo-box` reconciles its displayed value
@@ -465,8 +513,18 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
     return selection.preset;
   }
 
-  private __selectPreset(preset: Preset): void {
+  private __selectPreset(preset: PresetOption): void {
     this.__customSelected = preset === 'custom';
+    this.__isCustomPicked = preset === 'custom';
+
+    if (preset in ROLES) {
+      // Replaces the selection but keeps `extra` tokens, like the store preset does.
+      this.__customSelected = true;
+      const { extra } = parseScope(this.__scope);
+      const role = parseScope(ROLES[preset as Role]);
+      this._value = serializeScope({ ...role, preset: 'custom', extra });
+      return;
+    }
 
     // Choosing Custom keeps whatever is already in the form, so the matrix opens on the
     // current grant rather than wiping it. The wildcard has no per-row levels, so it is

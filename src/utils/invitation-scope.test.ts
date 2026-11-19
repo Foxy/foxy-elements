@@ -7,6 +7,9 @@ import {
   canGrantLevel,
   canGrantResend,
   canGrantReadPreset,
+  canGrantRole,
+  getRole,
+  ROLES,
 } from './invitation-scope';
 
 const allReads = COLLECTIONS.map(collection => `${collection}_read`).join(' ');
@@ -177,6 +180,27 @@ describe('utils/invitation-scope', () => {
       expect(canGrantReadPreset(getGrantable(allWrites))).to.be.true;
       expect(canGrantReadPreset(getGrantable('customers_read'))).to.be.false;
       expect(canGrantReadPreset(getGrantable(''))).to.be.false;
+    });
+  });
+
+  describe('roles', () => {
+    it('only contains tokens the matrix models', () => {
+      Object.values(ROLES).forEach(scope => expect(parseScope(scope).extra).to.be.empty);
+    });
+
+    it('matches a selection to a role, ignoring extras and resend at Full', () => {
+      expect(getRole(parseScope(`${ROLES.designer} client_full_access`))).to.equal('designer');
+      expect(getRole(parseScope(`${ROLES.developer} webhooks_resend`))).to.equal('developer');
+      expect(getRole(parseScope(`${ROLES.designer} carts_read`))).to.be.null;
+      expect(getRole(parseScope('store_full_access'))).to.be.null;
+    });
+
+    it('grants a role only when every level is grantable', () => {
+      expect(canGrantRole(getGrantable('store_full_access'), 'developer')).to.be.true;
+      expect(canGrantRole(getGrantable(ROLES.designer), 'designer')).to.be.true;
+
+      const narrow = ROLES.designer.replace('templates_write', 'templates_read');
+      expect(canGrantRole(getGrantable(narrow), 'designer')).to.be.false;
     });
   });
 });

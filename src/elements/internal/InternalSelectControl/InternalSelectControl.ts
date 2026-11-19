@@ -4,6 +4,7 @@ import type { Option } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { live } from 'lit-html/directives/live';
 import { html, svg } from 'lit-html';
 import { classMap } from '../../../utils/class-map';
 
@@ -107,6 +108,7 @@ export class InternalSelectControl extends InternalEditableControl {
   private __renderSummaryItemLayout() {
     const selection = this.options.find(v => v.value === this._value);
 
+    // `live(.selected)`, not `?selected`: the attribute is ignored once the user has picked.
     return html`
       <div class="leading-xs">
         <div class="flex items-center gap-s">
@@ -156,7 +158,7 @@ export class InternalSelectControl extends InternalEditableControl {
                   html`
                     <option
                       value=${option.value}
-                      ?selected=${selection && option.value === this._value}
+                      .selected=${live(!!selection && option.value === this._value)}
                     >
                       ${'label' in option ? this.t(option.label) : option.rawLabel}
                     </option>
