@@ -3,6 +3,7 @@ import './index';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ProductList } from './ProductList';
+import { clearCachedLists, readCachedList, writeCachedList } from './cache';
 import { collectionsHref, createServer, product, productsHref } from './fixtures';
 
 describe('ProductList', () => {
@@ -319,9 +320,68 @@ describe('ProductList', () => {
     const server = createServer([product(7, { definition: { name: 'A' } })]);
     server.collections = [];
     const element = await render(server);
-    ['collection-filter', 'template-filter', 'columns'].forEach(id => {
-      expect(element.renderRoot.querySelector(`[data-testid="${id}"]`)).to.not.exist;
-    });
+    ['collection-filter', 'template-filter', 'column-collection', 'column-template'].forEach(
+      id => expect(element.renderRoot.querySelector(`[data-testid="${id}"]`)).to.not.exist
+    );
+  });
+
+  it('hides every column but Name and SKU when asked, and remembers the choice', async () => {
+    const element = await render();
+    const head = (list: ProductList) =>
+      Array.from(list.renderRoot.querySelectorAll('[role="columnheader"]')).map(text);
+    const boxes = Array.from(
+      element.renderRoot.querySelectorAll<HTMLInputElement>('[data-testid^="column-"]')
+    );
+    expect(boxes.map(box => box.dataset.testid)).to.deep.equal([
+      'column-type',
+      'column-collection',
+      'column-template',
+      'column-price',
+      'column-stock',
+    ]);
+    expect(boxes.map(box => box.checked)).to.deep.equal([true, false, false, true, true]);
+
+    for (const box of boxes.filter(box => box.checked)) {
+      box.checked = false;
+      box.dispatchEvent(new Event('change'));
+      await element.updateComplete;
+    }
+
+    expect(head(element)).to.deep.equal(['column_name ↑', 'column_sku']);
+    expect(rows(element)[0].querySelectorAll('[role="cell"]')).to.have.length(2);
+
+    const again = await render();
+    expect(again.hiddenColumns).to.deep.equal(['type', 'price', 'stock']);
+    expect(head(again)).to.deep.equal(['column_name ↑', 'column_sku']);
+  });
+
+  it('orders by collection and by template, with products that have neither last', async () => {
+    const element = await render();
+    element.extraColumns = ['collection', 'template'];
+    await element.updateComplete;
+    const click = async (column: string) => {
+      element.renderRoot.querySelector<HTMLElement>(`[data-testid="sort-${column}"]`)!.click();
+      await element.updateComplete;
+    };
+    const shown = (column: string) => rows(element).map(row => text(cell(row, column)));
+
+    await click('collection');
+    const ascending = shown('collection');
+    const named = ascending.filter(value => value !== '—');
+    expect(named).to.have.length.greaterThan(1);
+    expect(named).to.deep.equal([...named].sort((a, b) => a.localeCompare(b)));
+    expect(ascending.slice(named.length).every(value => value === '—')).to.be.true;
+
+    await click('collection');
+    expect(shown('collection').slice(0, named.length)).to.deep.equal([...named].reverse());
+
+    await click('template');
+    expect(shown('template')[0]).to.equal('TPL-COFFEE-340');
+    expect(
+      shown('template')
+        .slice(1)
+        .every(value => value === '—')
+    ).to.be.true;
   });
 
   it('shows the Collection and Template columns when chosen, and remembers the choice', async () => {
@@ -403,5 +463,261 @@ describe('ProductList', () => {
     const status = element.renderRoot.querySelector('[data-testid="status"]')!;
     expect(text(status)).to.equal('error');
     expect(status.getAttribute('role')).to.equal('alert');
+  });
+
+  describe('thumbnails', () => {
+    // An image that loads, so that only the test decides when one fails.
+    const src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
+    const withImage = () => [
+      product(41, { definition: { name: 'Enamel Camp Mug', images: [{ src, alt: 'A mug' }] } }),
+      product(42, { definition: { name: 'Gift wrap' } }),
+    ];
+    const thumbs = (element: ProductList) =>
+      rows(element).map(row => row.querySelector<HTMLElement>('[data-testid="thumbnail"]'));
+
+    it('has no thumbnail column when no product has an image', async () => {
+      const element = await render();
+      expect(thumbs(element).every(thumb => thumb === null)).to.be.true;
+      expect(element.renderRoot.querySelectorAll('[role="columnheader"]')).to.have.length(5);
+    });
+
+    it('shows a small, lazy image beside the name, and an empty cell for a product without one', async () => {
+      const element = await render(createServer(withImage()));
+      const [mug, wrap] = thumbs(element);
+      const img = mug!.querySelector('img')!;
+
+      expect(img.getAttribute('src')).to.equal(src);
+      expect(img.getAttribute('alt')).to.equal('');
+      expect(img.getAttribute('loading')).to.equal('lazy');
+      expect(img.getAttribute('width')).to.equal('40');
+      expect(img.getAttribute('height')).to.equal('40');
+      expect(wrap).to.exist;
+      expect(wrap!.querySelector('img')).to.not.exist;
+      expect(element.renderRoot.querySelectorAll('[role="columnheader"]')).to.have.length(6);
+    });
+
+    it('keeps the column while a filter hides every product with an image', async () => {
+      const element = await render(createServer(withImage()));
+      element.query = 'wrap';
+      await element.updateComplete;
+      expect(thumbs(element)).to.have.length(1);
+      expect(thumbs(element)[0]).to.exist;
+    });
+
+    it('asks the page for a smaller image, then tries the image itself, then shows none', async () => {
+      const element = await render(createServer(withImage()));
+      const small = `${src}#small`;
+      element.getThumbnailUrl = from => `${from}#small`;
+      await element.updateComplete;
+
+      const img = () => thumbs(element)[0]!.querySelector('img');
+      expect(img()!.getAttribute('src')).to.equal(small);
+
+      img()!.dispatchEvent(new Event('error'));
+      await element.updateComplete;
+      expect(img()!.getAttribute('src')).to.equal(src);
+
+      img()!.dispatchEvent(new Event('error'));
+      await element.updateComplete;
+      expect(img()).to.not.exist;
+    });
+  });
+
+  describe('filters', () => {
+    it('says when the search text or a filter is changed in the list, and when they are cleared', async () => {
+      const element = await render();
+      let changes = 0;
+      element.addEventListener('filter-change', () => changes++);
+
+      const search = element.renderRoot.querySelector<HTMLInputElement>('[data-testid="search"]')!;
+      search.value = 'mug';
+      search.dispatchEvent(new Event('input'));
+      expect(element.query).to.equal('mug');
+      expect(changes).to.equal(1);
+
+      const type = element.renderRoot.querySelector<HTMLSelectElement>(
+        '[data-testid="type-filter"]'
+      )!;
+      type.value = 'template';
+      type.dispatchEvent(new Event('change'));
+      expect(element.typeFilter).to.equal('template');
+      expect(changes).to.equal(2);
+
+      await element.updateComplete;
+      element.renderRoot.querySelector<HTMLButtonElement>('[data-testid="clear-filters"]')!.click();
+      expect(element.query).to.equal('');
+      expect(element.typeFilter).to.equal('all');
+      expect(changes).to.equal(3);
+    });
+
+    it('stays quiet when a filter is set from outside', async () => {
+      const element = await render();
+      let changes = 0;
+      element.addEventListener('filter-change', () => changes++);
+      element.templateFilter = '51';
+      await element.updateComplete;
+      expect(changes).to.equal(0);
+    });
+  });
+
+  describe('stored copy', () => {
+    beforeEach(() => sessionStorage.clear());
+    after(() => sessionStorage.clear());
+
+    /** A server whose answers wait until `release` is called. */
+    function slowServer() {
+      const server = createServer();
+      let release: () => void = () => undefined;
+      const gate = new Promise<void>(resolve => (release = resolve));
+      const handle = (evt: any) => {
+        evt.preventDefault();
+        evt.respondWith(gate.then(() => fetchFrom(server, evt)));
+      };
+      return { server, handle, release };
+    }
+
+    function fetchFrom(server: ReturnType<typeof createServer>, evt: any): Promise<Response> {
+      return new Promise(resolve => {
+        server.handle({
+          request: evt.request,
+          preventDefault: () => undefined,
+          respondWith: (response: Promise<Response>) => resolve(response),
+        } as any);
+      });
+    }
+
+    async function renderStored(handle: (evt: any) => void, storage: Storage | null) {
+      return fixture<ProductList>(html`
+        <foxy-product-list
+          product-collections=${collectionsHref}
+          href=${productsHref}
+          lang="en"
+          .storage=${storage}
+          @fetch=${handle}
+        >
+        </foxy-product-list>
+      `);
+    }
+
+    it('keeps nothing without a storage', async () => {
+      await render();
+      expect(sessionStorage.length).to.equal(0);
+    });
+
+    it('shows the last load at once, then what the request answers', async () => {
+      const first = await renderStored(createServer().handle, sessionStorage);
+      await waitUntil(() => !!first.data, undefined, { timeout: 5000 });
+      const { server, handle, release } = slowServer();
+      const count = server.products.length;
+      expect(readCachedList(sessionStorage, productsHref)!.products).to.have.length(count);
+
+      server.products = server.products.filter(p => p.sku !== 'GIFT-WRAP');
+      const second = await renderStored(handle, sessionStorage);
+      await second.updateComplete;
+
+      expect(second.data).to.be.null;
+      expect(rows(second).map(row => row.dataset.sku)).to.include('GIFT-WRAP');
+      expect(second.renderRoot.querySelector('[data-testid="status"]')).to.not.exist;
+      expect(second.renderRoot.querySelector('[data-testid="collection-filter"]')).to.exist;
+
+      release();
+      await waitUntil(() => !!second.data, undefined, { timeout: 5000 });
+      await second.updateComplete;
+      expect(rows(second).map(row => row.dataset.sku)).to.not.include('GIFT-WRAP');
+      expect(readCachedList(sessionStorage, productsHref)!.products).to.have.length(count - 1);
+    });
+
+    it('never shows a copy kept for another URL, and keeps one copy at a time', async () => {
+      writeCachedList(sessionStorage, 'https://demo.api/hapi/stores/8/products', {
+        products: [product(801, { definition: { name: 'Another store' } })],
+        collections: [],
+      });
+
+      const { handle, release } = slowServer();
+      const element = await renderStored(handle, sessionStorage);
+      await element.updateComplete;
+      expect(rows(element)).to.have.length(0);
+      expect(element.renderRoot.querySelector('[data-testid="status"]')).to.exist;
+
+      release();
+      await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+      expect(readCachedList(sessionStorage, 'https://demo.api/hapi/stores/8/products')).to.be.null;
+      expect(sessionStorage.length).to.equal(1);
+    });
+
+    it('drops the copy and shows none of it when the products can no longer be loaded', async () => {
+      writeCachedList(sessionStorage, productsHref, {
+        products: [product(41, { definition: { name: 'Enamel Camp Mug' } })],
+        collections: [],
+      });
+
+      const element = await renderStored((evt: any) => {
+        evt.preventDefault();
+        evt.respondWith(Promise.resolve(new Response('{}', { status: 403 })));
+      }, sessionStorage);
+      await waitUntil(() => element.in('fail'));
+      await element.updateComplete;
+
+      expect(rows(element)).to.have.length(0);
+      expect(sessionStorage.length).to.equal(0);
+    });
+
+    it('keeps no copy of a list too large to store, or when storage refuses', async () => {
+      const big = product(41, { definition: { name: 'x'.repeat(1_600_000) } });
+      writeCachedList(sessionStorage, productsHref, { products: [big], collections: [] });
+      expect(sessionStorage.length).to.equal(0);
+
+      const refusing = {
+        length: 0,
+        key: () => null,
+        getItem: () => {
+          throw new Error('denied');
+        },
+        setItem: () => {
+          throw new Error('denied');
+        },
+        removeItem: () => {
+          throw new Error('denied');
+        },
+      } as unknown as Storage;
+      const element = await renderStored(createServer().handle, refusing);
+      await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+      expect(rows(element)).to.have.length(5);
+      expect(readCachedList(refusing, productsHref)).to.be.null;
+    });
+
+    it('keeps only what a row needs of each product', () => {
+      const images = [
+        { src: 'https://images.example/a.jpg' },
+        { src: 'https://images.example/b.jpg' },
+      ];
+      const definition = {
+        name: 'Enamel Camp Mug',
+        price: '16.40',
+        description: 'Speckled.',
+        images,
+      };
+      writeCachedList(sessionStorage, productsHref, {
+        products: [product(41, { sku: 'MUG-ENAMEL-12', stock_level: 3, definition })],
+        collections: [],
+      });
+
+      const [stored] = readCachedList(sessionStorage, productsHref)!.products;
+      expect(stored.sku).to.equal('MUG-ENAMEL-12');
+      expect(stored.stock_level).to.equal(3);
+      expect(stored.compiled_definition).to.deep.equal({
+        name: 'Enamel Camp Mug',
+        price: '16.40',
+        images: [images[0]],
+      });
+    });
+
+    it('clears every copy on request, leaving other stored values alone', () => {
+      sessionStorage.setItem('unrelated', '1');
+      writeCachedList(sessionStorage, productsHref, { products: [], collections: [] });
+      clearCachedLists(sessionStorage);
+      expect(sessionStorage.length).to.equal(1);
+      expect(sessionStorage.getItem('unrelated')).to.equal('1');
+    });
   });
 });

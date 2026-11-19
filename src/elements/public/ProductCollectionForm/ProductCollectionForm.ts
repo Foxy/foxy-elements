@@ -20,7 +20,7 @@ const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
  * and read-only. Slug is auto-generated from the name when left blank.
  *
  * @element foxy-product-collection-form
- * @since 1.54.0
+ * @since 1.62.0
  */
 export class ProductCollectionForm extends Base<Data> {
   static get properties(): PropertyDeclarations {

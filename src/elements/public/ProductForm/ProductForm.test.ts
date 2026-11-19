@@ -2,6 +2,7 @@ import './index';
 
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { ProductForm } from './ProductForm';
+import { ImageTooLargeError } from './catalog';
 import { Data } from './types';
 import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { LitElement } from 'lit-element';
@@ -229,6 +230,28 @@ describe('ProductForm', () => {
       `);
       await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
       await element.requestUpdate();
+      expect(element.renderRoot.querySelector('foxy-internal-product-form-storefront-control')).to
+        .not.exist;
+    });
+
+    it('leaves the storefront section out altogether when its control is hidden', async () => {
+      const router = createRouter();
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form
+          href="https://demo.api/hapi/products/0"
+          default-domain="foxycart.com"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-product-form>
+      `);
+      await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+      await element.requestUpdate();
+      const section = () => element.renderRoot.querySelector('[data-testid="section-storefront"]');
+      expect(section()).to.exist;
+
+      element.setAttribute('hiddencontrols', 'storefront');
+      await element.requestUpdate();
+      expect(section(), 'no heading left over an empty section').to.not.exist;
       expect(element.renderRoot.querySelector('foxy-internal-product-form-storefront-control')).to
         .not.exist;
     });
@@ -481,11 +504,16 @@ describe('ProductForm', () => {
         .exist;
     });
 
-    it('uploads an image through fx:create_upload_url and a pre-signed PUT', async () => {
+    it('uploads an image through fx:create_upload_url and a signed form post', async () => {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
       const createUploadUrl = 'https://demo.api/s/admin/products/1/create_upload_url';
-      const uploadUrl =
-        'https://bucket.s3.example.test/products/store_1/products/1/01J.png?X-Amz-Signature=abc';
+      const uploadUrl = 'https://uploads.example.test/';
+      const uploadFields = {
+        'key': 'products/store_1/products/1/01J.png',
+        'Content-Type': 'image/png',
+        'Policy': 'eyJleHBpcmF0aW9uIjoiMjAyNi0xMS0xOVQwMDoxNTowMFoifQ==',
+        'X-Amz-Signature': '9f2c4e61b7a05d3388c1e4f7a2b6d09c5e7f1a3b',
+      };
       const imageUrl = 'https://images.example.test/products/store_1/products/1/01J.png';
       const product = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
       element.data = {
@@ -505,7 +533,14 @@ describe('ProductForm', () => {
         apiRequests.push(fetchEvent.request);
         fetchEvent.respondWith(
           Promise.resolve(
-            new Response(JSON.stringify({ upload_url: uploadUrl, image_url: imageUrl }))
+            new Response(
+              JSON.stringify({
+                upload_url: uploadUrl,
+                upload_fields: uploadFields,
+                max_bytes: 10485760,
+                image_url: imageUrl,
+              })
+            )
           )
         );
       });
@@ -527,15 +562,104 @@ describe('ProductForm', () => {
       expect(apiRequests).to.have.length(1);
       expect(apiRequests[0].url).to.equal(createUploadUrl);
       expect(apiRequests[0].method).to.equal('POST');
-      expect(await apiRequests[0].json()).to.deep.equal({ type: 'image/png' });
+      expect(await apiRequests[0].json()).to.deep.equal({ type: 'image/png', size: 3 });
 
       expect(puts).to.have.length(1);
       expect(puts[0].url).to.equal(uploadUrl);
-      expect(puts[0].init?.method).to.equal('PUT');
-      expect(puts[0].init?.body).to.equal(file);
-      expect((puts[0].init?.headers as Record<string, string>)['Content-Type']).to.equal(
-        'image/png'
+      expect(puts[0].init?.method).to.equal('POST');
+      const sent = Array.from((puts[0].init?.body as FormData).entries());
+      expect(
+        sent.map(([name]) => name),
+        'every field, then the file'
+      ).to.deep.equal([...Object.keys(uploadFields), 'file']);
+      expect(sent.slice(0, -1).map(([, value]) => value)).to.deep.equal(
+        Object.values(uploadFields)
       );
+      expect(sent[sent.length - 1][1]).to.be.instanceOf(File);
+      expect((sent[sent.length - 1][1] as File).name).to.equal('tee-front.png');
+    });
+
+    it('refuses an image over 10 MB before asking for somewhere to put it', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const product = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
+      element.data = {
+        ...product,
+        _links: {
+          ...product._links,
+          'fx:create_upload_url': { href: 'https://demo.api/s/admin/products/0/create_upload_url' },
+        },
+      } as Data;
+
+      let asked = 0;
+      element.addEventListener('fetch', (evt: Event) => {
+        const fetchEvent = evt as FetchEvent;
+        fetchEvent.preventDefault();
+        if (fetchEvent.request.url.endsWith('/create_upload_url')) asked += 1;
+        fetchEvent.respondWith(Promise.resolve(new Response(null, { status: 404 })));
+      });
+
+      // One byte over the limit.
+      const file = new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'tee-poster.png', {
+        type: 'image/png',
+      });
+      let error: unknown = null;
+      try {
+        await element.uploadImage(file);
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error).to.be.instanceOf(ImageTooLargeError);
+      expect((error as Error).message).to.equal('Images can be at most 10 MB.');
+      expect(asked).to.equal(0);
+    });
+
+    it('says an image is too large when the API answers 413, and uploads nothing', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const product = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
+      element.data = {
+        ...product,
+        _links: {
+          ...product._links,
+          'fx:create_upload_url': { href: 'https://demo.api/s/admin/products/0/create_upload_url' },
+        },
+      } as Data;
+      element.addEventListener('fetch', (evt: Event) => {
+        const fetchEvent = evt as FetchEvent;
+        fetchEvent.preventDefault();
+        const tooLarge = fetchEvent.request.url.endsWith('/create_upload_url');
+        fetchEvent.respondWith(
+          Promise.resolve(new Response(null, { status: tooLarge ? 413 : 404 }))
+        );
+      });
+
+      const originalFetch = window.fetch;
+      let sent = 0;
+      window.fetch = (async () => {
+        sent += 1;
+        return new Response(null, { status: 204 });
+      }) as typeof window.fetch;
+
+      try {
+        const control = element.renderRoot.querySelector(
+          'foxy-internal-product-form-images-control'
+        ) as HTMLElement & { requestUpdate: () => Promise<unknown>; renderRoot: ShadowRoot };
+        await element.requestUpdate();
+        await control.requestUpdate();
+        const input = control.renderRoot.querySelector<HTMLInputElement>('input[type="file"]')!;
+        const picked = new DataTransfer();
+        picked.items.add(new File(['jpg'], 'tee-flat.jpg', { type: 'image/jpeg' }));
+        input.files = picked.files;
+        input.dispatchEvent(new Event('change'));
+
+        await waitUntil(() => !!control.renderRoot.querySelector('[role="alert"]'));
+        expect(control.renderRoot.querySelector('[role="alert"]')).to.include.text(
+          'error_too_large'
+        );
+      } finally {
+        window.fetch = originalFetch;
+      }
+      expect(sent).to.equal(0);
     });
 
     it('refuses to upload for a product without fx:create_upload_url', async () => {
@@ -551,36 +675,316 @@ describe('ProductForm', () => {
 
       expect(error).to.be.instanceOf(Error);
     });
-    it('moves an image up or down, keeping the rest in order', async () => {
+
+    type ImagesControl = HTMLElement & {
+      updateComplete: Promise<unknown>;
+      requestUpdate: () => Promise<unknown>;
+      renderRoot: ShadowRoot;
+    };
+
+    const front = { src: 'https://images.example.test/tee-front.jpg', alt: 'Black tee, front' };
+    const back = { src: 'https://images.example.test/tee-back.jpg', alt: 'Black tee, back' };
+    const detail = { src: 'https://images.example.test/tee-hem.jpg', alt: 'Hem stitching' };
+
+    async function withImages(uploadLink = false) {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
       const product = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
-      const front = { src: 'https://images.example.test/tee-front.jpg', alt: 'Black tee, front' };
-      const back = { src: 'https://images.example.test/tee-back.jpg', alt: 'Black tee, back' };
-      const detail = { src: 'https://images.example.test/tee-hem.jpg', alt: 'Hem stitching' };
       element.data = {
         ...product,
         definition: { ...product.definition, images: [front, back, detail] },
-      };
+        _links: uploadLink
+          ? {
+              ...product._links,
+              'fx:create_upload_url': {
+                href: 'https://demo.api/s/admin/products/0/create_upload_url',
+              },
+            }
+          : product._links,
+      } as Data;
       await element.requestUpdate();
 
       const control = element.renderRoot.querySelector(
         'foxy-internal-product-form-images-control'
-      ) as HTMLElement & { updateComplete: Promise<unknown>; renderRoot: ParentNode };
+      ) as ImagesControl;
       await control.updateComplete;
-      const buttons = (text: string) =>
-        Array.from(control.renderRoot.querySelectorAll('button')).filter(
-          b => b.textContent?.trim() === text
+      const all = (testid: string) =>
+        Array.from(
+          control.renderRoot.querySelectorAll<HTMLButtonElement>(`[data-testid="${testid}"]`)
         );
+      const settle = async () => {
+        await element.requestUpdate();
+        await control.requestUpdate();
+      };
+      return { element, control, all, settle };
+    }
 
-      expect(buttons('move_up')).to.have.length(2, 'every image but the first moves up');
-      expect(buttons('move_down')).to.have.length(2, 'every image but the last moves down');
+    it('moves an image left or right with buttons named for what they do', async () => {
+      const { element, all, settle } = await withImages();
 
-      buttons('move_down')[0].click();
+      expect(all('image-move-left').map(b => b.disabled)).to.deep.equal([true, false, false]);
+      expect(all('image-move-right').map(b => b.disabled)).to.deep.equal([false, false, true]);
+      for (const testid of ['image-move-left', 'image-move-right', 'image-remove']) {
+        for (const button of all(testid)) {
+          expect(button.getAttribute('aria-label'), testid).to.be.a('string').and.not.be.empty;
+          expect(button.textContent!.trim(), 'shows an icon, not words').to.equal('');
+        }
+      }
+
+      all('image-move-right')[0].click();
       expect(element.form.definition?.images).to.deep.equal([back, front, detail]);
 
-      await control.updateComplete;
-      buttons('move_up')[1].click();
+      await settle();
+      all('image-move-left')[2].click();
       expect(element.form.definition?.images).to.deep.equal([back, detail, front]);
+
+      await settle();
+      all('image-remove')[1].click();
+      expect(element.form.definition?.images).to.deep.equal([back, front]);
+    });
+
+    it('marks the main image with a pressed star, and makes another one main', async () => {
+      const { element, all, settle } = await withImages();
+
+      expect(all('image-main').map(b => b.getAttribute('aria-pressed'))).to.deep.equal([
+        'true',
+        'false',
+        'false',
+      ]);
+      expect(all('image-main').map(b => b.getAttribute('aria-label'))).to.deep.equal([
+        'main',
+        'make_main',
+        'make_main',
+      ]);
+      expect(all('image-main')[0].querySelector('svg')).to.have.attribute('fill', 'currentColor');
+      expect(all('image-main')[1].querySelector('svg')).to.have.attribute('fill', 'none');
+
+      all('image-main')[2].click();
+      expect(element.form.definition?.images).to.deep.equal([detail, front, back]);
+
+      await settle();
+      all('image-main')[0].click();
+      expect(element.form.definition?.images, 'the main image stays main').to.deep.equal([
+        detail,
+        front,
+        back,
+      ]);
+    });
+
+    it('reorders images by dragging one onto another', async () => {
+      const { element, control, all, settle } = await withImages();
+      const cards = () => all('image') as HTMLElement[];
+      const drag = (type: string) =>
+        new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: new DataTransfer() });
+
+      cards()[2].querySelector('img')!.dispatchEvent(drag('dragstart'));
+      await control.requestUpdate();
+      const over = drag('dragover');
+      cards()[0].dispatchEvent(over);
+      expect(over.defaultPrevented, 'another image takes the drop').to.be.true;
+      await control.requestUpdate();
+      expect(cards()[0]).to.have.class('pd-drop');
+
+      cards()[0].dispatchEvent(drag('drop'));
+      expect(element.form.definition?.images).to.deep.equal([detail, front, back]);
+      await settle();
+      expect(control.renderRoot.querySelector('.pd-drop, .pd-dragging')).to.not.exist;
+
+      // Something else dragged over the images, such as a file, is not theirs to take.
+      const foreign = drag('dragover');
+      cards()[1].dispatchEvent(foreign);
+      expect(foreign.defaultPrevented).to.be.false;
+    });
+
+    it('edits alt text in a field that stays inside its card', async () => {
+      const { element, all } = await withImages();
+      const alt = all('image-alt')[1] as unknown as HTMLInputElement;
+      expect(alt.value).to.equal('Black tee, back');
+      expect(alt).to.have.attribute('aria-label', 'alt_label');
+
+      alt.value = 'Black tee, back, on a hanger';
+      alt.dispatchEvent(new Event('change'));
+      expect(element.form.definition?.images?.[1]).to.deep.equal({
+        ...back,
+        alt: 'Black tee, back, on a hanger',
+      });
+
+      const card = all('image')[1].getBoundingClientRect();
+      for (const child of Array.from(all('image')[1].children)) {
+        const box = child.getBoundingClientRect();
+        expect(box.left, child.tagName).to.be.at.least(card.left);
+        expect(box.right, child.tagName).to.be.at.most(card.right);
+      }
+    });
+
+    it('comes after the name, SKU, price and description', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const general = element.renderRoot.querySelector('#section-general')!;
+      const order = Array.from(general.children).map(child => child.getAttribute('infer'));
+      expect(order.indexOf('images')).to.be.greaterThan(order.indexOf('general'));
+      expect(order.indexOf('images')).to.be.greaterThan(order.indexOf('description'));
+    });
+
+    it('asks for a new product to be saved in place of an uploader', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const control = element.renderRoot.querySelector(
+        'foxy-internal-product-form-images-control'
+      ) as ImagesControl;
+      await control.updateComplete;
+
+      const note = control.renderRoot.querySelector('[data-testid="save-first"]');
+      expect(note).to.include.text('save_first');
+      expect(control.renderRoot.querySelector('input[type="file"]')).to.not.exist;
+      expect(control.renderRoot.querySelector('[data-testid="add-images"]')).to.not.exist;
+    });
+
+    it('adds the images picked to the end, with a starting alt text', async () => {
+      const { element, control, all, settle } = await withImages(true);
+      expect(control.renderRoot.querySelector('[data-testid="save-first"]')).to.not.exist;
+
+      const uploaded: File[] = [];
+      element.uploadImage = async (file: File) => {
+        uploaded.push(file);
+        if (file.type === 'text/plain') throw new Error('Not an image.');
+        return `https://images.example.test/${file.name}`;
+      };
+
+      const input = all('add-images')[0].querySelector('input')!;
+      expect(input.accept).to.equal('image/jpeg,image/png,image/gif,image/webp');
+      const picked = new DataTransfer();
+      picked.items.add(new File(['jpg'], 'tee-flat.jpg', { type: 'image/jpeg' }));
+      picked.items.add(new File(['txt'], 'care-notes.txt', { type: 'text/plain' }));
+      input.files = picked.files;
+      input.dispatchEvent(new Event('change'));
+
+      await waitUntil(() => uploaded.length === 2);
+      await settle();
+      const name = element.form.definition?.name;
+      expect(element.form.definition?.images).to.deep.equal([
+        front,
+        back,
+        detail,
+        { src: 'https://images.example.test/tee-flat.jpg', alt: name ? 'alt_default' : '' },
+      ]);
+      await waitUntil(() => !!control.renderRoot.querySelector('[role="alert"]'));
+      expect(control.renderRoot.querySelector('[role="alert"]')).to.include.text('error_upload');
+    });
+
+    it('adds an image by its URL, without an upload link', async () => {
+      const { element, control, all, settle } = await withImages();
+      expect(all('add-images'), 'no upload without the link').to.have.length(0);
+      const toggle = all('images-by-url')[0];
+      expect(toggle).to.have.attribute('aria-pressed', 'false');
+      expect(toggle).to.have.attribute('aria-label', 'by_url');
+
+      toggle.click();
+      await control.requestUpdate();
+      await control.updateComplete;
+      const input = () => all('images-url-input')[0] as unknown as HTMLInputElement;
+      expect(all('images-by-url')[0]).to.have.attribute('aria-pressed', 'true');
+      expect(control.renderRoot.activeElement, 'focus moves into the field').to.equal(input());
+
+      const enter = (value: string) => {
+        input().value = value;
+        input().dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+        );
+      };
+
+      // The API takes https only, with a host.
+      for (const refused of ['http://cdn.example.test/tee.jpg', 'https:///tee.jpg', 'tee.jpg']) {
+        enter(refused);
+        await control.requestUpdate();
+        expect(all('images-url-error')[0], refused).to.include.text('url_invalid');
+        expect(element.form.definition?.images).to.have.length(3);
+      }
+
+      enter('https://cdn.example.test/products/tee-folded.jpg');
+      await settle();
+      await control.updateComplete;
+      expect(element.form.definition?.images?.[3]).to.deep.equal({
+        src: 'https://cdn.example.test/products/tee-folded.jpg',
+        alt: element.form.definition?.name ? 'alt_default' : '',
+      });
+      expect(all('images-url-input')).to.have.length(0);
+      expect(control.renderRoot.activeElement, 'focus goes back to the link').to.equal(
+        all('images-by-url')[0]
+      );
+    });
+
+    it('takes an image URL with its Add button, and leaves the field on Escape', async () => {
+      const { element, control, all, settle } = await withImages(true);
+      all('images-by-url')[0].click();
+      await control.requestUpdate();
+      expect(all('add-images'), 'uploading stays offered beside the URL field').to.have.length(1);
+
+      const input = all('images-url-input')[0] as unknown as HTMLInputElement;
+      input.value = '  https://cdn.example.test/tee-tag.png ';
+      all('images-url-add')[0].click();
+      await settle();
+      expect(element.form.definition?.images?.map(image => image.src)).to.include(
+        'https://cdn.example.test/tee-tag.png'
+      );
+
+      all('images-by-url')[0].click();
+      await control.requestUpdate();
+      const escape = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      let reachedOutside = false;
+      control.addEventListener('keydown', () => (reachedOutside = true), { once: true });
+      all('images-url-input')[0].dispatchEvent(escape);
+      await control.requestUpdate();
+      await control.updateComplete;
+      expect(all('images-url-input')).to.have.length(0);
+      expect(reachedOutside, 'a dialog around the form stays open').to.be.false;
+      expect(control.renderRoot.activeElement).to.equal(all('images-by-url')[0]);
+    });
+
+    it('offers an image URL on a new product, which has nothing to upload to', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const control = element.renderRoot.querySelector(
+        'foxy-internal-product-form-images-control'
+      ) as ImagesControl;
+      await control.updateComplete;
+      const toggle = control.renderRoot.querySelector<HTMLButtonElement>(
+        '[data-testid="images-by-url"]'
+      )!;
+      expect(toggle.disabled).to.be.false;
+      toggle.click();
+      await control.requestUpdate();
+      const input = control.renderRoot.querySelector<HTMLInputElement>(
+        '[data-testid="images-url-input"]'
+      )!;
+      input.value = 'https://cdn.example.test/new-tee.jpg';
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
+      expect(element.form.definition?.images).to.deep.equal([
+        { src: 'https://cdn.example.test/new-tee.jpg', alt: '' },
+      ]);
+    });
+
+    it('shows every preview through getThumbnailUrl, then the image, then a placeholder', async () => {
+      const { element, control, all, settle } = await withImages();
+      const thumb = (src: string) => `https://img.example.test/80/${encodeURIComponent(src)}`;
+      element.getThumbnailUrl = thumb;
+      await settle();
+
+      const img = () => all('image')[1].querySelector('img')!;
+      expect(img().getAttribute('src')).to.equal(thumb(back.src));
+
+      img().dispatchEvent(new Event('error'));
+      expect(img().getAttribute('src'), 'the image itself').to.equal(back.src);
+      img().dispatchEvent(new Event('error'));
+      expect(img().getAttribute('src')).to.match(/^data:image\/svg\+xml/);
+      img().dispatchEvent(new Event('error'));
+      expect(img().getAttribute('src'), 'stays on the placeholder').to.match(/^data:image\/svg/);
+
+      element.getThumbnailUrl = null;
+      await settle();
+      expect(control.renderRoot.querySelectorAll('img')[2].getAttribute('src')).to.equal(
+        detail.src
+      );
     });
   });
 
@@ -662,16 +1066,40 @@ describe('ProductForm', () => {
       second.value = '2XL';
       second.dispatchEvent(new Event('change'));
       await settle(element, options);
-      const price = byTestId(options.renderRoot, 'value-price-mod')[1] as HTMLInputElement;
+      // Price and weight changes are tucked away until asked for.
+      expect(byTestId(options.renderRoot, 'value-price-mod')).to.have.length(0);
+      const amounts = byTestId(options.renderRoot, 'value-amounts')[1];
+      expect(amounts).to.have.attribute('aria-expanded', 'false');
+      expect(amounts.textContent!.trim()).to.equal('amounts_none');
+      amounts.click();
+      await settle(element, options);
+      const price = byTestId(options.renderRoot, 'value-price-mod')[0] as HTMLInputElement;
       price.value = ' 2.35 ';
       price.dispatchEvent(new Event('change'));
       await settle(element, options);
+      const weight = byTestId(options.renderRoot, 'value-weight-mod')[0] as HTMLInputElement;
+      weight.value = '0.15';
+      weight.dispatchEvent(new Event('change'));
+      await settle(element, options);
+      byTestId(options.renderRoot, 'value-amounts')[1].click();
+      await settle(element, options);
+      expect(byTestId(options.renderRoot, 'value-price-mod')).to.have.length(0);
+      expect(byTestId(options.renderRoot, 'value-amounts')[1].textContent!.trim()).to.equal(
+        'amounts_price · amounts_weight'
+      );
 
       expect(element.form.definition?.options).to.deep.equal([
-        { name: 'size', values: [{ value: 'M' }, { value: '2XL', price_mod: '2.35' }] },
+        {
+          name: 'size',
+          values: [{ value: 'M' }, { value: '2XL', price_mod: '2.35', weight_mod: 0.15 }],
+        },
       ]);
 
-      buttonsIn(byTestId(options.renderRoot, 'value-actions')[0], 'move_down')[0].click();
+      const actions = byTestId(options.renderRoot, 'value-actions')[0];
+      expect(
+        Array.from(actions.querySelectorAll('button')).map(b => b.getAttribute('aria-label'))
+      ).to.deep.equal(['move_up', 'move_down', 'remove']);
+      byTestId(actions, 'move-down')[0].click();
       expect(element.form.definition?.options?.[0].values.map(v => v.value)).to.deep.equal([
         '2XL',
         'M',
@@ -722,8 +1150,307 @@ describe('ProductForm', () => {
         { value: 'Natural Sunburst' },
         { value: '' },
       ]);
-      const titles = byTestId(options.renderRoot, 'value-title').map(e => e.textContent!.trim());
-      expect(titles).to.deep.equal(['Natural Sunburst', 'new_value']);
+      const fields = byTestId(options.renderRoot, 'value-value') as HTMLInputElement[];
+      expect(fields.map(field => field.value)).to.deep.equal(['Natural Sunburst', '']);
+    });
+
+    async function withSwatches(uploadLink = true) {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const product = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
+      const finish = {
+        name: 'finish',
+        label: 'Finish',
+        values: [
+          { value: 'Swift Blue', sku_code: 'SWB', color: '#1f7a8c' },
+          { value: 'Hot Merlot', sku_code: 'HML', price_mod: '79.50' },
+        ],
+      };
+      element.data = {
+        ...product,
+        definition: { ...product.definition, options: [finish] },
+        _links: uploadLink
+          ? {
+              ...product._links,
+              'fx:create_upload_url': {
+                href: 'https://demo.api/s/admin/products/0/create_upload_url',
+              },
+            }
+          : product._links,
+      } as Data;
+      await element.requestUpdate();
+      const options = (await control(element, 'foxy-internal-product-form-options-control'))!;
+      byTestId(options.renderRoot, 'manage-option')[0].click();
+      await settle(element, options);
+      const values = () => element.form.definition!.options![0].values;
+      return { element, options, values };
+    }
+
+    it('lays a value out as its main fields, then its swatch, then price and weight', async () => {
+      const { options } = await withSwatches();
+      const row = byTestId(options.renderRoot, 'option-value')[1];
+
+      const main = row.querySelector('.pd-value-main')!;
+      expect(
+        Array.from(main.querySelectorAll('input')).map(input => input.dataset.testid)
+      ).to.deep.equal(['value-value', 'value-label', 'value-sku-code']);
+      for (const input of Array.from(main.querySelectorAll('input'))) {
+        expect(input.getAttribute('aria-label')).to.be.a('string').and.not.be.empty;
+      }
+
+      const appearance = byTestId(row, 'value-appearance')[0];
+      expect(appearance).to.have.attribute('role', 'group');
+      expect(byTestId(appearance, 'value-color')).to.have.length(1);
+      expect(byTestId(appearance, 'value-image-upload')).to.have.length(1);
+      expect(byTestId(row, 'value-image-alt'), 'no alt text without an image').to.have.length(0);
+
+      expect(byTestId(row, 'value-amounts')[0].textContent!.trim()).to.equal('amounts_price');
+      expect(byTestId(row, 'value-price-mod'), 'closed until asked for').to.have.length(0);
+
+      // Nothing in a row is wider than the row, so the list never scrolls sideways.
+      const box = row.getBoundingClientRect();
+      for (const node of Array.from(row.querySelectorAll('input:not(.sr-only), button, label'))) {
+        expect(node.getBoundingClientRect().right).to.be.at.most(Math.ceil(box.right));
+      }
+    });
+
+    it('opens the price and weight fields of a value with a mistake in them', async () => {
+      const { element, options, values } = await withSwatches();
+      const [blue, merlot] = values();
+      element.edit({
+        definition: {
+          ...element.form.definition,
+          options: [{ name: 'finish', values: [blue, { ...merlot, price_mod: 'about 80' }] }],
+        },
+      });
+      await settle(element, options);
+
+      const rows = byTestId(options.renderRoot, 'option-value');
+      expect(byTestId(rows[0], 'value-price-mod')).to.have.length(0);
+      const price = byTestId(rows[1], 'value-price-mod')[0];
+      expect(price).to.have.attribute('aria-invalid', 'true');
+      expect(price.closest('label')).to.include.text('v8n_amount_invalid');
+    });
+
+    it("picks a value's swatch color in the color picker", async () => {
+      const { element, options, values } = await withSwatches();
+      const pickers = byTestId(options.renderRoot, 'value-color') as (HTMLElement & {
+        value: string;
+        label: string;
+      })[];
+      expect(pickers.map(picker => picker.localName)).to.deep.equal([
+        'foxy-internal-color-picker',
+        'foxy-internal-color-picker',
+      ]);
+      expect(pickers.map(picker => picker.value)).to.deep.equal(['#1f7a8c', '']);
+      expect(pickers[0].label).to.equal('color_label');
+
+      pickers[1].value = '#6b1f2e';
+      pickers[1].dispatchEvent(new Event('change'));
+      expect(values()[1]).to.deep.equal({
+        value: 'Hot Merlot',
+        sku_code: 'HML',
+        price_mod: '79.50',
+        color: '#6b1f2e',
+      });
+
+      await settle(element, options);
+      pickers[0].value = '';
+      pickers[0].dispatchEvent(new Event('change'));
+      expect(values()[0], 'no color leaves the field out').to.deep.equal({
+        value: 'Swift Blue',
+        sku_code: 'SWB',
+      });
+    });
+
+    it("uploads a value's swatch image as product images upload, then clears it", async () => {
+      const { element, options, values } = await withSwatches();
+      const createUploadUrl = element.data!._links['fx:create_upload_url']!.href;
+      const uploadUrl = 'https://uploads.example.test/';
+      const uploadFields = {
+        'key': 'products/store_1/products/0/01K.png',
+        'Content-Type': 'image/png',
+        'Policy': 'eyJleHBpcmF0aW9uIjoiMjAyNi0xMS0xOVQwMDoxNTowMFoifQ==',
+        'X-Amz-Signature': '9f2c4e61b7a05d3388c1e4f7a2b6d09c5e7f1a3b',
+      };
+      const imageUrl = 'https://images.example.test/products/store_1/products/0/01K.png';
+
+      const posts: Request[] = [];
+      element.addEventListener('fetch', (evt: Event) => {
+        const fetchEvent = evt as FetchEvent;
+        fetchEvent.preventDefault();
+        if (fetchEvent.request.url !== createUploadUrl) {
+          fetchEvent.respondWith(Promise.resolve(new Response(null, { status: 404 })));
+          return;
+        }
+        posts.push(fetchEvent.request);
+        fetchEvent.respondWith(
+          Promise.resolve(
+            new Response(
+              JSON.stringify({
+                upload_url: uploadUrl,
+                upload_fields: uploadFields,
+                max_bytes: 10485760,
+                image_url: imageUrl,
+              })
+            )
+          )
+        );
+      });
+
+      const originalFetch = window.fetch;
+      const puts: { url: string; init?: RequestInit }[] = [];
+      window.fetch = (async (url: string, init?: RequestInit) => {
+        puts.push({ url, init });
+        return new Response(null, { status: 200 });
+      }) as typeof window.fetch;
+
+      const file = new File(['png'], 'swift-blue.png', { type: 'image/png' });
+      try {
+        const input = byTestId(options.renderRoot, 'value-image-upload')[0].querySelector('input')!;
+        expect(input.type).to.equal('file');
+        expect(input.accept).to.equal('image/jpeg,image/png,image/gif,image/webp');
+        expect(input.disabled).to.be.false;
+        const picked = new DataTransfer();
+        picked.items.add(file);
+        input.files = picked.files;
+        input.dispatchEvent(new Event('change'));
+        await waitUntil(() => !!values()[0].image);
+      } finally {
+        window.fetch = originalFetch;
+      }
+
+      expect(posts).to.have.length(1);
+      expect(await posts[0].json()).to.deep.equal({ type: 'image/png', size: 3 });
+      expect(puts).to.have.length(1);
+      expect(puts[0].url).to.equal(uploadUrl);
+      expect(puts[0].init?.method).to.equal('POST');
+      const sent = puts[0].init?.body as FormData;
+      expect(Array.from(sent.keys())).to.deep.equal([...Object.keys(uploadFields), 'file']);
+      expect((sent.get('file') as File).name).to.equal(file.name);
+      expect(values()[0]).to.deep.equal({
+        value: 'Swift Blue',
+        sku_code: 'SWB',
+        color: '#1f7a8c',
+        image: { src: imageUrl },
+      });
+      expect(element.errors).to.not.include('options:v8n_invalid');
+
+      await settle(element, options);
+      const row = byTestId(options.renderRoot, 'option-value')[0];
+      expect(row.querySelector('img.pd-swatch-image')).to.have.attribute('src', imageUrl);
+      const alt = byTestId(row, 'value-image-alt')[0] as HTMLInputElement;
+      alt.value = 'Swift Blue finish, close up';
+      alt.dispatchEvent(new Event('change'));
+      expect(values()[0].image).to.deep.equal({
+        src: imageUrl,
+        alt: 'Swift Blue finish, close up',
+      });
+
+      await settle(element, options);
+      const remove = byTestId(options.renderRoot, 'value-image-remove')[0];
+      expect(remove).to.have.attribute('aria-label', 'image_remove');
+      remove.click();
+      expect(values()[0]).to.deep.equal({
+        value: 'Swift Blue',
+        sku_code: 'SWB',
+        color: '#1f7a8c',
+      });
+    });
+
+    it("says so when a value's image fails to upload, and keeps the value as it was", async () => {
+      const { element, options, values } = await withSwatches();
+      element.uploadImage = async () => {
+        throw new Error('Image upload failed with 403.');
+      };
+
+      const input = byTestId(options.renderRoot, 'value-image-upload')[1].querySelector('input')!;
+      const picked = new DataTransfer();
+      picked.items.add(new File(['gif'], 'hot-merlot.gif', { type: 'image/gif' }));
+      input.files = picked.files;
+      input.dispatchEvent(new Event('change'));
+
+      await waitUntil(() => byTestId(options.renderRoot, 'value-image-error').length > 0);
+      expect(byTestId(options.renderRoot, 'value-image-error')[0]).to.include.text(
+        'image_error_upload'
+      );
+      expect(values()[1].image).to.be.undefined;
+    });
+
+    it("gives a value's swatch an image by URL in place of an upload", async () => {
+      const { element, options, values } = await withSwatches(false);
+      const row = () => byTestId(options.renderRoot, 'option-value')[1];
+      const toggle = byTestId(row(), 'value-image-by-url')[0] as HTMLButtonElement;
+      expect(toggle.disabled, 'offered without an upload link').to.be.false;
+      expect(toggle).to.have.attribute('aria-label', 'image_by_url');
+
+      toggle.click();
+      await settle(element, options);
+      expect(byTestId(row(), 'value-image-upload'), 'the URL field takes its place').to.have.length(
+        0
+      );
+      const input = byTestId(row(), 'value-image-url-input')[0] as HTMLInputElement;
+      expect(options.renderRoot.activeElement).to.equal(input);
+
+      input.value = 'http://cdn.example.test/merlot.png';
+      byTestId(row(), 'value-image-url-add')[0].click();
+      await settle(element, options);
+      expect(byTestId(row(), 'value-image-url-error')[0]).to.include.text('image_url_invalid');
+      expect(values()[1].image).to.be.undefined;
+
+      (byTestId(row(), 'value-image-url-input')[0] as HTMLInputElement).value =
+        'https://cdn.example.test/swatches/hot-merlot.png';
+      byTestId(row(), 'value-image-url-add')[0].click();
+      await settle(element, options);
+      expect(values()[1]).to.deep.equal({
+        value: 'Hot Merlot',
+        sku_code: 'HML',
+        price_mod: '79.50',
+        image: { src: 'https://cdn.example.test/swatches/hot-merlot.png' },
+      });
+      expect(element.errors).to.not.include('options:v8n_invalid');
+      expect(byTestId(row(), 'value-image-upload')).to.have.length(1);
+      expect(options.renderRoot.activeElement).to.equal(byTestId(row(), 'value-image-by-url')[0]);
+
+      element.getThumbnailUrl = src => `https://img.example.test/80/${encodeURIComponent(src)}`;
+      await settle(element, options);
+      expect(row().querySelector('img.pd-swatch-image')).to.have.attribute(
+        'src',
+        `https://img.example.test/80/${encodeURIComponent(
+          'https://cdn.example.test/swatches/hot-merlot.png'
+        )}`
+      );
+
+      byTestId(row(), 'value-image-by-url')[0].click();
+      await settle(element, options);
+      byTestId(row(), 'value-image-url-input')[0].dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      );
+      await settle(element, options);
+      expect(byTestId(row(), 'value-image-url-input')).to.have.length(0);
+    });
+
+    it("shows a variant's image through getThumbnailUrl", async () => {
+      const { element } = await load(1);
+      element.getThumbnailUrl = src => `https://img.example.test/80/${encodeURIComponent(src)}`;
+      await element.requestUpdate();
+      const variants = (await control(element, 'foxy-internal-product-form-variants-control'))!;
+      await settle(element, variants);
+      const images = byTestId(variants.renderRoot, 'variant-image');
+      expect(images.length).to.be.greaterThan(0);
+      for (const image of images) {
+        const src = image.getAttribute('src')!;
+        expect(
+          src.startsWith('https://img.example.test/80/') || src.startsWith('data:image/svg'),
+          src
+        ).to.be.true;
+      }
+    });
+
+    it('offers no swatch image upload until the product can take one', async () => {
+      const { options } = await withSwatches(false);
+      const upload = byTestId(options.renderRoot, 'value-image-upload')[0];
+      expect(upload).to.have.attribute('aria-disabled', 'true');
+      expect(upload.querySelector('input')!.disabled).to.be.true;
     });
 
     it('refuses a reserved option name before it reaches the API', async () => {
@@ -803,6 +1530,7 @@ describe('ProductForm', () => {
       expect(dialog).to.have.attribute('form', 'foxy-product-form');
       expect(dialog).to.have.attribute('parent', element.data!._links['fx:product_variants'].href);
       expect(dialog.props['.parentProduct']).to.equal(element.data);
+      expect(dialog.props.ns, "reads this form's text, not a copy of it").to.equal('product-form');
     });
 
     it('shows inherited modifiers, and removes, restores or overrides one by name', async () => {
@@ -873,6 +1601,72 @@ describe('ProductForm', () => {
         'gift_wrap',
         'delivery',
       ]);
+    });
+
+    it("gives a modifier's values the rows an option's have, with the rest behind a summary", async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      element.edit({
+        sku: 'REVSTAR-01',
+        definition: {
+          name: 'Yamaha Revstar',
+          modifiers: [
+            {
+              name: 'tailpiece',
+              type: 'select',
+              values: [
+                { value: 'Stop tailpiece' },
+                { value: 'Bigsby tremolo', price_mod: '189.95', category_code: 'HARDWARE' },
+              ],
+            },
+          ],
+        },
+      });
+      const modifiers = (await control(element, 'foxy-internal-product-form-modifiers-control'))!;
+      await settle(element, modifiers);
+      const root = modifiers.renderRoot;
+      const rows = byTestId(root, 'modifier-value');
+      expect(rows).to.have.length(2);
+      expect(rows[0]).to.have.class('pd-value');
+
+      const main = rows[1].querySelector('.pd-value-main')!;
+      expect(
+        Array.from(main.querySelectorAll('input')).map(input => input.dataset.testid)
+      ).to.deep.equal(['value-value', 'value-label']);
+      expect(byTestId(rows[1], 'value-actions')[0].querySelectorAll('button')).to.have.length(3);
+
+      expect(byTestId(rows[0], 'value-details')[0].textContent!.trim()).to.equal('details_none');
+      const details = byTestId(rows[1], 'value-details')[0];
+      expect(details.textContent!.trim()).to.equal('amounts_price · details_category');
+      expect(byTestId(rows[1], 'price-mod')).to.have.length(0);
+
+      details.click();
+      await settle(element, modifiers);
+      const weight = byTestId(root, 'weight-mod')[0] as HTMLInputElement;
+      weight.value = '0.45';
+      weight.dispatchEvent(new Event('change'));
+      const code = byTestId(root, 'value-category-code')[0] as HTMLInputElement;
+      expect(code.value).to.equal('HARDWARE');
+      expect(element.form.definition?.modifiers?.[0]).to.deep.equal({
+        name: 'tailpiece',
+        type: 'select',
+        values: [
+          { value: 'Stop tailpiece' },
+          {
+            value: 'Bigsby tremolo',
+            price_mod: '189.95',
+            category_code: 'HARDWARE',
+            weight_mod: 0.45,
+          },
+        ],
+      });
+
+      await settle(element, modifiers);
+      byTestId(byTestId(root, 'value-actions')[1], 'move-up')[0].click();
+      expect(
+        (element.form.definition?.modifiers?.[0] as { values: { value: string }[] }).values.map(
+          v => v.value
+        )
+      ).to.deep.equal(['Bigsby tremolo', 'Stop tailpiece']);
     });
 
     it('generates variants through fx:generate_variants, then reloads the list', async () => {
@@ -1038,6 +1832,105 @@ describe('ProductForm', () => {
       expect(byTestId(storefront.renderRoot, 'kind-form')).to.have.length(0);
     });
 
+    it('offers the storefront kinds as one group of radio buttons', async () => {
+      const { element } = await load(0, {
+        defaultDomain: 'foxycart.com',
+        storefrontScript: 'https://cdn.example/foxy-products.js',
+      });
+      const storefront = (await control(element, 'foxy-internal-product-form-storefront-control'))!;
+      const root = storefront.renderRoot;
+      const inputs = () =>
+        Array.from(root.querySelectorAll<HTMLInputElement>('[role="radiogroup"] input'));
+
+      expect(inputs().map(input => input.type)).to.deep.equal(Array(5).fill('radio'));
+      expect(new Set(inputs().map(input => input.name)).size).to.equal(1);
+      expect(inputs().map(input => input.checked)).to.deep.equal([
+        true,
+        false,
+        false,
+        false,
+        false,
+      ]);
+      expect(root.querySelector('[role="radio"]'), 'no button posing as a radio').to.not.exist;
+
+      inputs()[2].click();
+      await settle(element, storefront);
+      expect(inputs().map(input => input.checked)).to.deep.equal([
+        false,
+        false,
+        true,
+        false,
+        false,
+      ]);
+      expect(byTestId(root, 'snippet')[0].textContent).to.contain('<foxy-product-form ');
+    });
+
+    it('searches the template picker by SKU', async () => {
+      const { element } = await load(0);
+      const picker = element.renderRoot.querySelector(
+        'foxy-internal-resource-picker-control[infer="template"]'
+      ) as HTMLElement & { searchFields: string[] };
+      expect(picker.searchFields).to.deep.equal(['sku']);
+    });
+
+    it('moves focus into the variant panel, closes it on Escape and gives focus back', async () => {
+      const { element } = await load(1);
+      const variants = (await control(element, 'foxy-internal-product-form-variants-control'))!;
+      const row = variants.renderRoot.querySelector('[data-sku="TSHIRT-BLUE-S"]')!;
+      const opener = byTestId(row, 'variant-open')[0];
+      const focused = () => (variants.renderRoot as ShadowRoot).activeElement;
+
+      opener.focus();
+      opener.click();
+      await element.requestUpdate();
+      await element.updateComplete;
+
+      const panel = byTestId(element.renderRoot, 'variant-panel')[0];
+      expect(panel.matches('dialog:modal')).to.be.true;
+      expect(panel).to.have.attribute('aria-labelledby', 'variant-panel-title');
+      expect(panel.contains((element.renderRoot as ShadowRoot).activeElement)).to.be.true;
+      expect(focused()).to.not.equal(opener);
+
+      // What the browser fires for Escape on a modal dialog.
+      panel.dispatchEvent(new Event('cancel', { cancelable: true }));
+      await element.requestUpdate();
+      await element.updateComplete;
+      expect(byTestId(element.renderRoot, 'variant-panel')).to.have.length(0);
+      expect(focused()).to.equal(opener);
+    });
+
+    it('starts the delete confirmation on its Cancel button and gives focus back when it closes', async () => {
+      const { element } = await load(1);
+      const [color, size] = element.data!.definition.options!;
+      const withoutRed = { ...color, values: color.values.filter(v => v.value !== 'Red') };
+      element.edit({ definition: { ...element.form.definition, options: [withoutRed, size] } });
+      await element.requestUpdate();
+
+      const save = document.createElement('button');
+      document.body.append(save);
+
+      try {
+        save.focus();
+        element.submit();
+        await element.requestUpdate();
+        await element.updateComplete;
+
+        const dialog = byTestId(element.renderRoot, 'delete-confirmation')[0];
+        expect(dialog.matches('dialog:modal')).to.be.true;
+        expect((element.renderRoot as ShadowRoot).activeElement).to.equal(
+          byTestId(dialog, 'delete-cancel')[0]
+        );
+
+        dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
+        await element.requestUpdate();
+        await element.updateComplete;
+        expect(byTestId(element.renderRoot, 'delete-confirmation')).to.have.length(0);
+        expect(document.activeElement).to.equal(save);
+      } finally {
+        save.remove();
+      }
+    });
+
     it('asks before saving a change that deletes the variants using a removed value', async () => {
       const { element, router } = await load(1);
       const saved = element.data!.definition.options!;
@@ -1058,7 +1951,8 @@ describe('ProductForm', () => {
       await element.requestUpdate();
       expect(element.in({ idle: { snapshot: 'dirty' } }), 'nothing is saved yet').to.be.true;
       const dialog = byTestId(element.renderRoot, 'delete-confirmation')[0];
-      expect(dialog.querySelector('[role="alertdialog"]')).to.exist;
+      expect(dialog).to.have.attribute('role', 'alertdialog');
+      expect(dialog.matches('dialog:modal'), 'is a modal dialog').to.be.true;
       expect(
         byTestId(dialog, 'deleting').map(li => li.textContent!.replace(/\s+/g, ' ').trim())
       ).to.have.length(1);
@@ -1069,7 +1963,6 @@ describe('ProductForm', () => {
       await element.requestUpdate();
       expect(byTestId(element.renderRoot, 'delete-confirmation')).to.have.length(0);
       expect(element.errors).to.include('options:v8n_confirm_delete');
-
       // Removing more lists more.
       element.edit({ definition: { ...element.form.definition, options: [withoutRed] } });
       await element.requestUpdate();
@@ -1077,7 +1970,6 @@ describe('ProductForm', () => {
         'TSHIRT-BLUE-S',
         'TSHIRT-RED-L',
       ]);
-
       // Adding values or changing labels deletes nothing, and saves without asking.
       element.edit({
         definition: {
@@ -1091,7 +1983,6 @@ describe('ProductForm', () => {
       await element.requestUpdate();
       expect(element.variantsToDelete).to.have.length(0);
       expect(element.errors).to.not.include('options:v8n_confirm_delete');
-
       // Agreeing saves.
       element.edit({ definition: { ...element.form.definition, options: [withoutRed, size] } });
       element.submit();
@@ -1154,7 +2045,7 @@ describe('ProductForm', () => {
       await element.requestUpdate();
 
       const panel = byTestId(element.renderRoot, 'variant-panel')[0];
-      expect(panel.querySelector('[role="dialog"]')).to.have.attribute('aria-modal', 'true');
+      expect(panel.matches('dialog:modal'), 'is a modal dialog').to.be.true;
       const sku = byTestId(panel, 'panel-sku')[0] as HTMLInputElement;
       expect(sku.value).to.equal('TSHIRT-BLUE-S');
       sku.value = 'TSHIRT-BLU-S';
@@ -1215,7 +2106,7 @@ describe('ProductForm', () => {
 
       const color = element.data!.definition.options![0];
       const red = color.values.findIndex(v => v.value === 'Red');
-      buttonsIn(byTestId(root, 'value-actions')[red], 'remove')[0].click();
+      byTestId(byTestId(root, 'value-actions')[red], 'remove')[0].click();
       await settle(element, options);
       expect(element.variantsToDelete.map(v => v.sku)).to.deep.equal(['TSHIRT-RED-L']);
       expect(byTestId(root, 'removed-value')[0].textContent).to.contain('removed_used');

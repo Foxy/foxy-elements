@@ -14,7 +14,7 @@ const Base = TranslatableMixin(InternalForm, NS);
  * Used by `<foxy-product-form>` inside its tags `InternalAsyncListControl`.
  *
  * @element foxy-product-tag-form
- * @since 1.54.0
+ * @since 1.62.0
  */
 export class ProductTagForm extends Base<Data> {
   static get v8n(): NucleonV8N<Data> {

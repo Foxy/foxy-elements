@@ -60,7 +60,7 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
          * this control writes can reach that summary control's own internal grid container.
          *
          * So there is exactly one slotted child here: \`.matrix\`, a wrapper \`<div>\` (see
-         * \`renderControl\`) that lays its own 20 real children out in a grid this control fully
+         * \`renderControl\`) that lays its own 21 real children out in a grid this control fully
          * owns. \`layout="section"\` on the summary control (see \`renderControl\`) opts out of its
          * background/padding-on-slotted-child rule, since that would otherwise tint the *whole*
          * wrapper as one block; this control re-creates the summary-item tile look itself, on
@@ -358,9 +358,9 @@ export class InternalUserInvitationFormScopeControl extends InternalEditableCont
    * one per line, in their own `foxy-internal-summary-control` -- not folded into the level
    * grid above. Resend is a secondary axis (below Full, a collection's level and its resend
    * grant are unrelated tokens -- see `parseScope`/`serializeScope`; Full includes resend, so the
-   * switch then shows as on and readonly), covers only 3 of the 20
+   * switch then shows as on and readonly), covers only 3 of the 21
    * collections, and doesn't need the level grid's two-column treatment; keeping it as its own
-   * section also means the grid's CSS (sized for 20 short rows) never has to accommodate a
+   * section also means the grid's CSS (sized for 21 short rows) never has to accommodate a
    * structurally different kind of row. Renders nothing at all if the granter can't grant (and
    * the invitation doesn't already hold) any resend permission, rather than an empty section.
    */

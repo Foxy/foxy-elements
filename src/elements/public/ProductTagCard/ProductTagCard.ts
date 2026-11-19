@@ -12,7 +12,7 @@ const Base = TranslatableMixin(InternalCard, NS);
  * Minimal card displaying a product tag as a chip.
  *
  * @element foxy-product-tag-card
- * @since 1.54.0
+ * @since 1.62.0
  */
 export class ProductTagCard extends Base<Data> {
   renderBody(): TemplateResult {

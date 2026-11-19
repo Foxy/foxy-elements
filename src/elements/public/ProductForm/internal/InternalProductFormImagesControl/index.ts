@@ -1,4 +1,3 @@
-import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '../../../../internal/InternalControl/index';
 
 import { InternalProductFormImagesControl } from './InternalProductFormImagesControl';

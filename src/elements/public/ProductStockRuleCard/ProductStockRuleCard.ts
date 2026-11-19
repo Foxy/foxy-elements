@@ -16,7 +16,7 @@ const Base = TranslatableMixin(TwoLineCard, NS);
  * the product whose stock a purchase draws on, and how many units it takes.
  *
  * @element foxy-product-stock-rule-card
- * @since 1.54.0
+ * @since 1.62.0
  */
 export class ProductStockRuleCard extends Base<Data> {
   private __targetLoaderId = 'targetLoader';

@@ -114,8 +114,8 @@ describe('groupInvitationScopes', () => {
 });
 
 describe('exported collection lists', () => {
-  it('exports the 20 collections an invitation may grant', () => {
-    expect(COLLECTIONS).to.have.lengthOf(20);
+  it('exports the 21 collections an invitation may grant', () => {
+    expect(COLLECTIONS).to.have.lengthOf(21);
     expect(COLLECTIONS).to.include('transactions');
     expect(COLLECTIONS).to.include('user_invitations');
     expect(COLLECTIONS).to.include('reporting');

@@ -32,6 +32,10 @@ export const groups = [
     files: './src/elements/internal/InternalCheckboxGroupControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-color-picker',
+    files: './src/elements/internal/InternalColorPicker/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-confirm-dialog',
     files: './src/elements/internal/InternalConfirmDialog/**/*.test.ts',
   },
@@ -534,6 +538,10 @@ export const groups = [
   {
     name: 'foxy-product-list',
     files: './src/elements/public/ProductList/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-log-card',
+    files: './src/elements/public/ProductLogCard/**/*.test.ts',
   },
   {
     name: 'foxy-product-stock-rule-card',

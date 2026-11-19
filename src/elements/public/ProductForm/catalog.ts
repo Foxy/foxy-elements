@@ -197,13 +197,28 @@ export function validateOptions(
       if (value.color && !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value.color)) {
         errors.push({ path: `${valuePath}.color`, code: 'v8n_color_invalid' });
       }
-      if (value.image && !/^https:\/\/\S+$/.test(value.image.src ?? '')) {
+      if (value.image && !isImageUrl(value.image.src ?? '')) {
         errors.push({ path: `${valuePath}.image`, code: 'v8n_image_invalid' });
       }
     });
   });
 
   return errors;
+}
+
+/** The largest image an upload takes. */
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+/** An image that is too large to upload. */
+export class ImageTooLargeError extends Error {
+  constructor() {
+    super('Images can be at most 10 MB.');
+  }
+}
+
+/** Whether the API takes this as an image's `src`: an https URL with a host and no spaces. */
+export function isImageUrl(src: string): boolean {
+  return /^https:\/\/[^\s/?#]+\S*$/i.test(src);
 }
 
 /**

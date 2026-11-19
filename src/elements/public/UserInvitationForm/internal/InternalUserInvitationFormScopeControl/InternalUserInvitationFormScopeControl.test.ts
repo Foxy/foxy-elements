@@ -95,7 +95,7 @@ describe('InternalUserInvitationFormScopeControl', () => {
     expect(written).to.equal('store_full_access');
   });
 
-  it('writes all 20 reads when the read preset is chosen', async () => {
+  it('writes all 21 reads when the read preset is chosen', async () => {
     const element = await control('store_full_access');
     let written: unknown = null;
     element.setValue = value => (written = value);
@@ -259,12 +259,12 @@ describe('custom matrix', () => {
     const element = await control('store_full_access', '');
     await selectCustom(element);
 
-    expect(rows(element)).to.have.lengthOf(20);
+    expect(rows(element)).to.have.lengthOf(21);
   });
 
   it('renders rows for a scope that is already custom', async () => {
     const element = await control('store_full_access', 'customers_read');
-    expect(rows(element)).to.have.lengthOf(20);
+    expect(rows(element)).to.have.lengthOf(21);
   });
 
   it('offers only grantable levels per row', async () => {
@@ -481,7 +481,7 @@ describe('custom matrix', () => {
       .join(' ');
 
     const element = await control('store_full_access', scopeMinusOne);
-    expect(rows(element)).to.have.lengthOf(20);
+    expect(rows(element)).to.have.lengthOf(21);
 
     let currentScope: unknown = scopeMinusOne;
     element.getValue = () => currentScope;
@@ -492,7 +492,7 @@ describe('custom matrix', () => {
     await element.requestUpdate();
 
     expect(currentScope).to.equal(allReads);
-    expect(rows(element)).to.have.lengthOf(20);
+    expect(rows(element)).to.have.lengthOf(21);
   });
 
   it('gives each row a real label naming its collection, associated with its select', async () => {
@@ -512,7 +512,7 @@ describe('custom matrix', () => {
 
     // No visible duplicate: an unset `helperText` resolves to `t('helper_text')`, which would
     // otherwise show the wrong string ("You can only grant access you have yourself.") under
-    // every one of the 20 rows.
+    // every one of the 21 rows.
     expect(rowControl?.helperText).to.equal('');
   });
 

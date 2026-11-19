@@ -4,9 +4,7 @@ import type { ProductForm } from '../../ProductForm';
 
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { css, html } from 'lit-element';
-
-const PLACEHOLDER =
-  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40"%3E%3Crect width="40" height="40" fill="%23E8E8E8"/%3E%3C/svg%3E';
+import { previewFallback, previewSrc } from '../fields';
 
 /**
  * A product's active variants as a table, with each one's price and stock
@@ -190,10 +188,10 @@ export class InternalProductFormVariantsControl extends InternalControl {
       >
         <td>
           <img
-            src=${image?.src ?? PLACEHOLDER}
+            src=${previewSrc(image?.src, form.getThumbnailUrl)}
             alt=""
             data-testid="variant-image"
-            @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = PLACEHOLDER)}
+            @error=${previewFallback(image?.src)}
           />
         </td>
         <td>

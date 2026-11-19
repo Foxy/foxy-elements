@@ -117,9 +117,11 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
             data-testid="product-link"
             class=${linkClass}
             href=${productPageHref}
-            @click=${() => {
+            @click=${(evt: MouseEvent) => {
               // The item is usually open in a dialog, which would stay over the product's page.
-              Dialog.openDialogs[0]?.hide();
+              // A click that opens the product elsewhere leaves this page, and its dialog, as it is.
+              const opensElsewhere = evt.metaKey || evt.ctrlKey || evt.shiftKey || evt.button !== 0;
+              if (!opensElsewhere) Dialog.openDialogs[0]?.hide();
             }}
           >
             <foxy-i18n infer="actions product" key="label"></foxy-i18n>

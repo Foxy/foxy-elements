@@ -8,23 +8,12 @@ import type { Rels } from '@foxy.io/sdk/backend';
 
 import type { Product } from '../ProductForm/types';
 
-// =============================================================================
-// ProductLog graph
-// =============================================================================
-//
-// Mirrors the `subscription_logs` pattern. The log is read-only via the
-// API; rows are written by the system as side effects of CRUD on products.
-
 export type ProductLogType = 'created' | 'updated' | 'deleted' | 'stock_adjustment' | 'stock_reset';
 
-/**
- * MIT/CIT (merchant-initiated / customer-initiated) source convention,
- * shared with subscription_logs. Examples: `mit_admin`, `mit_api`,
- * `mit_system`, `cit_customer_portal`.
- */
+/** Who or what made the change, such as `mit_admin`, `mit_api`, `mit_system` or `cit_customer_portal`. */
 export type ProductLogSource = string;
 
-/** `{ field: { before: any, after: any } }` shape for the `changes` JSON column. */
+/** A field's value before and after the change. */
 export interface ProductLogChange {
   before: unknown;
   after: unknown;
@@ -53,7 +42,7 @@ export interface ProductLog extends Graph {
     /** Structured diff: `{ field: { before: val, after: val } }`. */
     changes: Record<string, ProductLogChange> | null;
     error_message: string | null;
-    /** Free-form context: stock adjustment amount, transaction_id, etc. */
+    /** Anything else the entry says, such as the reason for a stock change. */
     details: Record<string, unknown> | null;
     date_created: string | null;
   };

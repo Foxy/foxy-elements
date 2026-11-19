@@ -82,6 +82,7 @@ export { ProductInventory } from './ProductInventory/ProductInventory';
 export { ProductList } from './ProductList/ProductList';
 export { ProductStockRuleCard } from './ProductStockRuleCard/ProductStockRuleCard';
 export { ProductStockRuleForm } from './ProductStockRuleForm/ProductStockRuleForm';
+export { ProductLogCard } from './ProductLogCard/ProductLogCard';
 export { ProductTagCard } from './ProductTagCard/ProductTagCard';
 export { ProductTagForm } from './ProductTagForm/ProductTagForm';
 export { PaymentCard } from './PaymentCard/PaymentCard';

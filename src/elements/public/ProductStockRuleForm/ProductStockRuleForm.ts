@@ -19,7 +19,7 @@ const Base = TranslatableMixin(InternalForm, NS);
  * change a rule once it exists, so a saved rule can only be deleted.
  *
  * @element foxy-product-stock-rule-form
- * @since 1.54.0
+ * @since 1.62.0
  */
 export class ProductStockRuleForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
@@ -84,6 +84,7 @@ export class ProductStockRuleForm extends Base<Data> {
           .setValue=${this.__targetSetValue}
           .getDisplayValueOptions=${this.__targetDisplayValueOptions}
           .extendFilter=${this.__extendTargetFilter}
+          .searchFields=${['sku']}
         >
         </foxy-internal-resource-picker-control>
 

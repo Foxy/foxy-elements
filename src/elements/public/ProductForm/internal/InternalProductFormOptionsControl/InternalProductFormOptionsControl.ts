@@ -1,15 +1,40 @@
 import type { Data, ProductOption, ProductOptionValue } from '../../types';
 import type { ProductForm } from '../../ProductForm';
-import type { LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { CSSResultArray, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { InternalColorPicker } from '../../../../internal/InternalColorPicker/InternalColorPicker';
 import type { CatalogError } from '../../catalog';
 
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
-import { LIMITS, defaultSkuCode, validateOptions } from '../../catalog';
-import { listActions, move, parseWeight, textField, withField } from '../fields';
+import {
+  ImageTooLargeError,
+  LIMITS,
+  defaultSkuCode,
+  isImageUrl,
+  validateOptions,
+} from '../../catalog';
+import { rowStyles } from '../styles';
 import { html } from 'lit-element';
+import {
+  ACCEPTED_IMAGE_TYPES,
+  amountSummary,
+  disclosure,
+  iconButton,
+  listActions,
+  move,
+  parseWeight,
+  previewFallback,
+  previewSrc,
+  rowErrors,
+  rowField,
+  textField,
+  urlField,
+  withField,
+} from '../fields';
+
+const VALUE_COLUMNS = 'minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 0.9fr) 5.25rem';
 
 /**
- * A product's options: the choices that make its variants, such as colour and
+ * A product's options: the choices that make its variants, such as color and
  * size, each with its values in display order.
  *
  * @element foxy-internal-product-form-options-control
@@ -21,8 +46,17 @@ export class InternalProductFormOptionsControl extends InternalControl {
       modifierNames: { attribute: false },
       savedOptions: { attribute: false },
       variants: { attribute: false },
+      __amountsOpen: { attribute: false },
+      __uploading: { attribute: false },
+      __urlFor: { attribute: false },
+      __urlError: { attribute: false },
+      __uploadError: { attribute: false },
       __managed: { attribute: false },
     };
+  }
+
+  static get styles(): CSSResultArray {
+    return [...super.styles, rowStyles];
   }
 
   /** Names of the product's compiled modifiers, which an option can't share. */
@@ -36,6 +70,24 @@ export class InternalProductFormOptionsControl extends InternalControl {
 
   /** Whether each option's editor is open, by name, where the merchant chose. */
   private __managed: Record<string, boolean> = {};
+
+  /** Whether a value's price and weight fields are open, by the value's path. */
+  private __amountsOpen: Record<string, boolean> = {};
+
+  /** The path of the value whose image is uploading, and of the one whose upload failed. */
+  private __uploading = '';
+
+  private __uploadError = '';
+
+  private __uploadTooLarge = false;
+
+  /** The path of the value whose image is being given by URL, and why its URL was refused. */
+  private __urlFor = '';
+
+  private __urlError = '';
+
+  /** What takes focus once a URL field opens or closes: a value's path and the control's test id. */
+  private __focusNext: [string, string] | null = null;
 
   renderControl(): TemplateResult {
     const options = this.__options;
@@ -254,7 +306,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
           ${textField({
             label: this.t('option_label_label'),
             helperText: this.t('option_label_helper_text'),
-            placeholder: option.name || 'Colour',
+            placeholder: option.name || 'Color',
             value: option.label,
             error: error(`${path}.label`),
             locked,
@@ -264,21 +316,31 @@ export class InternalProductFormOptionsControl extends InternalControl {
         </div>
 
         <div class="grid gap-s">
-          <h4 class="font-semibold">${this.t('values_label')}</h4>
+          <div>
+            <h4 class="font-semibold">${this.t('values_label')}</h4>
+            <p class="text-xs text-secondary">${this.t('values_helper_text')}</p>
+          </div>
           ${error(`${path}.values`)
             ? html`<p class="text-s text-error">${error(`${path}.values`)}</p>`
             : ''}
-          ${values.map((value, valueIndex) =>
-            this.__renderValue(value, `${path}.values.${valueIndex}`, locked, error, {
-              usedBy: saved && value.value ? this.__usedBy(option.name, value.value) : null,
-              index: valueIndex,
-              length: values.length,
-              onChange: changed => setValue(valueIndex, changed),
-              onMove: (from, to) => setOption({ ...option, values: move(values, from, to) }),
-              onRemove: () =>
-                setOption({ ...option, values: values.filter((_, i) => i !== valueIndex) }),
-            })
-          )}
+          <div class="pd-values">
+            <div class="pd-value-head" style="--pd-columns: ${VALUE_COLUMNS}" aria-hidden="true">
+              <span>${this.t('value_label')}</span>
+              <span>${this.t('value_display_label')}</span>
+              <span>${this.t('sku_code_label')}</span>
+            </div>
+            ${values.map((value, valueIndex) =>
+              this.__renderValue(value, `${path}.values.${valueIndex}`, locked, error, {
+                usedBy: saved && value.value ? this.__usedBy(option.name, value.value) : null,
+                index: valueIndex,
+                length: values.length,
+                onChange: changed => setValue(valueIndex, changed),
+                onMove: (from, to) => setOption({ ...option, values: move(values, from, to) }),
+                onRemove: () =>
+                  setOption({ ...option, values: values.filter((_, i) => i !== valueIndex) }),
+              })
+            )}
+          </div>
           ${removedValues.map(value => {
             const used = this.__usedBy(option.name, value.value);
             return html`
@@ -355,50 +417,19 @@ export class InternalProductFormOptionsControl extends InternalControl {
     }
   ) {
     const { onChange } = list;
-    // Said once, on the first value, rather than on every one.
-    const help = (key: string) => (list.index === 0 ? this.t(key) : undefined);
-    const swatch = value.image?.src
-      ? html`<img
-          class="object-cover rounded-s flex-shrink-0"
-          style="width: var(--lumo-size-m); height: var(--lumo-size-m)"
-          src=${value.image.src}
-          alt=""
-        />`
-      : value.color && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value.color)
-      ? html`<span
-          class="block rounded-s flex-shrink-0 border border-contrast-10"
-          style="width: var(--lumo-size-m); height: var(--lumo-size-m); background: ${value.color}"
-        ></span>`
-      : '';
+    const form = this.nucleon as ProductForm | null;
+    const canUpload = !!form?.data?._links['fx:create_upload_url'] && !locked;
+    const name = value.label || value.value || this.t('new_value');
+    const amountErrors = [error(`${path}.price_mod`), error(`${path}.weight_mod`)];
+    const amountsOpen = this.__amountsOpen[path] ?? amountErrors.some(Boolean);
+    const uploading = this.__uploading === path;
+    const byUrl = this.__urlFor === path && !locked;
 
     return html`
-      <div class="grid gap-s rounded bg-contrast-5 p-s" data-testid="option-value">
-        <div class="flex flex-wrap items-center" style="gap: 0.5rem 1rem">
-          <span class="flex-1 font-medium" style="min-width: 8rem" data-testid="value-title">
-            ${value.label || value.value || this.t('new_value')}
-          </span>
-          ${list.usedBy === null
-            ? ''
-            : html`<span class="text-s text-secondary" data-testid="value-used-by">
-                ${list.usedBy ? this.t('used_by', { count: list.usedBy }) : this.t('used_by_none')}
-              </span>`}
-          ${listActions({
-            index: list.index,
-            length: list.length,
-            locked,
-            t: key => this.t(key),
-            testid: 'value-actions',
-            onMove: list.onMove,
-            onRemove: list.onRemove,
-          })}
-        </div>
-        <div
-          class="grid gap-s"
-          style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"
-        >
-          ${textField({
+      <div class="pd-value" data-testid="option-value" data-path=${path}>
+        <div class="pd-value-main" style="--pd-columns: ${VALUE_COLUMNS}">
+          ${rowField({
             label: this.t('value_label'),
-            helperText: help('value_helper_text'),
             placeholder: 'Black',
             value: value.value,
             error: error(`${path}.value`),
@@ -406,9 +437,8 @@ export class InternalProductFormOptionsControl extends InternalControl {
             testid: 'value-value',
             onChange: changed => onChange({ ...value, value: changed }),
           })}
-          ${textField({
+          ${rowField({
             label: this.t('value_display_label'),
-            helperText: help('value_display_helper_text'),
             placeholder: value.value,
             value: value.label,
             error: error(`${path}.label`),
@@ -416,77 +446,225 @@ export class InternalProductFormOptionsControl extends InternalControl {
             testid: 'value-label',
             onChange: label => onChange(withField(value, 'label', label)),
           })}
-          ${textField({
+          ${rowField({
             label: this.t('sku_code_label'),
-            helperText: help('sku_code_helper_text'),
             placeholder: value.value ? defaultSkuCode(value.value) : '',
             value: value.sku_code,
             error: error(`${path}.sku_code`),
             locked,
+            mono: true,
             testid: 'value-sku-code',
             onChange: code => onChange(withField(value, 'sku_code', code)),
           })}
-          ${textField({
-            label: this.t('price_mod_label'),
-            helperText: help('price_mod_helper_text'),
-            placeholder: '0.00',
-            value: value.price_mod,
-            error: error(`${path}.price_mod`),
+          ${listActions({
+            index: list.index,
+            length: list.length,
             locked,
-            testid: 'value-price-mod',
-            onChange: amount => onChange(withField(value, 'price_mod', amount)),
-          })}
-          ${textField({
-            label: this.t('weight_mod_label'),
-            helperText: help('weight_mod_helper_text'),
-            placeholder: '0',
-            value: value.weight_mod,
-            error: error(`${path}.weight_mod`),
-            locked,
-            testid: 'value-weight-mod',
-            onChange: weight => onChange(withField(value, 'weight_mod', parseWeight(weight))),
+            icons: true,
+            t: key => this.t(key),
+            testid: 'value-actions',
+            onMove: list.onMove,
+            onRemove: list.onRemove,
           })}
         </div>
-        <div
-          class="grid gap-s"
-          style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"
-        >
-          <div class="flex items-start" style="gap: 0.5rem">
-            ${textField({
-              label: this.t('color_label'),
-              helperText: help('color_helper_text'),
-              placeholder: '#1d1d1f',
-              value: value.color,
-              error: error(`${path}.color`),
-              locked,
-              testid: 'value-color',
-              className: 'flex-1 min-w-0',
-              onChange: color => onChange(withField(value, 'color', color)),
+        ${rowErrors([
+          [this.t('value_label'), error(`${path}.value`)],
+          [this.t('value_display_label'), error(`${path}.label`)],
+          [this.t('sku_code_label'), error(`${path}.sku_code`)],
+          [this.t('color_label'), error(`${path}.color`)],
+          [this.t('image_label'), error(`${path}.image`)],
+        ])}
+
+        <div class="pd-value-extra">
+          <div
+            class="pd-appearance"
+            role="group"
+            aria-label=${this.t('appearance_label', { value: name })}
+            data-testid="value-appearance"
+          >
+            <span class="text-secondary">${this.t('appearance')}</span>
+            <foxy-internal-color-picker
+              infer="swatch-color"
+              data-testid="value-color"
+              .label=${this.t('color_label')}
+              .value=${value.color ?? ''}
+              @change=${(evt: Event) =>
+                onChange(
+                  withField(value, 'color', (evt.currentTarget as InternalColorPicker).value)
+                )}
+            >
+            </foxy-internal-color-picker>
+
+            ${value.image?.src
+              ? html`<img
+                  class="pd-swatch-image"
+                  src=${previewSrc(value.image.src, form?.getThumbnailUrl)}
+                  alt=""
+                  @error=${previewFallback(value.image.src)}
+                />`
+              : ''}
+            ${byUrl
+              ? urlField({
+                  label: this.t('image_url_label'),
+                  addLabel: this.t('image_url_add'),
+                  error: this.__urlError,
+                  testid: 'value-image-url',
+                  onAdd: src => {
+                    if (!isImageUrl(src)) {
+                      this.__urlError = this.t('image_url_invalid');
+                      return;
+                    }
+                    onChange({ ...value, image: { ...value.image, src } });
+                    this.__toggleUrl(path, false);
+                  },
+                  onCancel: () => this.__toggleUrl(path, false),
+                })
+              : html`<label
+                  class="pd-file"
+                  data-testid="value-image-upload"
+                  aria-disabled=${canUpload ? 'false' : 'true'}
+                  title=${canUpload || locked ? '' : this.t('image_save_first')}
+                >
+                  ${uploading
+                    ? this.t('image_uploading')
+                    : this.t(value.image?.src ? 'image_replace' : 'image_upload')}
+                  <input
+                    class="sr-only"
+                    type="file"
+                    accept=${ACCEPTED_IMAGE_TYPES}
+                    aria-label=${this.t('image_label')}
+                    ?disabled=${!canUpload || uploading}
+                    @change=${(evt: Event) => this.__uploadImage(evt, path)}
+                  />
+                </label>`}
+            ${iconButton({
+              icon: 'link',
+              label: this.t('image_by_url'),
+              testid: 'value-image-by-url',
+              disabled: locked,
+              pressed: byUrl,
+              onClick: () => this.__toggleUrl(path, !byUrl),
             })}
-            <div style="padding-top: var(--lumo-space-l)">${swatch}</div>
+            ${value.image?.src
+              ? html`
+                  ${iconButton({
+                    icon: 'remove',
+                    label: this.t('image_remove'),
+                    testid: 'value-image-remove',
+                    disabled: locked,
+                    danger: true,
+                    onClick: () => onChange(withField(value, 'image', undefined)),
+                  })}
+                  <span style="flex: 1 1 8rem; max-width: 16rem">
+                    ${rowField({
+                      label: this.t('image_alt_label'),
+                      placeholder: this.t('image_alt_label'),
+                      value: value.image.alt,
+                      locked,
+                      testid: 'value-image-alt',
+                      onChange: alt =>
+                        value.image &&
+                        onChange({ ...value, image: withField(value.image, 'alt', alt) }),
+                    })}
+                  </span>
+                `
+              : ''}
           </div>
-          ${textField({
-            label: this.t('image_label'),
-            helperText: help('image_helper_text'),
-            placeholder: 'https://',
-            value: value.image?.src,
-            error: error(`${path}.image`),
-            locked,
-            testid: 'value-image',
-            onChange: src =>
-              onChange(withField(value, 'image', src ? { ...value.image, src } : undefined)),
-          })}
-          ${textField({
-            label: this.t('image_alt_label'),
-            value: value.image?.alt,
-            locked: locked || !value.image?.src,
-            testid: 'value-image-alt',
-            onChange: alt =>
-              value.image && onChange({ ...value, image: withField(value.image, 'alt', alt) }),
+
+          ${list.usedBy === null
+            ? ''
+            : html`<span class="text-secondary" data-testid="value-used-by">
+                ${list.usedBy ? this.t('used_by', { count: list.usedBy }) : this.t('used_by_none')}
+              </span>`}
+          ${disclosure({
+            open: amountsOpen,
+            summary: amountSummary(value, (key, options) => this.t(key, options)),
+            label: this.t('amounts_none'),
+            testid: 'value-amounts',
+            onToggle: () => (this.__amountsOpen = { ...this.__amountsOpen, [path]: !amountsOpen }),
           })}
         </div>
+        ${this.__uploadError === path
+          ? html`<p class="text-xs text-error" role="alert" data-testid="value-image-error">
+              ${this.t(this.__uploadTooLarge ? 'image_error_too_large' : 'image_error_upload')}
+            </p>`
+          : ''}
+        ${amountsOpen
+          ? html`
+              <div class="pd-amounts" data-testid="value-amount-fields">
+                ${rowField({
+                  label: this.t('price_mod_label'),
+                  helperText: this.t('price_mod_helper_text'),
+                  placeholder: '0.00',
+                  value: value.price_mod,
+                  error: amountErrors[0],
+                  locked,
+                  visibleLabel: true,
+                  testid: 'value-price-mod',
+                  onChange: amount => onChange(withField(value, 'price_mod', amount)),
+                })}
+                ${rowField({
+                  label: this.t('weight_mod_label'),
+                  helperText: this.t('weight_mod_helper_text'),
+                  placeholder: '0',
+                  value: value.weight_mod,
+                  error: amountErrors[1],
+                  locked,
+                  visibleLabel: true,
+                  testid: 'value-weight-mod',
+                  onChange: weight => onChange(withField(value, 'weight_mod', parseWeight(weight))),
+                })}
+              </div>
+            `
+          : ''}
       </div>
     `;
+  }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+    if (!this.__focusNext) return;
+    const [path, testid] = this.__focusNext;
+    this.__focusNext = null;
+    this.renderRoot
+      .querySelector<HTMLElement>(`[data-path="${path}"] [data-testid="${testid}"]`)
+      ?.focus();
+  }
+
+  private __toggleUrl(path: string, open: boolean) {
+    this.__urlFor = open ? path : '';
+    this.__urlError = '';
+    this.__focusNext = [path, open ? 'value-image-url-input' : 'value-image-by-url'];
+  }
+
+  /** Uploads the picked file as the image of the value at `path`, as product images upload. */
+  private async __uploadImage(evt: Event, path: string) {
+    const input = evt.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    const form = this.nucleon as ProductForm | null;
+    input.value = '';
+    if (!form || !file) return;
+
+    const [, optionIndex, , valueIndex] = path.split('.').map(Number);
+    const before = this.__options[optionIndex]?.values[valueIndex];
+    this.__uploadError = '';
+    this.__uploading = path;
+
+    try {
+      const src = await form.uploadImage(file);
+      // The list may have changed while the file was on its way.
+      const options = this.__options;
+      const value = options[optionIndex]?.values[valueIndex];
+      if (!value || value.value !== before?.value) return;
+      const values = [...options[optionIndex].values];
+      values[valueIndex] = { ...value, image: { ...value.image, src } };
+      this.__setOptions(options.map((o, i) => (i === optionIndex ? { ...o, values } : o)));
+    } catch (err) {
+      this.__uploadTooLarge = err instanceof ImageTooLargeError;
+      this.__uploadError = path;
+    } finally {
+      this.__uploading = '';
+    }
   }
 
   /**
@@ -495,7 +673,9 @@ export class InternalProductFormOptionsControl extends InternalControl {
    * add to the list keep focus where it is and save the field themselves.
    */
   private __commitField() {
-    this.renderRoot.querySelector<HTMLElement>('vaadin-text-field[focused]')?.blur();
+    const root = this.renderRoot as ShadowRoot;
+    const field = root.querySelector<HTMLElement>('vaadin-text-field[focused]');
+    (field ?? (root.activeElement as HTMLElement | null))?.blur();
   }
 
   private async __addValue(index: number) {

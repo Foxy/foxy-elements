@@ -21,7 +21,7 @@ type StockState = 'in_stock' | 'low_stock' | 'out_of_stock' | 'untracked';
  * and (for parents) a variant count badge.
  *
  * @element foxy-product-card
- * @since 1.54.0
+ * @since 1.62.0
  */
 export class ProductCard extends Base<Data> {
   static get properties(): PropertyDeclarations {

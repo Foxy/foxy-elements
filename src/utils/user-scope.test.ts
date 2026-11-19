@@ -27,6 +27,13 @@ describe('parseUserScope', () => {
     expect(scope.canRead('transactions')).to.be.false;
   });
 
+  it('restricts a session that holds only a products scope to products', () => {
+    const scope = parseUserScope('user_full_access products_read store_id_4127')!;
+    expect(scope.canRead('products')).to.be.true;
+    expect(scope.canWrite('products')).to.be.false;
+    expect(scope.canRead('gift_cards')).to.be.false;
+  });
+
   it('treats write as implying read', () => {
     const scope = parseUserScope('customers_write')!;
     expect(scope.canRead('customers')).to.be.true;

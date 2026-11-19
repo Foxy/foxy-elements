@@ -2,6 +2,8 @@ import type { CSSResultArray, PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { ListedCollection, ProductGroup, SortColumn, TypeFilter } from './listing';
 import type { Data as Collection } from '../ProductCollectionForm/types';
+import type { Data as Product } from '../ProductForm/types';
+import type { CachedList } from './cache';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -11,6 +13,7 @@ import { loadingLogoStyles, renderLoadingLogo } from '../../private/LoadingScree
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { getResourceId } from '@foxy.io/sdk/core';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { readCachedList, writeCachedList, clearCachedLists } from './cache';
 import { FACTS } from './facts';
 import { css } from 'lit-element';
 import { html } from 'lit-html';
@@ -36,18 +39,43 @@ const NS = 'product-list';
 const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(NucleonElement)), NS);
 
 type ExtraColumn = 'collection' | 'template';
+type StandardColumn = 'type' | 'price' | 'stock';
 
 const EXTRA_COLUMNS: ExtraColumn[] = ['collection', 'template'];
+const STANDARD_COLUMNS: StandardColumn[] = ['type', 'price', 'stock'];
 const COLUMNS_KEY = 'foxy-product-list:columns';
+const HIDDEN_COLUMNS_KEY = 'foxy-product-list:hidden-columns';
+const WIDTHS: Record<SortColumn, string> = {
+  name: 'minmax(0, 2.4fr)',
+  sku: 'minmax(0, 1.4fr)',
+  type: '9.5rem',
+  collection: 'minmax(5.5rem, 1.3fr)',
+  template: 'minmax(5.5rem, 1.3fr)',
+  price: '9rem',
+  stock: '11rem',
+};
 const FACT_CHANCE = 0.01;
 
+/** The URL of a product's first image, its own or inherited. */
+function imageOf(product: Product): string {
+  return (product.compiled_definition?.images ?? product.definition?.images)?.[0]?.src || '';
+}
+
 // Storage can be missing or refuse access; the columns then last until the page is left.
-function storedColumns(): ExtraColumn[] {
+function storedColumns<T extends string>(key: string, columns: T[]): T[] {
   try {
-    const stored = JSON.parse(localStorage.getItem(COLUMNS_KEY) ?? '[]') as unknown;
-    return EXTRA_COLUMNS.filter(column => Array.isArray(stored) && stored.includes(column));
+    const stored = JSON.parse(localStorage.getItem(key) ?? '[]') as unknown;
+    return columns.filter(column => Array.isArray(stored) && stored.includes(column));
   } catch {
     return [];
+  }
+}
+
+function storeColumns(key: string, columns: string[]) {
+  try {
+    localStorage.setItem(key, JSON.stringify(columns));
+  } catch {
+    // The choice still holds for this visit.
   }
 }
 
@@ -57,8 +85,10 @@ function storedColumns(): ExtraColumn[] {
  * Variants aren't rows of their own: a product's row carries their count,
  * price range and stock.
  *
+ * @fires CustomEvent - `filter-change` when the search text or a filter is changed in the list.
+ *
  * @element foxy-product-list
- * @since 1.60.0
+ * @since 1.62.0
  */
 export class ProductList extends Base<Data> {
   static get properties(): PropertyDeclarations {
@@ -69,10 +99,14 @@ export class ProductList extends Base<Data> {
       collectionFilter: { attribute: 'collection-filter' },
       templateFilter: { attribute: 'template-filter' },
       extraColumns: { attribute: false },
+      hiddenColumns: { attribute: false },
       random: { attribute: false },
       __collections: { attribute: false },
       __fact: { attribute: false },
+      __failedImages: { attribute: false },
       getProductPageHref: { attribute: false },
+      getThumbnailUrl: { attribute: false },
+      storage: { attribute: false },
       currencyCode: { attribute: 'currency-code' },
       query: {},
       typeFilter: { attribute: 'type-filter' },
@@ -117,6 +151,21 @@ export class ProductList extends Base<Data> {
           font-size: var(--lumo-font-size-s);
           font-weight: 600;
           color: var(--lumo-secondary-text-color);
+        }
+
+        .thumb {
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: var(--lumo-border-radius-s);
+          background: var(--lumo-contrast-5pct);
+          overflow: hidden;
+        }
+
+        .thumb img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         .sku {
@@ -174,6 +223,12 @@ export class ProductList extends Base<Data> {
         select {
           width: auto;
           max-width: 100%;
+          padding-right: 2rem;
+          -webkit-appearance: none;
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23808a96' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 0.75rem center;
         }
 
         details {
@@ -185,12 +240,13 @@ export class ProductList extends Base<Data> {
           display: flex;
           align-items: center;
           box-sizing: border-box;
+          padding-right: 0.75rem;
           cursor: pointer;
         }
 
         summary::after {
           content: '▾';
-          margin-left: 0.375rem;
+          margin-left: 0.5rem;
           color: var(--lumo-secondary-text-color);
         }
 
@@ -234,7 +290,8 @@ export class ProductList extends Base<Data> {
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
           }
 
-          .head {
+          .head,
+          .thumb {
             display: none;
           }
         }
@@ -251,6 +308,19 @@ export class ProductList extends Base<Data> {
   /** Returns the URL of a product's page for its `self` link. Rows aren't links without it. */
   getProductPageHref: ((href: string) => string) | null = null;
 
+  /**
+   * Returns the URL of a small version of a product image, given the image's URL. Without it,
+   * or when that URL doesn't load, the image itself is shown, scaled down.
+   */
+  getThumbnailUrl: ((src: string) => string) | null = null;
+
+  /**
+   * Where the list keeps a copy of its last load, such as `sessionStorage`, to show while the
+   * next one is on its way. The copy is kept by the list's URL. The page that sets this decides
+   * who may see it: see `clearCachedLists`. Without it, nothing is kept.
+   */
+  storage: Storage | null = null;
+
   /** Text the name or SKU must contain. */
   query = '';
 
@@ -266,8 +336,11 @@ export class ProductList extends Base<Data> {
   /** The id of the template whose products the rows are limited to. */
   templateFilter = '';
 
-  /** The optional columns shown, which the browser remembers. */
-  extraColumns: ExtraColumn[] = storedColumns();
+  /** The columns shown only when chosen, which the browser remembers. */
+  extraColumns: ExtraColumn[] = storedColumns(COLUMNS_KEY, EXTRA_COLUMNS);
+
+  /** The columns shown unless hidden, which the browser remembers too. Name and SKU always show. */
+  hiddenColumns: StandardColumn[] = storedColumns(HIDDEN_COLUMNS_KEY, STANDARD_COLUMNS);
 
   /** Returns a number from 0 up to 1, which decides whether a load shows a fact and which one. */
   random: () => number = Math.random;
@@ -281,35 +354,65 @@ export class ProductList extends Base<Data> {
 
   private __fact: (typeof FACTS)[number] | null = null;
 
+  /** Image URLs that didn't load, so that the next one in line is shown instead. */
+  private __failedImages = new Set<string>();
+
+  private __staleHref = '';
+
+  private __staleList: CachedList | null = null;
+
   /** The products shown as rows, each with its variants, in display order. */
   get groups(): ProductGroup[] {
-    return groupProducts(this.data?._embedded['fx:products'] ?? []);
+    return groupProducts(this.data?._embedded['fx:products'] ?? this.__stale?.products ?? []);
+  }
+
+  /** The stored copy of the list, while there is nothing newer and nothing has gone wrong. */
+  private get __stale(): CachedList | null {
+    if (this.data || this.in('fail') || !this.storage || !this.href) return null;
+    if (this.__staleHref !== this.href) {
+      this.__staleHref = this.href;
+      this.__staleList = readCachedList(this.storage, this.href);
+    }
+    return this.__staleList;
+  }
+
+  private get __listedCollections(): ListedCollection[] {
+    return this.data ? this.__collections : this.__stale?.collections ?? [];
   }
 
   render(): TemplateResult {
     const all = this.groups;
-    const collections = collectionTree(this.__collections);
+    const listed = this.__listedCollections;
+    const collections = collectionTree(listed);
     const templates = all.filter(group => group.product.product_type === 'template');
     const matching = all.filter(
       group =>
         matchesQuery(group, this.query) &&
         (this.typeFilter === 'all' || groupType(group) === this.typeFilter) &&
-        matchesCollection(group, this.collectionFilter, this.__collections) &&
+        matchesCollection(group, this.collectionFilter, listed) &&
         (!this.templateFilter || String(group.product.inherit_from_id) === this.templateFilter)
     );
-    const shown = sortGroups(matching, this.sortColumn, this.sortDescending);
-    const sortable: SortColumn[] = ['name', 'sku', 'type', 'price', 'stock'];
-    const extra = this.__offeredColumns.filter(column => this.extraColumns.includes(column));
-    const widths = [
-      'minmax(0, 2.4fr) minmax(0, 1.4fr) 9.5rem',
-      ...extra.map(() => 'minmax(0, 1.3fr)'),
-      '9rem 11rem',
-    ];
+    const offered = this.__offeredColumns(all, listed);
+    const choices = (['type', ...offered, 'price', 'stock'] as const).filter(
+      column =>
+        column === 'type' || column === 'price' || column === 'stock' || offered.includes(column)
+    );
+    const isShown = (column: (typeof choices)[number]) =>
+      column === 'collection' || column === 'template'
+        ? this.extraColumns.includes(column)
+        : !this.hiddenColumns.includes(column);
+    const columns: SortColumn[] = ['name', 'sku', ...choices.filter(isShown)];
+    const labels = this.__labels(collections, templates);
+    const shown = sortGroups(matching, this.sortColumn, this.sortDescending, labels);
+    // By every product rather than the ones shown, so that filtering doesn't move the columns.
+    const hasImages = all.some(group => !!imageOf(group.product));
+    const widths = [...(hasImages ? ['2.5rem'] : []), ...columns.map(column => WIDTHS[column])];
     const heading = (column: SortColumn) => {
       const sorted = column === this.sortColumn;
       return html`
         <span
           role="columnheader"
+          data-testid="head-${column}"
           aria-sort=${sorted ? (this.sortDescending ? 'descending' : 'ascending') : 'none'}
         >
           <button
@@ -336,15 +439,17 @@ export class ProductList extends Base<Data> {
             aria-label=${this.t('search_label')}
             placeholder=${this.t('search_placeholder')}
             .value=${this.query}
-            @input=${(evt: Event) => (this.query = (evt.currentTarget as HTMLInputElement).value)}
+            @input=${(evt: Event) =>
+              this.__filter({ query: (evt.currentTarget as HTMLInputElement).value })}
           />
           <select
             data-testid="type-filter"
             aria-label=${this.t('type_filter_label')}
             .value=${this.typeFilter}
-            @change=${(evt: Event) => {
-              this.typeFilter = (evt.currentTarget as HTMLSelectElement).value as TypeFilter;
-            }}
+            @change=${(evt: Event) =>
+              this.__filter({
+                typeFilter: (evt.currentTarget as HTMLSelectElement).value as TypeFilter,
+              })}
           >
             ${(['all', 'standalone', 'parent', 'template'] as const).map(
               type => html`
@@ -359,9 +464,10 @@ export class ProductList extends Base<Data> {
                 <select
                   data-testid="collection-filter"
                   aria-label=${this.t('collection_filter_label')}
-                  @change=${(evt: Event) => {
-                    this.collectionFilter = (evt.currentTarget as HTMLSelectElement).value;
-                  }}
+                  @change=${(evt: Event) =>
+                    this.__filter({
+                      collectionFilter: (evt.currentTarget as HTMLSelectElement).value,
+                    })}
                 >
                   <option value="" ?selected=${!this.collectionFilter}>
                     ${this.t('collection_filter_all')}
@@ -387,9 +493,10 @@ export class ProductList extends Base<Data> {
                 <select
                   data-testid="template-filter"
                   aria-label=${this.t('template_filter_label')}
-                  @change=${(evt: Event) => {
-                    this.templateFilter = (evt.currentTarget as HTMLSelectElement).value;
-                  }}
+                  @change=${(evt: Event) =>
+                    this.__filter({
+                      templateFilter: (evt.currentTarget as HTMLSelectElement).value,
+                    })}
                 >
                   <option value="" ?selected=${!this.templateFilter}>
                     ${this.t('template_filter_all')}
@@ -405,7 +512,7 @@ export class ProductList extends Base<Data> {
                 </select>
               `
             : ''}
-          ${this.__offeredColumns.length
+          ${choices.length
             ? html`
                 <details
                   data-testid="columns"
@@ -416,13 +523,13 @@ export class ProductList extends Base<Data> {
                 >
                   <summary>${this.t('columns')}</summary>
                   <div class="panel">
-                    ${this.__offeredColumns.map(
+                    ${choices.map(
                       column => html`
                         <label>
                           <input
                             type="checkbox"
                             data-testid="column-${column}"
-                            .checked=${this.extraColumns.includes(column)}
+                            .checked=${isShown(column)}
                             @change=${(evt: Event) =>
                               this.__toggleColumn(
                                 column,
@@ -445,36 +552,42 @@ export class ProductList extends Base<Data> {
           role="table"
         >
           <div class="row head" role="row">
-            ${sortable.slice(0, 3).map(heading)}
-            ${extra.map(
-              column => html`
-                <span role="columnheader" data-testid="head-${column}">
-                  ${this.t(`column_${column}`)}
-                </span>
-              `
-            )}
-            ${sortable.slice(3).map(heading)}
+            ${hasImages
+              ? html`<span role="columnheader" aria-label=${this.t('column_image')}></span>`
+              : ''}
+            ${columns.map(heading)}
           </div>
-          ${shown.map(group => this.__renderRow(group, extra, collections))}
+          ${shown.map(group => this.__renderRow(group, columns, labels, hasImages))}
           ${this.__renderStatus(all, shown)}
         </div>
 
-        ${this.data ? this.__renderFooter(all, shown) : ''}
+        ${this.data || this.__stale ? this.__renderFooter(all, shown) : ''}
       </div>
     `;
   }
 
   protected async _sendGet(): Promise<Data> {
     const fetchPage = (url: string) => this._fetch(url);
-    // Without the collections the list only loses their filter and column.
-    const [products, collections] = await Promise.all([
-      loadAllProducts(this.href, fetchPage),
-      this.productCollections
-        ? loadAll<Collection>(this.productCollections, 'fx:product_collections', fetchPage).catch(
-            () => [] as Collection[]
-          )
-        : ([] as Collection[]),
-    ]);
+    const href = this.href;
+    let products: Product[];
+    let collections: Collection[];
+
+    try {
+      // Without the collections the list only loses their filter and column.
+      [products, collections] = await Promise.all([
+        loadAllProducts(href, fetchPage),
+        this.productCollections
+          ? loadAll<Collection>(this.productCollections, 'fx:product_collections', fetchPage).catch(
+              () => [] as Collection[]
+            )
+          : ([] as Collection[]),
+      ]);
+    } catch (err) {
+      // A copy must not outlive the access it was loaded with.
+      if (this.storage) clearCachedLists(this.storage);
+      this.__staleHref = '';
+      throw err;
+    }
 
     // The API gives a collection's id only in its link.
     this.__collections = collections.map(({ _links, name, path }) => ({
@@ -484,6 +597,9 @@ export class ProductList extends Base<Data> {
     }));
     this.__fact =
       this.random() < FACT_CHANCE ? FACTS[Math.floor(this.random() * FACTS.length)] : null;
+    if (this.storage) {
+      writeCachedList(this.storage, href, { products, collections: this.__collections });
+    }
 
     return {
       _links: { self: { href: this.href } },
@@ -496,21 +612,33 @@ export class ProductList extends Base<Data> {
   }
 
   /** The optional columns this store has anything to show in. */
-  private get __offeredColumns(): ExtraColumn[] {
-    const hasTemplates = this.groups.some(group => group.product.product_type === 'template');
+  private __offeredColumns(all: ProductGroup[], collections: ListedCollection[]): ExtraColumn[] {
+    const hasTemplates = all.some(group => group.product.product_type === 'template');
     return EXTRA_COLUMNS.filter(column =>
-      column === 'collection' ? this.__collections.length > 0 : hasTemplates
+      column === 'collection' ? collections.length > 0 : hasTemplates
     );
   }
 
-  private __toggleColumn(column: ExtraColumn, shown: boolean) {
-    this.extraColumns = EXTRA_COLUMNS.filter(c =>
-      c === column ? shown : this.extraColumns.includes(c)
-    );
-    try {
-      localStorage.setItem(COLUMNS_KEY, JSON.stringify(this.extraColumns));
-    } catch {
-      // The choice still holds for this visit.
+  private __filter(
+    changes: Partial<
+      Pick<ProductList, 'query' | 'typeFilter' | 'collectionFilter' | 'templateFilter'>
+    >
+  ) {
+    Object.assign(this, changes);
+    this.dispatchEvent(new CustomEvent('filter-change'));
+  }
+
+  private __toggleColumn(column: ExtraColumn | StandardColumn, shown: boolean) {
+    if (column === 'collection' || column === 'template') {
+      this.extraColumns = EXTRA_COLUMNS.filter(c =>
+        c === column ? shown : this.extraColumns.includes(c)
+      );
+      storeColumns(COLUMNS_KEY, this.extraColumns);
+    } else {
+      this.hiddenColumns = STANDARD_COLUMNS.filter(c =>
+        c === column ? !shown : this.hiddenColumns.includes(c)
+      );
+      storeColumns(HIDDEN_COLUMNS_KEY, this.hiddenColumns);
     }
   }
 
@@ -543,12 +671,13 @@ export class ProductList extends Base<Data> {
                 type="button"
                 class="link"
                 data-testid="clear-filters"
-                @click=${() => {
-                  this.query = '';
-                  this.typeFilter = 'all';
-                  this.collectionFilter = '';
-                  this.templateFilter = '';
-                }}
+                @click=${() =>
+                  this.__filter({
+                    query: '',
+                    typeFilter: 'all',
+                    collectionFilter: '',
+                    templateFilter: '',
+                  })}
               >
                 ${this.t('clear_filters')}
               </button>
@@ -561,7 +690,7 @@ export class ProductList extends Base<Data> {
   private __renderStatus(all: ProductGroup[], shown: ProductGroup[]) {
     let key = '';
     if (this.in('fail')) key = this.accessDenied ? 'access_denied' : 'error';
-    else if (!this.data) key = 'loading';
+    else if (!this.data && !this.__stale) key = 'loading';
     else if (!all.length) key = 'empty';
     else if (!shown.length) key = 'no_matches';
     if (!key) return '';
@@ -590,22 +719,29 @@ export class ProductList extends Base<Data> {
     `;
   }
 
+  /** What a product shows in the Collection and Template columns. */
+  private __labels(collections: ReturnType<typeof collectionTree>, templates: ProductGroup[]) {
+    const trails = new Map(collections.map(collection => [collection.id, collection.trail]));
+    const names = new Map(
+      templates.map(({ product }) => [productId(product), productName(product) || product.sku])
+    );
+    return {
+      collection: ({ product }: ProductGroup) => trails.get(product.collection_id as number) ?? '',
+      template: ({ product }: ProductGroup) => names.get(product.inherit_from_id as number) ?? '',
+    };
+  }
+
   private __renderRow(
     group: ProductGroup,
-    extra: ExtraColumn[],
-    collections: ReturnType<typeof collectionTree>
+    columns: SortColumn[],
+    labels: ReturnType<ProductList['__labels']>,
+    hasImages: boolean
   ) {
     const { product, variants } = group;
     const isTemplate = product.product_type === 'template';
-    const template = this.groups.find(
-      ({ product: other }) =>
-        other.product_type === 'template' && productId(other) === product.inherit_from_id
-    )?.product;
-    const extraText: Record<ExtraColumn, string> = {
-      collection: collections.find(c => c.id === product.collection_id)?.trail ?? '',
-      template: template ? productName(template) || template.sku : '',
-    };
-    const name = productName(product);
+    const image = imageOf(product);
+    const sources = image ? [this.getThumbnailUrl?.(image) ?? image, image] : [];
+    const src = sources.find(source => !this.__failedImages.has(source));
     const stock = stockSummary(group, this.lowStockThreshold);
     const href = this.getProductPageHref?.(product._links.self.href);
     const price = formatPriceRange(priceRange(group), this.currencyCode, this.lang);
@@ -614,11 +750,17 @@ export class ProductList extends Base<Data> {
       ? `${this.t('type_parent')} · ${this.t('variant_count', { count: variants.length })}`
       : this.t(`type_${product.product_type}`);
 
-    return html`
-      <a class="row" role="row" data-testid="row" data-sku=${product.sku} href=${ifDefined(href)}>
+    const text = (column: 'collection' | 'template') => html`
+      <span role="cell" class="text-s" style="overflow-wrap: anywhere" data-testid=${column}>
+        ${labels[column](group) || '—'}
+      </span>
+    `;
+
+    const cells: Record<SortColumn, () => TemplateResult> = {
+      name: () => html`
         <span role="cell" class="min-w-0">
           <span class="font-medium" style="overflow-wrap: anywhere" data-testid="name"
-            >${name}</span
+            >${productName(product)}</span
           >
           ${product.hidden
             ? html`<span
@@ -630,16 +772,15 @@ export class ProductList extends Base<Data> {
               </span>`
             : ''}
         </span>
-        <span role="cell" class="sku" data-testid="sku">${product.sku}</span>
+      `,
+      sku: () => html`<span role="cell" class="sku" data-testid="sku">${product.sku}</span>`,
+      type: () => html`
         <span role="cell" class="text-s text-secondary" data-testid="type">${type}</span>
-        ${extra.map(
-          column => html`
-            <span role="cell" class="text-s" style="overflow-wrap: anywhere" data-testid=${column}>
-              ${extraText[column] || '—'}
-            </span>
-          `
-        )}
-        <span role="cell" data-testid="price">${price || '—'}</span>
+      `,
+      collection: () => text('collection'),
+      template: () => text('template'),
+      price: () => html`<span role="cell" data-testid="price">${price || '—'}</span>`,
+      stock: () => html`
         <span
           role="cell"
           class="text-s inline-flex items-center"
@@ -654,6 +795,33 @@ export class ProductList extends Base<Data> {
                 ${this.__stockText(stock, variants.length > 0)}
               `}
         </span>
+      `,
+    };
+
+    return html`
+      <a class="row" role="row" data-testid="row" data-sku=${product.sku} href=${ifDefined(href)}>
+        ${hasImages
+          ? html`
+              <span role="cell" class="thumb" data-testid="thumbnail">
+                ${src
+                  ? html`
+                      <img
+                        loading="lazy"
+                        decoding="async"
+                        height="40"
+                        width="40"
+                        alt=""
+                        src=${src}
+                        @error=${() => {
+                          this.__failedImages = new Set([...this.__failedImages, src]);
+                        }}
+                      />
+                    `
+                  : ''}
+              </span>
+            `
+          : ''}
+        ${columns.map(column => cells[column]())}
       </a>
     `;
   }

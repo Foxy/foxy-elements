@@ -6,13 +6,26 @@ import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data, ProductDefinition, ProductModifier, ProductOption } from './types';
 
 import { getResourceId } from '@foxy.io/sdk/core';
-import { isRemoval, mergeModifiers, validateModifiers, validateOptions } from './catalog';
+import {
+  ImageTooLargeError,
+  MAX_IMAGE_BYTES,
+  isRemoval,
+  mergeModifiers,
+  validateModifiers,
+  validateOptions,
+} from './catalog';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 import { css } from 'lit-element';
-import { DEFAULT_LOW_STOCK_THRESHOLD, groupProducts, stockSummary } from '../ProductList/listing';
+import {
+  DEFAULT_LOW_STOCK_THRESHOLD,
+  groupProducts,
+  loadAllProducts,
+  stockSummary,
+} from '../ProductList/listing';
+import { previewFallback, previewSrc } from './internal/fields';
 import { sectionStyles } from './internal/styles';
 
 const NS = 'product-form';
@@ -48,7 +61,7 @@ async function apiMessage(error: unknown): Promise<string> {
  * template) shows the inherited values as placeholders for its empty fields.
  *
  * @element foxy-product-form
- * @since 1.54.0
+ * @since 1.62.0
  */
 export class ProductForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
@@ -59,6 +72,7 @@ export class ProductForm extends Base<Data> {
       defaultDomain: { attribute: 'default-domain' },
       storefrontElementsHref: { attribute: 'storefront-elements-href' },
       getProductPageHref: { attribute: false },
+      getThumbnailUrl: { attribute: false },
       lowStockThreshold: { type: Number, attribute: 'low-stock-threshold' },
       storefrontScript: { attribute: 'storefront-script' },
       inventoryHref: { attribute: 'inventory-href' },
@@ -152,6 +166,13 @@ export class ProductForm extends Base<Data> {
   /** Returns the URL of a product's page for its `self` link, for the link to a variant's own page. */
   getProductPageHref: ((href: string) => string) | null = null;
 
+  /**
+   * Returns the URL of a small version of a product image, given the image's URL. Every
+   * preview in the form uses it; without it, or when that URL doesn't load, the image itself
+   * is shown, scaled down.
+   */
+  getThumbnailUrl: ((src: string) => string) | null = null;
+
   /** URL of the page that sets the store's look for the storefront elements. */
   storefrontElementsHref: string | null = null;
 
@@ -179,6 +200,9 @@ export class ProductForm extends Base<Data> {
   private __panel: { href: string; before: VariantEdit | undefined } | null = null;
 
   private __confirming = false;
+
+  /** What had focus when each dialog opened. */
+  private __openers = new Map<string, HTMLElement | null>();
 
   /** Whether a save was tried, after which the fields that stopped it stand out. */
   private __saveAttempted = false;
@@ -393,9 +417,6 @@ export class ProductForm extends Base<Data> {
         'general',
         this.__generalSummary,
         html`
-          <foxy-internal-product-form-images-control infer="images">
-          </foxy-internal-product-form-images-control>
-
           <foxy-internal-summary-control infer="general" .label=${''} .helperText=${''}>
             <foxy-internal-radio-group-control
               layout="summary-item"
@@ -468,6 +489,7 @@ export class ProductForm extends Base<Data> {
               .getValue=${this.__templateGetValue}
               .setValue=${this.__templateSetValue}
               .extendFilter=${this.__templateExtendFilter}
+              .searchFields=${['sku']}
               .getDisplayValueOptions=${(resource: Data | null) => {
                 const name = (resource?.compiled_definition as ProductDefinition | undefined)?.name;
                 return { label: name ? `${name} (${resource?.sku})` : resource?.sku ?? '' };
@@ -523,6 +545,9 @@ export class ProductForm extends Base<Data> {
             placeholder=${ifDefined(inherited?.description ?? undefined)}
           >
           </foxy-internal-product-form-description-control>
+
+          <foxy-internal-product-form-images-control infer="images">
+          </foxy-internal-product-form-images-control>
         `
       )}
       ${this.__renderSection(
@@ -628,6 +653,8 @@ export class ProductForm extends Base<Data> {
                             id="variant-dialog"
                             wide
                             .props=${{
+                              // The new variant's form reads this form's own text.
+                              'ns': NS,
                               '.parentProduct': this.data,
                               '.itemCategories': this.itemCategories,
                             }}
@@ -677,7 +704,10 @@ export class ProductForm extends Base<Data> {
           </foxy-internal-async-list-control>
         `
       )}
-      ${this.__cartHost && this.data && !isTemplate
+      ${this.__cartHost &&
+      this.data &&
+      !isTemplate &&
+      !this.hiddenSelector.matches('storefront', true)
         ? this.__renderSection(
             'storefront',
             '',
@@ -739,6 +769,34 @@ export class ProductForm extends Base<Data> {
       this.in({ idle: { snapshot: 'dirty' } }) ||
       this.in({ idle: { template: 'dirty' } })
     );
+  }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+    this.__showOrLeave('variant-panel');
+    this.__showOrLeave('delete-confirmation');
+  }
+
+  /**
+   * A dialog is in the page only while it is open. Shown as a modal, the
+   * browser moves focus into it, keeps it there and closes it on Escape; what
+   * had focus before gets it back when the dialog is gone.
+   */
+  private __showOrLeave(testid: string) {
+    const dialog = this.renderRoot.querySelector<HTMLDialogElement>(
+      `dialog[data-testid="${testid}"]`
+    );
+
+    if (dialog && !dialog.open) {
+      let opener = document.activeElement;
+      while (opener?.shadowRoot?.activeElement) opener = opener.shadowRoot.activeElement;
+      this.__openers.set(testid, opener instanceof HTMLElement ? opener : null);
+      dialog.showModal();
+    } else if (!dialog && this.__openers.has(testid)) {
+      const opener = this.__openers.get(testid);
+      this.__openers.delete(testid);
+      if (opener?.isConnected) opener.focus();
+    }
   }
 
   /** Drops every unsaved change, the variants' included. */
@@ -1051,13 +1109,14 @@ export class ProductForm extends Base<Data> {
     `;
 
     return html`
-      <div
+      <dialog
         class="pd-overlay pd-overlay-side"
         data-testid="variant-panel"
+        aria-labelledby="variant-panel-title"
         @click=${(evt: Event) => evt.target === evt.currentTarget && close()}
-        @keydown=${(evt: KeyboardEvent) => evt.key === 'Escape' && close()}
+        @cancel=${close}
       >
-        <aside role="dialog" aria-modal="true" aria-labelledby="variant-panel-title">
+        <aside>
           <div class="pd-panel-header">
             <div class="grid gap-xs" style="flex-grow: 1">
               <p class="text-xs font-semibold text-secondary uppercase tracking-wide">
@@ -1124,8 +1183,9 @@ export class ProductForm extends Base<Data> {
               <img
                 class="pd-thumb"
                 style="width: 4rem; height: 4rem"
-                src=${image?.src ?? inherited?.images?.[0]?.src ?? ''}
+                src=${previewSrc(image?.src ?? inherited?.images?.[0]?.src, this.getThumbnailUrl)}
                 alt=""
+                @error=${previewFallback(image?.src ?? inherited?.images?.[0]?.src)}
               />
               <div class="grid gap-xs text-s">
                 <span class="text-secondary">
@@ -1178,7 +1238,7 @@ export class ProductForm extends Base<Data> {
             </button>
           </div>
         </aside>
-      </div>
+      </dialog>
     `;
   }
 
@@ -1189,14 +1249,14 @@ export class ProductForm extends Base<Data> {
     const cancel = () => (this.__confirming = false);
 
     return html`
-      <div class="pd-overlay" data-testid="delete-confirmation">
-        <div
-          class="pd-dialog"
-          role="alertdialog"
-          aria-modal="true"
-          aria-labelledby="delete-confirmation-title"
-          @keydown=${(evt: KeyboardEvent) => evt.key === 'Escape' && cancel()}
-        >
+      <dialog
+        class="pd-overlay"
+        role="alertdialog"
+        data-testid="delete-confirmation"
+        aria-labelledby="delete-confirmation-title"
+        @cancel=${cancel}
+      >
+        <div class="pd-dialog">
           <h2 id="delete-confirmation-title" class="text-l font-semibold">
             ${this.t('variants.confirm_title', { count })}
           </h2>
@@ -1220,6 +1280,7 @@ export class ProductForm extends Base<Data> {
               type="button"
               class="pd-button pd-button-secondary"
               data-testid="delete-cancel"
+              autofocus
               @click=${cancel}
             >
               ${this.t('variants.confirm_cancel')}
@@ -1240,35 +1301,50 @@ export class ProductForm extends Base<Data> {
             </button>
           </div>
         </div>
-      </div>
+      </dialog>
     `;
   }
 
   /**
    * Uploads an image for this product and returns its permanent URL. Needs the
    * `fx:create_upload_url` link, which the admin backend adds to a saved
-   * product.
+   * product. Rejects with `ImageTooLargeError` for a file over the size limit.
    */
   async uploadImage(file: File): Promise<string> {
     const createUploadUrl = this.data?._links['fx:create_upload_url']?.href;
     if (!createUploadUrl) throw new Error('This product has no fx:create_upload_url link.');
+    if (file.size > MAX_IMAGE_BYTES) throw new ImageTooLargeError();
 
-    const { upload_url, image_url } = await this._fetch<{ upload_url: string; image_url: string }>(
-      createUploadUrl,
-      { method: 'POST', body: JSON.stringify({ type: file.type }) }
-    );
+    type Upload = {
+      upload_url: string;
+      upload_fields: Record<string, string>;
+      max_bytes?: number;
+      image_url: string;
+    };
 
-    // A pre-signed storage URL: plain fetch, since API credentials mustn't go there.
-    // Its signature covers the x-amz-meta-* headers, which the URL also carries as
-    // parameters, so they must be sent as headers too.
-    const headers: Record<string, string> = { 'Content-Type': file.type };
-    new URL(upload_url).searchParams.forEach((value, key) => {
-      if (key.toLowerCase().startsWith('x-amz-meta-')) headers[key] = value;
-    });
-    const response = await fetch(upload_url, { method: 'PUT', body: file, headers });
+    let upload: Upload;
+    try {
+      upload = await this._fetch<Upload>(createUploadUrl, {
+        method: 'POST',
+        body: JSON.stringify({ type: file.type, size: file.size }),
+      });
+    } catch (err) {
+      throw err instanceof Response && err.status === 413 ? new ImageTooLargeError() : err;
+    }
+
+    if (typeof upload.max_bytes === 'number' && file.size > upload.max_bytes) {
+      throw new ImageTooLargeError();
+    }
+
+    // A signed form for storage: plain fetch, since API credentials mustn't go there.
+    // Storage reads the fields in order and takes none after the file.
+    const body = new FormData();
+    for (const [name, value] of Object.entries(upload.upload_fields)) body.append(name, value);
+    body.append('file', file);
+    const response = await fetch(upload.upload_url, { method: 'POST', body });
     if (!response.ok) throw new Error(`Image upload failed with ${response.status}.`);
 
-    return image_url;
+    return upload.image_url;
   }
 
   /**
@@ -1439,20 +1515,10 @@ export class ProductForm extends Base<Data> {
     if (!href || type === 'variant' || type === 'template') return null;
     if (!options.length && !product.variant_count) return null;
 
-    const variants: Data[] = [];
-    const url = new URL(href);
-    url.searchParams.set('limit', '200');
     try {
-      for (let offset = 0; ; offset += 200) {
-        url.searchParams.set('offset', String(offset));
-        const page = await super._fetch<any>(url.toString());
-        const items: Data[] = page?._embedded?.['fx:products'] ?? [];
-        variants.push(...items);
-        if (!items.length || variants.length >= Number(page.total_items ?? 0)) break;
-      }
+      return { options, list: await loadAllProducts(href, url => super._fetch(url)) };
     } catch {
       return null;
     }
-    return { options, list: variants };
   }
 }

@@ -34,6 +34,7 @@
         "cancel": "Cancel",
         "close": "Close",
         "header": "Select a product",
+        "search": "Find a product by SKU",
         "selection": {
           "label": "",
           "helper_text": "",

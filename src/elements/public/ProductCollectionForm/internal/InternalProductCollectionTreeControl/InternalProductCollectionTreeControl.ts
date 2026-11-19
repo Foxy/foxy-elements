@@ -37,7 +37,7 @@ interface TreeNode {
  * - `productcollection:delete` — `detail.id` is the collection id.
  *
  * @element foxy-internal-product-collection-tree-control
- * @since 1.54.0
+ * @since 1.62.0
  */
 export class InternalProductCollectionTreeControl extends Base {
   static get properties(): PropertyDeclarations {

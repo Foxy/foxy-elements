@@ -165,7 +165,7 @@ export function stockSummary(group: ProductGroup, threshold: number): StockSumma
   return { state, units, out, low, holders: holders.length };
 }
 
-export type SortColumn = 'name' | 'sku' | 'type' | 'price' | 'stock';
+export type SortColumn = 'name' | 'sku' | 'type' | 'collection' | 'template' | 'price' | 'stock';
 
 export type TypeFilter = 'all' | 'standalone' | 'parent' | 'template';
 
@@ -177,13 +177,16 @@ export function groupType(group: ProductGroup): Exclude<TypeFilter, 'all'> {
 
 /**
  * The groups ordered by a column. Price orders by the lowest price and stock
- * by units, with products that have neither last in both directions. Ties
- * keep the order the groups came in, which is by name.
+ * by units, with products that have neither last in both directions, as are
+ * products without a collection or a template when ordered by those. Ties
+ * keep the order the groups came in, which is by name. `labels` gives the
+ * text a product shows in the Collection and Template columns.
  */
 export function sortGroups(
   groups: readonly ProductGroup[],
   column: SortColumn,
-  descending: boolean
+  descending: boolean,
+  labels: Partial<Record<'collection' | 'template', (group: ProductGroup) => string>> = {}
 ): ProductGroup[] {
   const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
   const text: Record<'name' | 'sku' | 'type', (group: ProductGroup) => string> = {
@@ -204,6 +207,11 @@ export function sortGroups(
       const [x, y] = [amount(a), amount(b)];
       if (x === null || y === null) return x === y ? 0 : x === null ? 1 : -1;
       return sign * (x - y);
+    }
+    if (column === 'collection' || column === 'template') {
+      const [x, y] = [labels[column]?.(a) ?? '', labels[column]?.(b) ?? ''];
+      if (!x || !y) return x === y ? 0 : x ? -1 : 1;
+      return sign * collator.compare(x, y);
     }
     return sign * collator.compare(text[column](a), text[column](b));
   });
@@ -282,6 +290,11 @@ export interface ListedCollection {
   path: string;
 }
 
+/** How far below the top of the tree a path such as `/coffee/blends` sits: 0 for a top-level one. */
+export function collectionDepth(path: string): number {
+  return Math.max(0, path.split('/').filter(Boolean).length - 1);
+}
+
 /** The collections in tree order, each with its depth and its ancestors' names before its own. */
 export function collectionTree(
   collections: readonly ListedCollection[]
@@ -296,7 +309,7 @@ export function collectionTree(
       const trail = slugs.map((_, i) => names.get(`/${slugs.slice(0, i + 1).join('/')}`));
       return {
         ...collection,
-        depth: Math.max(0, slugs.length - 1),
+        depth: collectionDepth(collection.path),
         trail: trail.filter(Boolean).join(' › ') || collection.name,
       };
     });

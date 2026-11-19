@@ -3,12 +3,25 @@ import type { ProductModifier, ProductModifierRemoval, ProductModifierValue } fr
 import type { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import type { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import type { ProductForm } from '../../ProductForm';
-import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { LIMITS, isRemoval, validateModifiers } from '../../catalog';
-import { listActions, move, parseWeight, textField, withField } from '../fields';
+import { rowStyles } from '../styles';
 import { html } from 'lit-element';
+import {
+  amountSummary,
+  disclosure,
+  listActions,
+  move,
+  parseWeight,
+  rowErrors,
+  rowField,
+  textField,
+  withField,
+} from '../fields';
+
+const VALUE_COLUMNS = 'minmax(0, 1fr) minmax(0, 1fr) 5.25rem';
 
 type Own = ProductModifier | ProductModifierRemoval;
 
@@ -35,8 +48,13 @@ export class InternalProductFormModifiersControl extends InternalControl {
       inheritedFrom: { attribute: false },
       inherited: { attribute: false },
       optionNames: { attribute: false },
+      __detailsOpen: { attribute: false },
       __managed: { attribute: false },
     };
+  }
+
+  static get styles(): CSSResultArray {
+    return [...super.styles, rowStyles];
   }
 
   /** The compiled modifiers of the product this one inherits from. */
@@ -47,6 +65,9 @@ export class InternalProductFormModifiersControl extends InternalControl {
 
   /** Whether each modifier's editor is open, by name, where the merchant chose. */
   private __managed: Record<string, boolean> = {};
+
+  /** Whether a value's price, weight and category fields are open, by the value's path. */
+  private __detailsOpen: Record<string, boolean> = {};
 
   /** Names of the product's options, which a modifier can't share. */
   optionNames: string[] = [];
@@ -267,10 +288,10 @@ export class InternalProductFormModifiersControl extends InternalControl {
         <div class="flex flex-wrap items-center" style="gap: 0.875rem">
           ${this.__renderTitle(modifier)}
           <span
-            class="text-xs rounded-s px-s ${isOverride ? '' : 'bg-success-10 text-success'}"
-            style="padding-top: 0.1875rem; padding-bottom: 0.1875rem; white-space: nowrap; ${isOverride
-              ? 'background: #fff6e5; color: #8a4b00'
-              : ''}"
+            class="text-xs rounded-s px-s ${isOverride
+              ? 'bg-contrast-10 text-body font-medium'
+              : 'bg-success-10 text-success'}"
+            style="padding-top: 0.1875rem; padding-bottom: 0.1875rem; white-space: nowrap"
             data-testid="modifier-source"
           >
             ${this.t(isOverride ? 'override_badge' : 'own_badge')}
@@ -387,21 +408,36 @@ export class InternalProductFormModifiersControl extends InternalControl {
 
         ${modifier.type === 'select'
           ? html`
-              <span class="font-medium">${this.t('values_label')}</span>
+              <div>
+                <h4 class="font-semibold">${this.t('values_label')}</h4>
+                <p class="text-xs text-secondary">${this.t('values_helper_text')}</p>
+              </div>
               ${error(`${path}.values`)
                 ? html`<p class="text-s text-error">${error(`${path}.values`)}</p>`
                 : ''}
-              ${values.map((value, index) =>
-                this.__renderValue(value, `${path}.values.${index}`, locked, error, {
-                  index,
-                  length: values.length,
-                  onChange: changed => setValues(values.map((v, i) => (i === index ? changed : v))),
-                  onMove: (from, to) => setValues(move(values, from, to)),
-                  onRemove: () => setValues(values.filter((_, i) => i !== index)),
-                })
-              )}
+              <div class="pd-values">
+                <div
+                  class="pd-value-head"
+                  style="--pd-columns: ${VALUE_COLUMNS}"
+                  aria-hidden="true"
+                >
+                  <span>${this.t('value_label')}</span>
+                  <span>${this.t('value_display_label')}</span>
+                </div>
+                ${values.map((value, index) =>
+                  this.__renderValue(value, `${path}.values.${index}`, locked, error, {
+                    index,
+                    length: values.length,
+                    onChange: changed =>
+                      setValues(values.map((v, i) => (i === index ? changed : v))),
+                    onMove: (from, to) => setValues(move(values, from, to)),
+                    onRemove: () => setValues(values.filter((_, i) => i !== index)),
+                  })
+                )}
+              </div>
               <button
-                class="text-s font-medium text-primary justify-self-start"
+                class="text-s font-medium rounded-s bg-primary-10 text-primary justify-self-start"
+                style="height: 2rem; padding: 0 0.625rem"
                 type="button"
                 data-testid="add-modifier-value"
                 ?disabled=${locked || values.length >= LIMITS.values}
@@ -425,7 +461,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
                   testid: 'modifier-max-length',
                   onChange: max => set(withField(modifier, 'max_length', parseWeight(max))),
                 })}
-                ${this.__amountFields(modifier, path, locked, error, set, 'text_')}
+                ${this.__amountFields(modifier, path, locked, error, set)}
               </div>
             `}
         ${isOverride
@@ -449,36 +485,34 @@ export class InternalProductFormModifiersControl extends InternalControl {
     `;
   }
 
-  private __amountFields<T extends { price_mod?: number | string; weight_mod?: number }>(
-    item: T,
+  /** The price and weight a text modifier adds once the shopper types anything. */
+  private __amountFields(
+    modifier: ProductModifier,
     path: string,
     locked: boolean,
     error: (path: string) => string | undefined,
-    set: (changed: T) => void,
-    /** Leads the helper text keys; `null` leaves the helper text out. */
-    prefix: string | null = ''
+    set: (changed: ProductModifier) => void
   ) {
-    const help = (key: string) => (prefix === null ? undefined : this.t(`${prefix}${key}`));
     return html`
       ${textField({
         label: this.t('price_mod_label'),
-        helperText: help('price_mod_helper_text'),
+        helperText: this.t('text_price_mod_helper_text'),
         placeholder: '0.00',
-        value: item.price_mod,
+        value: modifier.price_mod,
         error: error(`${path}.price_mod`),
         locked,
         testid: 'price-mod',
-        onChange: amount => set(withField(item, 'price_mod', amount)),
+        onChange: amount => set(withField(modifier, 'price_mod', amount)),
       })}
       ${textField({
         label: this.t('weight_mod_label'),
-        helperText: help('weight_mod_helper_text'),
+        helperText: this.t('weight_mod_helper_text'),
         placeholder: '0',
-        value: item.weight_mod,
+        value: modifier.weight_mod,
         error: error(`${path}.weight_mod`),
         locked,
         testid: 'weight-mod',
-        onChange: weight => set(withField(item, 'weight_mod', parseWeight(weight))),
+        onChange: weight => set(withField(modifier, 'weight_mod', parseWeight(weight))),
       })}
     `;
   }
@@ -497,17 +531,24 @@ export class InternalProductFormModifiersControl extends InternalControl {
     }
   ) {
     const { onChange } = list;
-    // Said once, on the first value, rather than on every one.
-    const help = (key: string) => (list.index === 0 ? this.t(key) : undefined);
+    const detailErrors = [
+      error(`${path}.price_mod`),
+      error(`${path}.weight_mod`),
+      error(`${path}.category_code`),
+    ];
+    const open = this.__detailsOpen[path] ?? detailErrors.some(Boolean);
+    const summary = [
+      amountSummary(value, (key, options) => this.t(key, options)),
+      value.category_code ? this.t('details_category', { code: value.category_code }) : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
+
     return html`
-      <div class="grid gap-s border-t border-contrast-10 pt-s" data-testid="modifier-value">
-        <div
-          class="grid gap-s"
-          style="grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr))"
-        >
-          ${textField({
+      <div class="pd-value" data-testid="modifier-value">
+        <div class="pd-value-main" style="--pd-columns: ${VALUE_COLUMNS}">
+          ${rowField({
             label: this.t('value_label'),
-            helperText: help('value_helper_text'),
             placeholder: 'Yes',
             value: value.value,
             error: error(`${path}.value`),
@@ -515,9 +556,8 @@ export class InternalProductFormModifiersControl extends InternalControl {
             testid: 'value-value',
             onChange: changed => onChange({ ...value, value: changed }),
           })}
-          ${textField({
+          ${rowField({
             label: this.t('value_display_label'),
-            helperText: help('value_display_helper_text'),
             placeholder: value.value,
             value: value.label,
             error: error(`${path}.label`),
@@ -525,26 +565,69 @@ export class InternalProductFormModifiersControl extends InternalControl {
             testid: 'value-label',
             onChange: label => onChange(withField(value, 'label', label)),
           })}
-          ${textField({
-            label: this.t('category_code_label'),
-            helperText: help('category_code_helper_text'),
-            value: value.category_code,
-            error: error(`${path}.category_code`),
+          ${listActions({
+            index: list.index,
+            length: list.length,
             locked,
-            testid: 'value-category-code',
-            onChange: code => onChange(withField(value, 'category_code', code)),
+            icons: true,
+            t: key => this.t(key),
+            testid: 'value-actions',
+            onMove: list.onMove,
+            onRemove: list.onRemove,
           })}
-          ${this.__amountFields(value, path, locked, error, onChange, list.index === 0 ? '' : null)}
         </div>
-        ${listActions({
-          index: list.index,
-          length: list.length,
-          locked,
-          t: key => this.t(key),
-          testid: 'value-actions',
-          onMove: list.onMove,
-          onRemove: list.onRemove,
-        })}
+        ${rowErrors([
+          [this.t('value_label'), error(`${path}.value`)],
+          [this.t('value_display_label'), error(`${path}.label`)],
+        ])}
+
+        <div class="pd-value-extra">
+          ${disclosure({
+            open,
+            summary,
+            label: this.t('details_none'),
+            testid: 'value-details',
+            onToggle: () => (this.__detailsOpen = { ...this.__detailsOpen, [path]: !open }),
+          })}
+        </div>
+        ${open
+          ? html`
+              <div class="pd-amounts" data-testid="value-detail-fields">
+                ${rowField({
+                  label: this.t('price_mod_label'),
+                  helperText: this.t('price_mod_helper_text'),
+                  placeholder: '0.00',
+                  value: value.price_mod,
+                  error: detailErrors[0],
+                  locked,
+                  visibleLabel: true,
+                  testid: 'price-mod',
+                  onChange: amount => onChange(withField(value, 'price_mod', amount)),
+                })}
+                ${rowField({
+                  label: this.t('weight_mod_label'),
+                  helperText: this.t('weight_mod_helper_text'),
+                  placeholder: '0',
+                  value: value.weight_mod,
+                  error: detailErrors[1],
+                  locked,
+                  visibleLabel: true,
+                  testid: 'weight-mod',
+                  onChange: weight => onChange(withField(value, 'weight_mod', parseWeight(weight))),
+                })}
+                ${rowField({
+                  label: this.t('category_code_label'),
+                  helperText: this.t('category_code_helper_text'),
+                  value: value.category_code,
+                  error: detailErrors[2],
+                  locked,
+                  visibleLabel: true,
+                  testid: 'value-category-code',
+                  onChange: code => onChange(withField(value, 'category_code', code)),
+                })}
+              </div>
+            `
+          : ''}
       </div>
     `;
   }

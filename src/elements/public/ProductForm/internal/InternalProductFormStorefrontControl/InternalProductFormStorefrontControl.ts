@@ -1,10 +1,10 @@
-import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { Data, ProductModifier } from '../../types';
 
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { variantLabel } from '../../../ProductList/listing';
 import { isRemoval } from '../../catalog';
-import { html } from 'lit-element';
+import { css, html } from 'lit-element';
 
 type Kind = 'link' | 'button' | 'form' | 'tile' | 'page';
 
@@ -38,6 +38,17 @@ export class InternalProductFormStorefrontControl extends InternalControl {
       __variant: { attribute: false },
       __kind: { attribute: false },
     };
+  }
+
+  static get styles(): CSSResultArray {
+    return [
+      ...super.styles,
+      css`
+        label:focus-within {
+          box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
+        }
+      `,
+    ];
   }
 
   /** The store's host, such as `example.foxycart.com`. */
@@ -87,19 +98,23 @@ export class InternalProductFormStorefrontControl extends InternalControl {
         <div role="radiogroup" aria-label=${this.t('kind_label')} class="flex flex-wrap">
           ${kinds.map(
             item => html`
-              <button
-                type="button"
-                role="radio"
-                class="text-s rounded-s border ${item === kind
+              <label
+                class="inline-flex items-center cursor-pointer text-s rounded-s border ${item ===
+                kind
                   ? 'border-primary bg-primary-10 text-primary font-medium'
                   : 'border-contrast-30'}"
                 style="height: 2rem; padding: 0 0.75rem; margin: 0 0.375rem 0.375rem 0"
                 data-testid="kind-${item}"
-                aria-checked=${item === kind ? 'true' : 'false'}
-                @click=${() => (this.__kind = item)}
               >
+                <input
+                  type="radio"
+                  name="kind"
+                  class="sr-only"
+                  .checked=${item === kind}
+                  @change=${() => (this.__kind = item)}
+                />
                 ${this.t(`kind_${item}`)}
-              </button>
+              </label>
             `
           )}
         </div>

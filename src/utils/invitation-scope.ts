@@ -137,7 +137,7 @@ export function canGrantResend(grantable: Grantable, collection: string): boolea
 /**
  * Whether the "read-only access to everything" preset can be offered.
  *
- * It is hidden unless the granter can deliver all 20 reads. Silently redefining it as
+ * It is hidden unless the granter can deliver all 21 reads. Silently redefining it as
  * "read-only on whatever I happen to be able to share" would make one preset mean different
  * things to different admins, which is a worse trap than an absent option — `Custom` covers
  * the gap.

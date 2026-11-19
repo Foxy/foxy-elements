@@ -25,9 +25,9 @@ export interface ProductOptionValue {
   label?: string;
   /** The value's part of a generated SKU. */
   sku_code?: string;
-  /** Swatch colour, `#rgb` or `#rrggbb`. */
+  /** Swatch color, `#rgb` or `#rrggbb`. */
   color?: string;
-  /** Swatch image, shown in place of the colour when both are set. */
+  /** Swatch image, shown in place of the color when both are set. */
   image?: { src: string; alt?: string };
   /** Added to the price of a variant that doesn't set its own, in the store's currency. */
   price_mod?: number | string;

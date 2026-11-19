@@ -48,7 +48,7 @@ function parseStock(value: string): number | null | undefined {
  * saved at a time, each as a PATCH of that item's `stock_level`.
  *
  * @element foxy-product-inventory
- * @since 1.60.0
+ * @since 1.62.0
  */
 export class ProductInventory extends Base<Data> {
   static get properties(): PropertyDeclarations {

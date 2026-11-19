@@ -1,0 +1,22 @@
+{
+  "type_created": "Created",
+  "type_updated": "Edited",
+  "type_deleted": "Deleted",
+  "type_stock_adjustment": "Stock changed",
+  "type_stock_reset": "Stock reset",
+  "type_other": "{{ type }}",
+  "source_mit_admin": "In the admin",
+  "source_mit_api": "Through the API",
+  "source_mit_system": "By Foxy",
+  "source_cit_customer_portal": "By a customer",
+  "source_other": "{{ source }}",
+  "transaction": "Transaction #{{ id }}",
+  "becomes": "becomes",
+  "date": "{{ value, date }} at {{ value, time }}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No entries",
+    "loading_error": "Unknown error",
+    "loading_access_denied": "Access denied"
+  }
+}

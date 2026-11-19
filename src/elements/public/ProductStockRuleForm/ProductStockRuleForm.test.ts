@@ -75,6 +75,16 @@ describe('ProductStockRuleForm', () => {
     expect(params.get('product_type:in')).to.equal('standalone,parent,variant');
   });
 
+  it('lets the target picker be searched by SKU', async () => {
+    const element = await fixture<ProductStockRuleForm>(html`
+      <foxy-product-stock-rule-form products="https://demo.api/hapi/products">
+      </foxy-product-stock-rule-form>
+    `);
+    const picker =
+      element.renderRoot.querySelector<InternalResourcePickerControl>('[infer="target"]')!;
+    expect(picker.searchFields).to.deep.equal(['sku']);
+  });
+
   it('stores the picked product as target_product_id', async () => {
     const element = await fixture<ProductStockRuleForm>(html`
       <foxy-product-stock-rule-form products="https://demo.api/hapi/stores/0/products">
