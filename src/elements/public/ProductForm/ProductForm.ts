@@ -318,6 +318,9 @@ export class ProductForm extends Base<Data> {
     label: (collection && this.__collectionTrails.get(collection.path)) ?? collection?.name ?? '',
   });
 
+  /** The store's item category names by code, for a category the product inherits. */
+  private __categoryNames = new Map<string, string>();
+
   private get __itemCategoriesHref(): string | undefined {
     if (this.itemCategories) return this.itemCategories;
     const store = this.data?._links['fx:store']?.href;
@@ -469,33 +472,30 @@ export class ProductForm extends Base<Data> {
               >
               </foxy-internal-text-control>
 
-              <foxy-internal-text-control infer="sku" class=${invalid('sku:')}>
+              <foxy-internal-text-control infer="sku" class="pd-sku ${invalid('sku:')}">
               </foxy-internal-text-control>
 
-              <div class="pd-price-pair" data-testid="price-pair">
-                <foxy-internal-number-control
-                  infer="price"
-                  class=${invalid('price:')}
-                  min="0"
-                  property="definition.price"
-                  placeholder=${ifDefined(inherited?.price?.toString() ?? undefined)}
-                  .setValue=${(value: number) => this.__setDefinitionNumber('price', value)}
-                >
-                </foxy-internal-number-control>
+              <foxy-internal-number-control
+                infer="price"
+                class=${invalid('price:')}
+                min="0"
+                property="definition.price"
+                placeholder=${ifDefined(inherited?.price?.toString() ?? undefined)}
+                .setValue=${(value: number) => this.__setDefinitionNumber('price', value)}
+              >
+              </foxy-internal-number-control>
 
-                <foxy-internal-number-control
-                  infer="list-price"
-                  min="0"
-                  property="definition.list_price"
-                  placeholder=${ifDefined(inherited?.list_price?.toString() ?? undefined)}
-                  .setValue=${(value: number) => this.__setDefinitionNumber('list_price', value)}
-                >
-                </foxy-internal-number-control>
-              </div>
+              <foxy-internal-number-control
+                infer="list-price"
+                min="0"
+                property="definition.list_price"
+                placeholder=${ifDefined(inherited?.list_price?.toString() ?? undefined)}
+                .setValue=${(value: number) => this.__setDefinitionNumber('list_price', value)}
+              >
+              </foxy-internal-number-control>
 
               <foxy-internal-number-control
                 infer="weight"
-                class="pd-weight"
                 min="0"
                 placeholder=${ifDefined(inherited?.weight?.toString() ?? undefined)}
                 .getValue=${() => this.form.definition?.weight}
@@ -513,17 +513,23 @@ export class ProductForm extends Base<Data> {
             .helperText=${''}
           >
             <div class="grid gap-xs">
-              <h3 class="text-s font-medium text-secondary">${this.t('general.organization')}</h3>
+              <h3 class="pd-label">${this.t('general.organization')}</h3>
               <div class="pd-org" data-testid="organization">
                 <foxy-internal-resource-picker-control
                   layout="summary-item"
                   first=${ifDefined(this.__itemCategoriesHref)}
                   infer="category"
                   item="foxy-item-category-card"
-                  placeholder=${ifDefined(categoryFrom?.code)}
-                  .helperText=${categoryFrom
-                    ? this.t(`general.category.from_${categoryFrom.from}`)
-                    : ''}
+                  class=${this.__categoryGetValue() ? '' : 'pd-unset'}
+                  placeholder=${ifDefined(
+                    categoryFrom
+                      ? this.t(`general.category.from_${categoryFrom.from}`, {
+                          category:
+                            this.__categoryNames.get(categoryFrom.code) ?? categoryFrom.code,
+                        })
+                      : undefined
+                  )}
+                  .helperText=${''}
                   .searchFields=${['name', 'code']}
                   .getValue=${this.__categoryGetValue}
                   .setValue=${this.__categorySetValue}
@@ -536,6 +542,7 @@ export class ProductForm extends Base<Data> {
                   first=${ifDefined(this.__productsHref)}
                   infer="template"
                   item="foxy-product-card"
+                  class=${this.__templateGetValue() ? '' : 'pd-unset'}
                   .getValue=${this.__templateGetValue}
                   .setValue=${this.__templateSetValue}
                   .extendFilter=${this.__templateExtendFilter}
@@ -553,6 +560,7 @@ export class ProductForm extends Base<Data> {
                   first=${ifDefined(this.__collectionsHref)}
                   infer="collection"
                   property="collection_id"
+                  class=${this.__collectionGetValue() ? '' : 'pd-unset'}
                   .getValue=${this.__collectionGetValue}
                   .setValue=${this.__collectionSetValue}
                   .getDisplayValueOptions=${this.__collectionGetDisplayValueOptions}
@@ -1580,12 +1588,14 @@ export class ProductForm extends Base<Data> {
     const product = await super._sendGet();
 
     // super._fetch, so the requests go through NucleonElement's fetch event and
-    // the demo router can answer them. Both are best-effort: without them the
-    // form only loses placeholders or the add-to-cart link.
+    // the demo router can answer them. All are best-effort: without them the
+    // form only loses placeholders, names or the add-to-cart link.
     const parentHref = product?._links?.['fx:parent_product']?.href;
     const storeHref = product?._links?.['fx:store']?.href;
     const collectionsHref = this.__collectionsHref;
-    const [parent, store, collections] = await Promise.all([
+    const categoriesHref =
+      this.itemCategories ?? (storeHref ? `${storeHref}/item_categories` : undefined);
+    const [parent, store, collections, categories] = await Promise.all([
       parentHref ? super._fetch<Data>(parentHref).catch(() => null) : null,
       storeHref && ['standalone', 'variant', 'parent'].includes(product.product_type)
         ? super._fetch<Resource<Rels.Store>>(storeHref).catch(() => null)
@@ -1595,11 +1605,19 @@ export class ProductForm extends Base<Data> {
             super._fetch(url)
           ).catch(() => [])
         : [],
+      categoriesHref
+        ? loadAll<Resource<Rels.ItemCategory>>(categoriesHref, 'fx:item_categories', url =>
+            super._fetch(url)
+          ).catch(() => [])
+        : [],
     ]);
 
     this.parentProduct = parent;
     this.__store = store;
     this.__collectionTrails = new Map(collectionTree(collections).map(c => [c.path, c.trail]));
+    this.__categoryNames = new Map(
+      (categories as Resource<Rels.ItemCategory>[]).map(c => [c.code, c.name])
+    );
     this.__variants = await this.__loadVariants(product);
 
     return product;

@@ -24,8 +24,8 @@
   "general": {
     "label": "General",
     "helper_text": "Core product details.",
-    "basics_note": "Prices are in your store's currency and weight in its weight unit. A price or list price set here replaces all the pricing this product would inherit.",
-    "organization": "Organization",
+    "basics_note": "Prices are in your store's currency and weight in its weight unit. The list price is the higher price it used to sell for, shown struck through beside the price. A price or list price set here replaces all the pricing this product would inherit.",
+    "organization": "Organization & Inheritance",
     "organization_note": "Item categories set tax and shipping; collections organize the catalog.",
     "kind": {
       "label": "Kind",
@@ -53,7 +53,7 @@
       "v8n_negative": "Must be zero or greater."
     },
     "list-price": {
-      "label": "List price (was)",
+      "label": "List price",
       "placeholder": "",
       "helper_text": "",
       "v8n_negative": "Must be zero or greater."
@@ -185,9 +185,9 @@
           }
         }
       },
-      "from_template": "From its template",
-      "from_parent": "From the parent product",
-      "from_collection": "From its collection"
+      "from_template": "{{category}} · from its template",
+      "from_parent": "{{category}} · from the parent product",
+      "from_collection": "{{category}} · from its collection"
     }
   },
   "option-values": {

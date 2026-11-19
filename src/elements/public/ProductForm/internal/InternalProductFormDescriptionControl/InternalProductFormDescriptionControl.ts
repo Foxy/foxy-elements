@@ -1,8 +1,9 @@
 import type { TextAreaElement } from '@vaadin/vaadin-text-field/vaadin-text-area';
-import type { TemplateResult } from 'lit-element';
+import type { CSSResultArray, TemplateResult } from 'lit-element';
 
 import { InternalTextAreaControl } from '../../../../internal/InternalTextAreaControl/InternalTextAreaControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { labelStyles } from '../styles';
 import { html } from 'lit-element';
 
 /**
@@ -12,6 +13,10 @@ import { html } from 'lit-element';
  * @element foxy-internal-product-form-description-control
  */
 export class InternalProductFormDescriptionControl extends InternalTextAreaControl {
+  static get styles(): CSSResultArray {
+    return [...super.styles, labelStyles];
+  }
+
   renderControl(): TemplateResult {
     return html`
       <vaadin-text-area

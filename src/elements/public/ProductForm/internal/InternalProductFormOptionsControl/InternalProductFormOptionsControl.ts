@@ -12,7 +12,7 @@ import {
   isImageUrl,
   validateOptions,
 } from '../../catalog';
-import { rowStyles } from '../styles';
+import { labelStyles, rowStyles } from '../styles';
 import { html } from 'lit-element';
 import {
   ACCEPTED_IMAGE_TYPES,
@@ -59,7 +59,7 @@ export class InternalProductFormOptionsControl extends InternalControl {
   }
 
   static get styles(): CSSResultArray {
-    return [...super.styles, rowStyles];
+    return [...super.styles, rowStyles, labelStyles];
   }
 
   /** Names of the product's compiled modifiers, which an option can't share. */

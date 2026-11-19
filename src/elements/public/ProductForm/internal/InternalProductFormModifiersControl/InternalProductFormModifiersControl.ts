@@ -7,7 +7,7 @@ import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-e
 
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { LIMITS, isRemoval, validateModifiers } from '../../catalog';
-import { rowStyles } from '../styles';
+import { labelStyles, rowStyles } from '../styles';
 import { html } from 'lit-element';
 import {
   amountSummary,
@@ -57,7 +57,7 @@ export class InternalProductFormModifiersControl extends InternalControl {
   }
 
   static get styles(): CSSResultArray {
-    return [...super.styles, rowStyles];
+    return [...super.styles, rowStyles, labelStyles];
   }
 
   /** The compiled modifiers of the product this one inherits from. */

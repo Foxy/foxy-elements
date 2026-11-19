@@ -1,9 +1,10 @@
-import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { TextFieldElement } from '@vaadin/vaadin-text-field';
 import type { ProductForm } from '../../ProductForm';
 
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
 import { LIMITS, combinationCount, defaultSkuPattern, exampleSku } from '../../catalog';
+import { labelStyles } from '../styles';
 import { html } from 'lit-element';
 
 /**
@@ -13,6 +14,10 @@ import { html } from 'lit-element';
  * @element foxy-internal-product-form-generate-variants-control
  */
 export class InternalProductFormGenerateVariantsControl extends InternalControl {
+  static get styles(): CSSResultArray {
+    return [...super.styles, labelStyles];
+  }
+
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

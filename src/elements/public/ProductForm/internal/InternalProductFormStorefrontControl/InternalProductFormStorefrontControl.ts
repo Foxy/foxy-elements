@@ -123,7 +123,7 @@ export class InternalProductFormStorefrontControl extends InternalControl {
         ${needsVariant
           ? html`
               <div class="grid gap-xs" style="max-width: 22rem">
-                <label class="text-s text-secondary" for="variant">
+                <label class="text-s font-medium text-body" for="variant">
                   ${this.t(kind === 'link' ? 'variant_label_link' : 'variant_label_button')}
                 </label>
                 <select

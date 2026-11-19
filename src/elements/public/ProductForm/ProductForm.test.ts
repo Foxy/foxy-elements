@@ -338,17 +338,17 @@ describe('ProductForm', () => {
       expect(ctrl?.getAttribute('property')).to.equal('definition.price');
     });
 
-    it('lays out the name, then SKU, price with list price, and weight in one row', async () => {
+    it('lays out the name, then SKU, price, list price and weight in one row', async () => {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
       const basics = (await getByTestId(element, 'basics'))!;
-      const infers = (root: Element) =>
-        Array.from(root.querySelectorAll('[infer]')).map(node => node.getAttribute('infer'));
-      expect(infers(basics)).to.deep.equal(['name', 'sku', 'price', 'list-price', 'weight']);
-      expect(infers(basics.querySelector('[data-testid="price-pair"]')!)).to.deep.equal([
+      expect(Array.from(basics.children).map(node => node.getAttribute('infer'))).to.deep.equal([
+        'name',
+        'sku',
         'price',
         'list-price',
+        'weight',
       ]);
-      for (const control of Array.from(basics.querySelectorAll('[infer]'))) {
+      for (const control of Array.from(basics.children)) {
         expect(control, control.getAttribute('infer')!).to.not.have.attribute('layout');
       }
     });
@@ -379,7 +379,15 @@ describe('ProductForm', () => {
           'foxy-internal-resource-picker-control[infer="category"]'
         ) as Picker;
 
-      it('groups the category, template, collection and catalog listing as compact pickers', async () => {
+      // The inherited category's text, with what it was given, in place of the translation.
+      const showOptions = (element: ProductForm) =>
+        Object.defineProperty(element, 't', {
+          configurable: true,
+          value: (key: string, options?: { category?: string }) =>
+            options?.category ? `${key}(${options.category})` : key,
+        });
+
+      it('lists the category, template, collection and catalog listing as rows of one table', async () => {
         const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
         const group = (await getByTestId(element, 'organization'))!;
         expect(Array.from(group.children).map(child => child.getAttribute('infer'))).to.deep.equal([
@@ -393,28 +401,82 @@ describe('ProductForm', () => {
         }
       });
 
-      it('says where an inherited category comes from', async () => {
-        const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
-        expect(picker(element).helperText).to.equal('');
+      it('says where an inherited category comes from, on its row and in secondary text', async () => {
+        const element = await fixture<ProductForm>(html`
+          <foxy-product-form
+            item-categories="https://demo.api/hapi/stores/0/item_categories"
+          ></foxy-product-form>
+        `);
+        showOptions(element);
+        expect(picker(element)).to.have.class('pd-unset');
 
         element.parentProduct = {
           product_type: 'template',
           compiled_definition: { category_code: 'TICKETS' },
         } as Data;
         await element.requestUpdate();
-        expect(picker(element).placeholder).to.equal('TICKETS');
-        expect(picker(element).helperText).to.include('from_template');
+        expect(picker(element).placeholder).to.equal('general.category.from_template(TICKETS)');
+        expect(picker(element).helperText).to.equal('');
+        expect(picker(element)).to.have.class('pd-unset');
 
         element.parentProduct = {
           product_type: 'parent',
           compiled_definition: { category_code: 'TICKETS' },
         } as Data;
         await element.requestUpdate();
-        expect(picker(element).helperText).to.include('from_parent');
+        expect(picker(element).placeholder).to.equal('general.category.from_parent(TICKETS)');
 
         element.edit({ definition: { category_code: 'VIP-TICKETS' } });
         await element.requestUpdate();
-        expect(picker(element).helperText).to.equal('');
+        expect(picker(element).placeholder).to.not.include('TICKETS');
+        expect(picker(element)).to.not.have.class('pd-unset');
+      });
+
+      it("names an inherited category by the store's item category, or by its code", async () => {
+        const router = createRouter();
+        const requests: string[] = [];
+        const categories = {
+          total_items: 2,
+          _embedded: {
+            'fx:item_categories': [
+              { code: 'WHOLE-BEAN', name: 'Whole bean coffee' },
+              { code: 'GIFT-WRAP', name: 'Gift wrap' },
+            ],
+          },
+        };
+        const element = await fixture<ProductForm>(html`
+          <foxy-product-form
+            href="https://demo.api/hapi/products/0"
+            @fetch=${(evt: FetchEvent) => {
+              if (!evt.request.url.includes('/item_categories')) return router.handleEvent(evt);
+              requests.push(evt.request.url);
+              evt.preventDefault();
+              evt.respondWith(Promise.resolve(new Response(JSON.stringify(categories))));
+            }}
+          ></foxy-product-form>
+        `);
+        await waitUntil(() => element.in({ idle: 'snapshot' }), '', { timeout: 5000 });
+        showOptions(element);
+        expect(requests).to.have.length(1);
+        expect(requests[0]).to.include('https://demo.api/hapi/stores/0/item_categories?');
+
+        element.parentProduct = {
+          product_type: 'template',
+          compiled_definition: { category_code: 'WHOLE-BEAN' },
+        } as Data;
+        await element.requestUpdate();
+        expect(picker(element).placeholder).to.equal(
+          'general.category.from_template(Whole bean coffee)'
+        );
+
+        element.parentProduct = {
+          product_type: 'template',
+          compiled_definition: { category_code: 'HOLIDAY-GIFTS' },
+        } as Data;
+        await element.requestUpdate();
+        expect(picker(element).placeholder).to.equal(
+          'general.category.from_template(HOLIDAY-GIFTS)'
+        );
       });
 
       it("takes a category compiled in that nothing it inherits from sets as its collection's", async () => {
@@ -429,8 +491,9 @@ describe('ProductForm', () => {
             }}
           ></foxy-product-form>
         `);
-        expect(picker(element).placeholder).to.equal('APPAREL');
-        expect(picker(element).helperText).to.include('from_collection');
+        showOptions(element);
+        await element.requestUpdate();
+        expect(picker(element).placeholder).to.equal('general.category.from_collection(APPAREL)');
       });
 
       it("shows a collection after its ancestors' names", async () => {
@@ -534,7 +597,7 @@ describe('ProductForm', () => {
         const { element, picker } = await render();
         element.parentProduct = { compiled_definition: { category_code: 'TICKETS' } } as Data;
         await element.requestUpdate();
-        expect(picker.placeholder).to.equal('TICKETS');
+        expect(picker.placeholder).to.include('from_parent');
       });
 
       it("falls back to the item categories of the product's store", async () => {

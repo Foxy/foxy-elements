@@ -88,63 +88,101 @@ export const sectionStyles = css`
     }
   }
 
+  .pd-label {
+    font-size: var(--lumo-font-size-s);
+    font-weight: 500;
+    color: var(--lumo-body-text-color);
+  }
+
+  /* SKU gets a row of its own when narrow, and double width when not: price,
+     list price and weight are always short. */
   .pd-basics {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--lumo-space-m) 0.75rem;
   }
 
   .pd-basics > * {
-    flex: 1 1 9rem;
     min-width: 0;
   }
 
+  .pd-basics > .pd-name,
+  .pd-basics > .pd-sku {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 40rem) {
+    .pd-basics {
+      grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+    }
+
+    .pd-basics > .pd-sku {
+      grid-column: auto;
+    }
+  }
+
+  /* The shared fields draw their label in this color. None here has helper text. */
+  .pd-basics > :not([readonly]) {
+    --lumo-secondary-text-color: var(--lumo-body-text-color);
+  }
+
   .pd-basics > .pd-name {
-    flex-basis: 100%;
     --lumo-font-size-m: var(--lumo-font-size-xl);
     --lumo-text-field-size: var(--lumo-size-l);
   }
 
-  .pd-basics > .pd-weight {
-    flex-basis: 6rem;
-  }
-
-  /* One field in two parts: what's charged, then what it was. */
-  .pd-price-pair {
-    display: grid;
-    flex: 2 1 15rem;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 0.25rem;
-    padding: 0 0.375rem 0.25rem;
-    border: 1px solid var(--lumo-contrast-20pct);
-    border-radius: var(--lumo-border-radius-m);
-  }
-
-  .pd-price-pair > * {
-    min-width: 0;
-  }
-
   .pd-org {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 0.5rem;
+    display: grid;
+    gap: 1px;
+    overflow: hidden;
+    border-radius: var(--lumo-border-radius-l);
+  }
+
+  /* Two columns, filled top to bottom: category and template, then collection and listing. */
+  @media (min-width: 60rem) {
+    .pd-org {
+      grid-auto-flow: column;
+      grid-template-rows: repeat(2, auto);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .pd-org > * {
-    flex: 0 1 auto;
-    box-sizing: border-box;
-    max-width: 100%;
-    padding: 0.4375rem 0.75rem;
-    border: 1px solid var(--lumo-contrast-20pct);
-    border-radius: var(--lumo-border-radius-m);
+    padding: 0.5625rem 0.75rem;
+    background: var(--lumo-contrast-5pct);
     cursor: pointer;
-    --lumo-font-size-m: var(--lumo-font-size-s);
   }
 
-  .pd-org > *:hover {
-    border-color: var(--lumo-contrast-40pct);
-    background: var(--lumo-contrast-5pct);
+  .pd-org > :not([disabled]):not([readonly]):hover {
+    background: var(--lumo-contrast-10pct);
+  }
+
+  .pd-org > [disabled],
+  .pd-org > [readonly] {
+    cursor: default;
+  }
+
+  .pd-org > *::part(label) {
+    flex: 0 0 7.5rem;
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+  }
+
+  @media (max-width: 40rem) {
+    .pd-org > *::part(label) {
+      flex-basis: 6.25rem;
+    }
+  }
+
+  .pd-org > *::part(value) {
+    flex: 1 1 0;
+    text-align: left;
+    font-weight: 400;
+  }
+
+  /* What a row shows without a value of its own: the default, or what it inherits. */
+  .pd-org > .pd-unset:not([disabled])::part(value) {
+    color: var(--lumo-secondary-text-color);
   }
 
   .pd-option-values {
@@ -303,7 +341,7 @@ export const sectionStyles = css`
 
   .pd-field label {
     font-size: var(--lumo-font-size-s);
-    color: var(--lumo-secondary-text-color);
+    font-weight: 500;
   }
 
   .pd-field input {
@@ -347,6 +385,14 @@ export const sectionStyles = css`
     background: var(--lumo-error-color-10pct);
     font-size: var(--lumo-font-size-s);
     list-style: disc;
+  }
+`;
+
+/** Field labels in body text, so they stand apart from the helper text under them. */
+export const labelStyles = css`
+  vaadin-text-field:not([focused]):not([readonly]):not([disabled])::part(label),
+  vaadin-text-area:not([focused]):not([readonly]):not([disabled])::part(label) {
+    color: var(--lumo-body-text-color);
   }
 `;
 
@@ -536,12 +582,17 @@ export const rowStyles = css`
     gap: 0.1875rem;
     align-content: start;
     min-width: 0;
-    color: var(--lumo-secondary-text-color);
     font-size: var(--lumo-font-size-xs);
+    font-weight: 500;
   }
 
   .pd-small-field > input {
-    color: var(--lumo-body-text-color);
+    font-weight: 400;
+  }
+
+  .pd-small-field > span:not(.text-error) {
+    color: var(--lumo-secondary-text-color);
+    font-weight: 400;
   }
 
   .pd-url {

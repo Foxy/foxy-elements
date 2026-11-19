@@ -26,7 +26,7 @@ export class InternalSwitchControl extends InternalEditableControl {
     return html`
       <div class="flex items-start gap-s leading-xs text-m">
         <div class="flex-1">
-          <label class="text-m text-body" for="input">${this.label}</label>
+          <label class="text-m text-body" for="input" part="label">${this.label}</label>
           ${this.helperTextAsToolip
             ? ''
             : html`<p class="text-xs text-secondary" style="max-width: 32rem">

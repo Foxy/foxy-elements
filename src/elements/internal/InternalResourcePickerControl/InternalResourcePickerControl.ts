@@ -152,9 +152,10 @@ export class InternalResourcePickerControl extends InternalEditableControl {
     return html`
       <div class="leading-xs">
         <div class="flex items-center gap-xs">
-          <div class="text-m text-body whitespace-nowrap flex-1">${this.label}</div>
+          <div class="text-m text-body whitespace-nowrap flex-1" part="label">${this.label}</div>
 
           <button
+            part="value"
             aria-label=${this.t('select')}
             class=${classMap({
               'text-right min-w-0 transition-colors transition-opacity': true,

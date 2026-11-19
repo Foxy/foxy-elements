@@ -153,7 +153,7 @@ export class InternalProductFormImagesControl extends InternalControl {
     return html`
       <div class="grid gap-xs">
         <div class="flex items-center" style="gap: 0.5rem; min-height: 1.875rem">
-          <span class="text-s font-medium text-secondary">${this.t('label')}</span>
+          <span class="text-s font-medium text-body">${this.t('label')}</span>
           ${iconButton({
             icon: 'link',
             label: this.t('by_url'),
