@@ -6,6 +6,10 @@ import { ResponsiveMixin } from './responsive';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles';
 
+// Elements load this module through Themeable or Translatable, so the patch is active wherever
+// they use a Vaadin field.
+import '../utils/composed-vaadin-input';
+
 import '@vaadin/vaadin-lumo-styles/color.js';
 
 type Base = Constructor<LitElement> & { styles?: CSSResult | CSSResultArray | CSSStyleSheet };

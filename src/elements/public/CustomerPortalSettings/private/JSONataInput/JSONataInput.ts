@@ -1,7 +1,6 @@
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '../../../../../utils/composed-vaadin-input';
 
 import { Choice, I18N } from '../../../../private/index';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';

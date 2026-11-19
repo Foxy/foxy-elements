@@ -1,5 +1,4 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '../../../utils/composed-vaadin-input';
 import '../InternalEditableControl/index';
 import { InternalTextControl as Control } from './InternalTextControl';
 

@@ -4,7 +4,6 @@ import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
-import { TextFieldElement } from '@vaadin/vaadin-text-field/vaadin-text-field';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
@@ -42,8 +41,6 @@ export class SignInForm extends Base<Data> {
   }
 
   issuer = 'Unknown';
-
-  private __autofillPoller: number | null = null;
 
   private readonly __emailValidator = () => !this.errors.some(err => err.startsWith('email'));
 
@@ -389,29 +386,6 @@ export class SignInForm extends Base<Data> {
         </div>
       </div>
     `;
-  }
-
-  connectedCallback(): void {
-    super.connectedCallback();
-
-    if (this.__autofillPoller !== null) window.clearInterval(this.__autofillPoller);
-
-    this.__autofillPoller = window.setInterval(() => {
-      type Field = EmailFieldElement | PasswordFieldElement | TextFieldElement;
-      const selector = 'vaadin-text-field, vaadin-email-field, vaadin-password-field';
-      const fields = this.renderRoot.querySelectorAll<Field>(selector);
-
-      fields.forEach(field => {
-        const attrValue = field.getAttribute('value') ?? '';
-        const propValue = field.value;
-        if (propValue !== attrValue) field.dispatchEvent(new InputEvent('input'));
-      });
-    }, 250);
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    if (this.__autofillPoller !== null) window.clearInterval(this.__autofillPoller);
   }
 
   protected async _sendPost(edits: Partial<Data>): Promise<Data> {

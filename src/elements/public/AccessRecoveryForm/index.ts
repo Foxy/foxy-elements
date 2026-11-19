@@ -1,5 +1,4 @@
 import '@vaadin/vaadin-text-field/vaadin-email-field';
-import '../../../utils/composed-vaadin-input';
 import '../../internal/InternalButton/index';
 import '@vaadin/vaadin-lumo-styles/icons';
 import '@polymer/iron-icon';

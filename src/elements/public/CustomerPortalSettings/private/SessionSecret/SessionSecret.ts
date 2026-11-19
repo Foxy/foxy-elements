@@ -6,7 +6,6 @@ import { TemplateResult, html } from 'lit-html';
 import '../../../../internal/InternalButton/index';
 import { I18N } from '../../../../private/index';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
-import '../../../../../utils/composed-vaadin-input';
 import { PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../../../mixins/translatable';

@@ -1,7 +1,5 @@
-import { TextFieldElement } from '@vaadin/vaadin-text-field/vaadin-text-field';
-import { TextAreaElement } from '@vaadin/vaadin-text-field/vaadin-text-area';
-
-type PatchedPrototype = {
+type PatchedField = HTMLElement & {
+  value: string;
   _onInput: (evt: Event) => void;
   __composedInputPatched?: true;
 };
@@ -12,16 +10,35 @@ type PatchedPrototype = {
 // even though the field shows the new value. Vaadin's private `_onInput` still sees every such
 // event, so it re-dispatches the event from the field. Real typing and pasting are composed
 // already and are left alone. Email, password, number and integer fields inherit this from
-// TextFieldElement.
-for (const Field of [TextFieldElement, TextAreaElement]) {
-  const proto = Field.prototype as unknown as PatchedPrototype;
-  if (proto.__composedInputPatched) continue;
-
+// vaadin-text-field. The patch waits for the elements to be defined so that importing it
+// doesn't load or register them.
+function patch(Field: CustomElementConstructor) {
+  const proto = Field.prototype as PatchedField;
   const onInput = proto._onInput;
+  // Two builds of this library on one page share the registered class. Only the first one
+  // patches it, so the event isn't sent twice.
+  if (typeof onInput !== 'function' || proto.__composedInputPatched) return;
+
   proto.__composedInputPatched = true;
-  proto._onInput = function (this: HTMLElement, evt: Event) {
+  proto._onInput = function (this: PatchedField, evt: Event) {
+    const oldValue = this.value;
     onInput.call(this, evt);
-    if (evt.composed || evt.cancelBubble) return;
+    // `_onInput` can stop the event or, with `preventInvalidInput`, revert the value.
+    // Neither is a change to report.
+    if (evt.composed || evt.cancelBubble || this.value === oldValue) return;
+
+    // Vaadin elements built on a text field (combo box, date picker, select) treat any input
+    // from it as typing and open their overlay. Fills inside them stay as they were.
+    const host = (this.getRootNode() as ShadowRoot).host;
+    if (host?.localName.startsWith('vaadin-')) return;
+
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
   };
+}
+
+for (const tag of ['vaadin-text-field', 'vaadin-text-area']) {
+  customElements.whenDefined(tag).then(() => {
+    const Field = customElements.get(tag);
+    if (Field) patch(Field);
+  });
 }
