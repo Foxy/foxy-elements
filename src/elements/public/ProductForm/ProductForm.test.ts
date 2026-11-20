@@ -341,14 +341,17 @@ describe('ProductForm', () => {
     it('lays out the name, then SKU, price, list price and weight in one row', async () => {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
       const basics = (await getByTestId(element, 'basics'))!;
-      expect(Array.from(basics.children).map(node => node.getAttribute('infer'))).to.deep.equal([
+      const controls = Array.from(
+        basics.querySelectorAll(':scope > [infer], :scope > .pd-with-help > [infer]')
+      );
+      expect(controls.map(node => node.getAttribute('infer'))).to.deep.equal([
         'name',
         'sku',
         'price',
         'list-price',
         'weight',
       ]);
-      for (const control of Array.from(basics.children)) {
+      for (const control of controls) {
         expect(control, control.getAttribute('infer')!).to.not.have.attribute('layout');
       }
     });
@@ -390,7 +393,9 @@ describe('ProductForm', () => {
       it('lists the category, template, collection and catalog listing as rows of one table', async () => {
         const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
         const group = (await getByTestId(element, 'organization'))!;
-        expect(Array.from(group.children).map(child => child.getAttribute('infer'))).to.deep.equal([
+        // The listing switch sits in a cell of its own, beside its "?".
+        const rows = Array.from(group.querySelectorAll(':scope > [infer], :scope > div > [infer]'));
+        expect(rows.map(child => child.getAttribute('infer'))).to.deep.equal([
           'category',
           'template',
           'collection',
@@ -670,6 +675,443 @@ describe('ProductForm', () => {
     });
   });
 
+  describe('description preview', () => {
+    type Preview = LitElement & { open: boolean };
+    type Detail = {
+      product: { sku: string; definition: { name?: string; description?: string } };
+      layout: string;
+    };
+
+    const description = '## Tasting notes\n\nPanela and red apple.\n\n## Origin\n\nHuila.';
+
+    beforeEach(() => localStorage.removeItem('foxy-product-form-description-preview'));
+    afterEach(() => localStorage.removeItem('foxy-product-form-description-preview'));
+
+    async function mount(data?: Partial<Data>, parent?: Partial<Data>) {
+      const details: Detail[] = [];
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form
+          .parentProduct=${parent ?? null}
+          @description-preview=${(evt: CustomEvent<Detail>) => details.push(evt.detail)}
+        >
+          <div slot="description-preview" data-testid="frame">Storefront page</div>
+        </foxy-product-form>
+      `);
+      if (data) element.edit(data);
+      await element.requestUpdate();
+      const preview = element.renderRoot.querySelector(
+        'foxy-internal-product-form-description-preview-control'
+      ) as Preview;
+      await preview.updateComplete;
+      const toggle = () =>
+        preview.renderRoot.querySelector<HTMLButtonElement>(
+          '[data-testid="description-preview-toggle"]'
+        )!;
+      const assigned = () =>
+        Array.from(preview.renderRoot.querySelectorAll('slot'))
+          .flatMap(slot => slot.assignedElements({ flatten: true }))
+          .map(el => (el as HTMLElement).dataset.testid);
+      return { element, preview, details, toggle, assigned };
+    }
+
+    it('offers no preview when nothing is put in its slot', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      expect(
+        element.renderRoot.querySelector('foxy-internal-product-form-description-preview-control')
+      ).to.not.exist;
+    });
+
+    it('starts collapsed, showing and asking for nothing, beside the description', async () => {
+      const { element, preview, details, toggle, assigned } = await mount({
+        sku: 'COF-HUILA-340',
+        definition: { name: 'Huila Pink Bourbon', description },
+      });
+      expect(preview.parentElement!.querySelector('foxy-internal-product-form-description-control'))
+        .to.exist;
+      const row = preview.parentElement!;
+      expect(row.classList.contains('pd-description')).to.be.true;
+      const area = row.querySelector('foxy-internal-product-form-description-control')!;
+      // At the end of the description's label row; the description takes the whole width while the preview is closed.
+      const box = toggle().getBoundingClientRect();
+      const field = (area as LitElement).renderRoot.querySelector('vaadin-text-area')!;
+      const input = field
+        .shadowRoot!.querySelector('[part="input-field"]')!
+        .getBoundingClientRect();
+      expect(Math.abs(box.right - area.getBoundingClientRect().right)).to.be.below(2);
+      expect(box.top).to.be.at.least(area.getBoundingClientRect().top);
+      expect(box.bottom).to.be.at.most(input.top + 1);
+      expect(area.getBoundingClientRect().width).to.equal(row.getBoundingClientRect().width);
+      expect(toggle().getAttribute('aria-expanded')).to.equal('false');
+      expect(assigned()).to.deep.equal([]);
+      await new Promise(resolve => setTimeout(resolve, 400));
+      expect(details).to.deep.equal([]);
+      expect(element.form.sku).to.equal('COF-HUILA-340');
+    });
+
+    it('opens to the host element and asks it at once for the unsaved product, remembering it is open', async () => {
+      const { preview, details, toggle, assigned } = await mount({
+        sku: 'COF-HUILA-340',
+        definition: { name: 'Huila Pink Bourbon', description },
+      });
+      toggle().click();
+      await preview.updateComplete;
+      expect(toggle().getAttribute('aria-expanded')).to.equal('true');
+      expect(assigned()).to.deep.equal(['frame']);
+      expect(details).to.have.length(1);
+      expect(details[0].layout).to.equal('auto');
+      expect(details[0].product.sku).to.equal('COF-HUILA-340');
+      expect(details[0].product.definition).to.include({ name: 'Huila Pink Bourbon', description });
+      const help = preview.renderRoot.querySelector('[data-testid="description-preview-help"]');
+      expect((help as unknown as { text: string }).text).to.equal('helper_text');
+      expect(localStorage.getItem('foxy-product-form-description-preview')).to.equal('open');
+
+      toggle().click();
+      await preview.updateComplete;
+      expect(assigned()).to.deep.equal([]);
+      expect(localStorage.getItem('foxy-product-form-description-preview')).to.equal('closed');
+    });
+
+    it('starts open when it was left open', async () => {
+      localStorage.setItem('foxy-product-form-description-preview', 'open');
+      const { details, toggle, assigned } = await mount({ sku: 'COF-HUILA-340' });
+      expect(toggle().getAttribute('aria-expanded')).to.equal('true');
+      expect(assigned()).to.deep.equal(['frame']);
+      expect(details).to.have.length(1);
+    });
+
+    it('asks again once typing in the description pauses, not on every keystroke', async () => {
+      localStorage.setItem('foxy-product-form-description-preview', 'open');
+      const { element, details } = await mount({
+        sku: 'COF-HUILA-340',
+        definition: { description },
+      });
+      const control = element.renderRoot.querySelector(
+        'foxy-internal-product-form-description-control'
+      ) as LitElement;
+      const area = control.renderRoot.querySelector('vaadin-text-area')!;
+      for (const text of [`${description}\n\n## Bre`, `${description}\n\n## Brewing`]) {
+        area.value = text;
+        area.dispatchEvent(new CustomEvent('input'));
+        await element.requestUpdate();
+      }
+      expect(details).to.have.length(1);
+      await waitUntil(() => details.length === 2, '', { timeout: 2000 });
+      expect(details[1]?.product?.definition?.description, JSON.stringify(details)).to.equal(
+        `${description}\n\n## Brewing`
+      );
+      await new Promise(resolve => setTimeout(resolve, 400));
+      expect(details).to.have.length(2);
+    });
+
+    it('asks for the chosen layout, offering Auto first, then None, Tabs and Accordion', async () => {
+      localStorage.setItem('foxy-product-form-description-preview', 'open');
+      const { preview, details } = await mount({ sku: 'COF-HUILA-340' });
+      const select = preview.renderRoot.querySelector<HTMLSelectElement>(
+        '[data-testid="description-preview-layout"]'
+      )!;
+      expect(Array.from(select.options).map(o => o.value)).to.deep.equal([
+        'auto',
+        'none',
+        'tabs',
+        'accordion',
+      ]);
+      expect(select.value).to.equal('auto');
+      for (const layout of ['tabs', 'accordion', 'none']) {
+        select.value = layout;
+        select.dispatchEvent(new Event('change'));
+        await preview.updateComplete;
+        expect(details[details.length - 1].layout).to.equal(layout);
+      }
+      expect(details.map(d => d.layout)).to.deep.equal(['auto', 'tabs', 'accordion', 'none']);
+    });
+
+    it("shows a variant's inherited description while its own is empty", async () => {
+      localStorage.setItem('foxy-product-form-description-preview', 'open');
+      const parent = {
+        product_type: 'parent',
+        compiled_definition: {
+          name: 'Foxy Tee',
+          description: 'Soft cotton tee with the Foxy logo.',
+        },
+      } as unknown as Partial<Data>;
+      const { details } = await mount(
+        { sku: 'TSHIRT-BLUE-S', definition: { name: 'Foxy Tee in Blue', description: '  ' } },
+        parent
+      );
+      await waitUntil(() => details.length === 2, '', { timeout: 2000 });
+      expect(details[1]?.product?.definition, JSON.stringify(details)).to.include({
+        name: 'Foxy Tee in Blue',
+        description: 'Soft cotton tee with the Foxy logo.',
+      });
+    });
+  });
+
+  describe("the store's currency", () => {
+    async function mount(currency?: string) {
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form lang="en-US" currency-code=${ifDefined(currency)}></foxy-product-form>
+      `);
+      element.edit({ sku: 'GTR-REVSTAR-01', definition: { name: 'Revstar', price: 1999.99 } });
+      (element as unknown as { __open: Record<string, boolean> }).__open = { general: false };
+      await element.requestUpdate();
+      const summary = element.renderRoot.querySelector('[data-testid="section-summary"]')!;
+      const price = element.renderRoot.querySelector(
+        'foxy-internal-number-control[infer="price"]'
+      ) as LitElement & { label: string };
+      return { summary, price };
+    }
+
+    it('shows the closed summary with the SKU as code and the price in the currency', async () => {
+      const { summary } = await mount('USD');
+      expect(summary.querySelector('code')!.textContent).to.equal('GTR-REVSTAR-01');
+      expect(summary.textContent!.replace(/\s+/g, ' ').trim()).to.equal(
+        'GTR-REVSTAR-01 · $1,999.99 · sections.general.listed'
+      );
+    });
+
+    it("names the weight unit of the product's item category, and leaves the label plain when it is unknown", async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const weight = () =>
+        element.renderRoot.querySelector(
+          'foxy-internal-number-control[infer="weight"]'
+        ) as LitElement & {
+          label: string;
+        };
+      expect(weight().label).to.equal('label');
+      (element as unknown as { __categoryUnits: Map<string, string> }).__categoryUnits = new Map([
+        ['DEFAULT', 'LBS'],
+        ['beans', 'KGS'],
+      ]);
+      await element.requestUpdate();
+      expect(weight().label).to.equal('general.weight.label_in');
+    });
+
+    it('explains the list price, and the price only for a product that inherits one', async () => {
+      const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
+      const root = element.renderRoot;
+      expect(root.querySelector('[data-testid="help-list-price"]')).to.exist;
+      expect(root.querySelector('[data-testid="help-price"]')).to.not.exist;
+      element.parentProduct = {
+        product_type: 'template',
+        compiled_definition: { name: 'Coffee', price: 18.75 },
+      } as unknown as Data;
+      await element.requestUpdate();
+      expect(root.querySelector('[data-testid="help-price"]')).to.exist;
+    });
+
+    it('names the currency in the price labels, and leaves them plain when it is unknown', async () => {
+      const { price } = await mount('USD');
+      expect(price.label).to.equal('general.price.label_in');
+      const { summary, price: plain } = await mount();
+      expect(plain.label).to.equal('label');
+      expect(summary.textContent).to.include('1,999.99');
+      expect(summary.textContent).to.not.include('$');
+    });
+  });
+
+  describe('brand, GTIN and MPN', () => {
+    const KEY = 'foxy-product-form-identifiers';
+    type Control = LitElement & { placeholder: string; setValue: (value: string) => void };
+
+    beforeEach(() => localStorage.removeItem(KEY));
+    afterEach(() => localStorage.removeItem(KEY));
+
+    async function mount(definition: Record<string, unknown> = {}, parent?: Partial<Data>) {
+      const element = await fixture<ProductForm>(html`
+        <foxy-product-form .parentProduct=${parent ?? null}></foxy-product-form>
+      `);
+      element.edit({ sku: 'COF-ETH-YIRG-340', definition });
+      await element.requestUpdate();
+      const root = element.renderRoot;
+      const toggle = () =>
+        root.querySelector<HTMLButtonElement>('[data-testid="identifiers-toggle"]');
+      const fields = () =>
+        Array.from(
+          root.querySelectorAll('[data-testid="identifiers"] foxy-internal-text-control')
+        ) as Control[];
+      return { element, toggle, fields };
+    }
+
+    it('keeps them behind a button at the end of the SKU and price row, remembering when shown', async () => {
+      const { element, toggle, fields } = await mount();
+      expect(toggle()!.parentElement!.classList.contains('pd-basics')).to.be.true;
+      expect(toggle()!.parentElement!.lastElementChild).to.equal(toggle());
+      expect(toggle()!.getAttribute('aria-expanded')).to.equal('false');
+      expect(fields()).to.deep.equal([]);
+
+      toggle()!.click();
+      await element.requestUpdate();
+      expect(toggle()!.getAttribute('aria-expanded')).to.equal('true');
+      expect(fields().map(field => field.getAttribute('infer'))).to.deep.equal([
+        'brand',
+        'gtin',
+        'mpn',
+      ]);
+      expect(localStorage.getItem(KEY)).to.equal('shown');
+
+      const again = await mount();
+      expect(again.fields()).to.have.length(3);
+
+      again.toggle()!.click();
+      await again.element.requestUpdate();
+      expect(again.fields()).to.deep.equal([]);
+      expect(localStorage.getItem(KEY)).to.equal('hidden');
+    });
+
+    it('says what each is in a "?" just after its label, whose text no container clips', async () => {
+      localStorage.setItem(KEY, 'shown');
+      const { element, fields } = await mount();
+      await Promise.all(fields().map(field => field.updateComplete));
+      await element.requestUpdate();
+      for (const key of ['brand', 'gtin', 'mpn']) {
+        const help = element.renderRoot.querySelector(
+          `[data-testid="help-${key}"]`
+        ) as LitElement & {
+          text: string;
+        };
+        expect(help.text).to.equal(`general.${key}.help`);
+        await help.updateComplete;
+        await waitUntil(
+          () => help.getBoundingClientRect().left > help.parentElement!.getBoundingClientRect().left
+        );
+        const field = help.parentElement!.querySelector('foxy-internal-text-control') as LitElement;
+        const label = field.renderRoot
+          .querySelector('vaadin-text-field')!
+          .shadowRoot!.querySelector('[part="label"]')!;
+        const range = document.createRange();
+        range.selectNodeContents(label);
+        const text = range.getBoundingClientRect();
+        const box = help.getBoundingClientRect();
+        expect(box.left - text.right, key).to.be.within(2, 6);
+        expect(Math.abs(box.top + box.height / 2 - (text.top + text.height / 2)), key).to.be.below(
+          2
+        );
+
+        const button = help.renderRoot.querySelector('button')!;
+        const tip = help.renderRoot.querySelector('[popover]') as HTMLElement;
+        button.dispatchEvent(new Event('pointerenter'));
+        expect(tip.matches(':popover-open'), key).to.be.true;
+        const shown = tip.getBoundingClientRect();
+        expect(shown.left).to.be.at.least(0);
+        expect(shown.right).to.be.at.most(innerWidth);
+        button.dispatchEvent(new Event('pointerleave'));
+        await waitUntil(() => !tip.matches(':popover-open'), key);
+      }
+    });
+
+    it('reads a "?" once, and keeps its text open while the pointer is on it until Escape', async () => {
+      localStorage.setItem(KEY, 'shown');
+      const { element } = await mount();
+      const help = element.renderRoot.querySelector('[data-testid="help-gtin"]') as LitElement;
+      await help.updateComplete;
+      const button = help.renderRoot.querySelector('button')!;
+      const tip = help.renderRoot.querySelector('[popover]') as HTMLElement;
+      expect(button.getAttribute('aria-label')).to.equal('general.gtin.help');
+      expect(button.hasAttribute('aria-describedby')).to.be.false;
+      expect(tip.getAttribute('aria-hidden')).to.equal('true');
+
+      button.dispatchEvent(new Event('pointerenter'));
+      button.dispatchEvent(new Event('pointerleave'));
+      tip.dispatchEvent(new Event('pointerenter'));
+      await new Promise(resolve => setTimeout(resolve, 400));
+      expect(tip.matches(':popover-open')).to.be.true;
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      expect(tip.matches(':popover-open')).to.be.false;
+    });
+
+    it('moves a "?" with its label when the label changes', async () => {
+      localStorage.setItem(KEY, 'shown');
+      const { element } = await mount();
+      const help = element.renderRoot.querySelector('[data-testid="help-gtin"]') as LitElement;
+      const field = help.parentElement!.querySelector('foxy-internal-text-control') as LitElement & {
+        label: string;
+      };
+      await waitUntil(() => help.style.getPropertyValue('--pd-help-x') !== '');
+      const before = parseFloat(help.style.getPropertyValue('--pd-help-x'));
+      field.label = 'Global Trade Item Number';
+      await waitUntil(() => parseFloat(help.style.getPropertyValue('--pd-help-x')) > before + 20);
+    });
+
+    it('sits a row gap below the SKU and price row', async () => {
+      localStorage.setItem(KEY, 'shown');
+      const { element } = await mount();
+      const basics = element.renderRoot.querySelector('[data-testid="basics"]')!;
+      const row = element.renderRoot.querySelector('[data-testid="identifiers"]')!;
+      expect(row.parentElement).to.equal(basics);
+      expect(getComputedStyle(row).gridColumn).to.equal('1 / -1');
+    });
+
+    it('shows them when the product has one, its own or inherited, until the merchant hides them', async () => {
+      const own = await mount({ gtin: '00850006493014' });
+      expect(own.toggle()!.getAttribute('aria-expanded')).to.equal('true');
+      expect(own.fields()).to.have.length(3);
+
+      const parent = {
+        product_type: 'template',
+        compiled_definition: { name: 'Coffee', brand: 'Foxy Roasting Co.' },
+      } as unknown as Partial<Data>;
+      const inherited = await mount({}, parent);
+      expect(inherited.fields()).to.have.length(3);
+
+      inherited.toggle()!.click();
+      await inherited.element.requestUpdate();
+      expect(inherited.fields()).to.deep.equal([]);
+      expect(localStorage.getItem(KEY)).to.equal('hidden');
+
+      const later = await mount({ gtin: '00850006493014' });
+      expect(later.fields()).to.deep.equal([]);
+      expect(later.element.form.definition).to.include({ gtin: '00850006493014' });
+    });
+
+    it('keeps product fields from password managers', async () => {
+      localStorage.setItem(KEY, 'shown');
+      const { element, fields } = await mount();
+      await Promise.all(fields().map(field => field.updateComplete));
+      await element.requestUpdate();
+      const controls = Array.from(
+        element.renderRoot.querySelectorAll<LitElement>(
+          'foxy-internal-text-control[infer="name"], foxy-internal-text-control[infer="sku"], foxy-internal-text-control[infer="gtin"]'
+        )
+      );
+      expect(controls).to.have.length(3);
+      for (const control of controls) {
+        await waitUntil(() => {
+          const input = control.renderRoot
+            .querySelector('vaadin-text-field')!
+            .shadowRoot?.querySelector('input');
+          return input?.getAttribute('data-form-type') === 'other';
+        });
+        const input = control.renderRoot
+          .querySelector('vaadin-text-field')!
+          .shadowRoot!.querySelector('input')!;
+        expect(input.getAttribute('autocomplete')).to.equal('off');
+        expect(input.hasAttribute('data-1p-ignore')).to.be.true;
+        expect(input.getAttribute('data-lpignore')).to.equal('true');
+        expect(input.hasAttribute('data-bwignore')).to.be.true;
+      }
+    });
+
+    it('saves each in the definition, leaving out an emptied one, and shows inherited ones as placeholders', async () => {
+      localStorage.setItem(KEY, 'shown');
+      const parent = {
+        product_type: 'template',
+        compiled_definition: { name: 'Coffee', brand: 'Foxy Roasting Co.' },
+      } as unknown as Partial<Data>;
+      const { element, fields } = await mount({ name: 'Ethiopia Yirgacheffe Kochere' }, parent);
+      const [brand, gtin, mpn] = fields();
+      await brand.updateComplete;
+      expect(brand.placeholder).to.equal('Foxy Roasting Co.');
+
+      gtin.setValue(' 00850006493014 ');
+      mpn.setValue('KOCH-340-W');
+      expect(element.form.definition).to.include({ gtin: '00850006493014', mpn: 'KOCH-340-W' });
+      mpn.setValue(' ');
+      expect(element.form.definition).to.not.have.property('mpn');
+      expect(element.form.definition).to.not.have.property('brand');
+    });
+  });
+
   describe('images', () => {
     it('renders the description and images controls', async () => {
       const element = await fixture<ProductForm>(html`<foxy-product-form></foxy-product-form>`);
@@ -687,12 +1129,12 @@ describe('ProductForm', () => {
       const createUploadUrl = 'https://demo.api/s/admin/products/1/create_upload_url';
       const uploadUrl = 'https://uploads.example.test/';
       const uploadFields = {
-        'key': 'products/store_1/products/1/01J.png',
+        'key': '01J0ZK4M7Q.png',
         'Content-Type': 'image/png',
         'Policy': 'eyJleHBpcmF0aW9uIjoiMjAyNi0xMS0xOVQwMDoxNTowMFoifQ==',
         'X-Amz-Signature': '9f2c4e61b7a05d3388c1e4f7a2b6d09c5e7f1a3b',
       };
-      const imageUrl = 'https://images.example.test/products/store_1/products/1/01J.png';
+      const imageUrl = 'https://images.example.test/01J0ZK4M7Q.png';
       const product = await getTestData<Data>('https://demo.api/hapi/products/0', createRouter());
       element.data = {
         ...product,
@@ -1504,12 +1946,12 @@ describe('ProductForm', () => {
       const createUploadUrl = element.data!._links['fx:create_upload_url']!.href;
       const uploadUrl = 'https://uploads.example.test/';
       const uploadFields = {
-        'key': 'products/store_1/products/0/01K.png',
+        'key': '01K2TQ9W3E.png',
         'Content-Type': 'image/png',
         'Policy': 'eyJleHBpcmF0aW9uIjoiMjAyNi0xMS0xOVQwMDoxNTowMFoifQ==',
         'X-Amz-Signature': '9f2c4e61b7a05d3388c1e4f7a2b6d09c5e7f1a3b',
       };
-      const imageUrl = 'https://images.example.test/products/store_1/products/0/01K.png';
+      const imageUrl = 'https://images.example.test/01K2TQ9W3E.png';
       // A small version that loads, so the swatch keeps it rather than falling back to a placeholder.
       const thumbnail =
         'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
@@ -1954,8 +2396,29 @@ describe('ProductForm', () => {
       ) as HTMLElement & { getValue: () => unknown };
       expect(hidden.getValue()).to.be.true;
       expect(element.hiddenSelector.matches('general:hidden', true)).to.be.false;
+      expect(element.renderRoot.querySelector('[data-testid="help-hidden"]')).to.exist;
       const template = (await load(4)).element;
       expect(template.hiddenSelector.matches('general:hidden', true)).to.be.true;
+      expect(template.renderRoot.querySelector('[data-testid="help-hidden"]')).to.not.exist;
+    });
+
+    it('puts the hidden switch\'s "?" just after its label\'s text, as the text changes', async () => {
+      const { element } = await load(3);
+      const hidden = element.renderRoot.querySelector(
+        'foxy-internal-switch-control[infer="hidden"]'
+      ) as LitElement & { label: string };
+      const help = element.renderRoot.querySelector('[data-testid="help-hidden"]') as HTMLElement;
+      await hidden.updateComplete;
+      const label = hidden.renderRoot.querySelector('[part="label"]')!;
+      const gap = () => {
+        const range = document.createRange();
+        range.selectNodeContents(label);
+        return help.getBoundingClientRect().left - range.getBoundingClientRect().right;
+      };
+      for (const text of ['Hidden', 'Hidden from the catalog']) {
+        hidden.label = text;
+        await waitUntil(() => Math.abs(gap() - 4) < 1, text);
+      }
     });
 
     it("summarises a template's stock as what its products start with", async () => {

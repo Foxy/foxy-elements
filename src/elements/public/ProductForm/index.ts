@@ -10,6 +10,8 @@ import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
 import './internal/InternalProductFormDescriptionControl/index';
+import './internal/InternalProductFormDescriptionPreviewControl/index';
+import './internal/InternalProductFormHelp/index';
 import './internal/InternalProductFormImagesControl/index';
 import './internal/InternalProductFormOptionsControl/index';
 import './internal/InternalProductFormModifiersControl/index';

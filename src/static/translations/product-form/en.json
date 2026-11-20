@@ -24,7 +24,6 @@
   "general": {
     "label": "General",
     "helper_text": "Core product details.",
-    "basics_note": "Prices are in your store's currency and weight in its weight unit. The list price is the higher price it used to sell for, shown struck through beside the price. A price or list price set here replaces all the pricing this product would inherit.",
     "organization": "Organization & Inheritance",
     "organization_note": "Item categories set tax and shipping; collections organize the catalog.",
     "kind": {
@@ -50,13 +49,17 @@
       "label": "Price",
       "placeholder": "0.00",
       "helper_text": "",
-      "v8n_negative": "Must be zero or greater."
+      "v8n_negative": "Must be zero or greater.",
+      "label_in": "Price ({{currency}})",
+      "help": "A price or list price set here replaces all the pricing this product would inherit."
     },
     "list-price": {
       "label": "List price",
       "placeholder": "",
       "helper_text": "",
-      "v8n_negative": "Must be zero or greater."
+      "v8n_negative": "Must be zero or greater.",
+      "label_in": "List price ({{currency}})",
+      "help": "The higher price it used to sell for, shown struck through beside the price."
     },
     "template": {
       "label": "Template",
@@ -139,14 +142,34 @@
     },
     "hidden": {
       "label": "Hidden from the catalog",
-      "helper_text": "Left out of the public catalog's lists, search and collections. It's still sold, and still loads by its SKU, such as from a link you share.",
+      "helper_text": "Hidden products are left out of the catalog's lists and collections, and a hidden variant isn't offered on its parent's page. They're still public: anyone with the SKU can load one, the storefront elements show it, and it can be bought. Less visible, not invisible.",
       "checked": "Hidden",
       "unchecked": "Listed"
     },
     "weight": {
       "label": "Weight",
       "placeholder": "0",
-      "helper_text": ""
+      "helper_text": "",
+      "label_in": "Weight ({{unit}})"
+    },
+    "identifiers_button": "Brand, GTIN and MPN",
+    "brand": {
+      "label": "Brand",
+      "placeholder": "The maker, such as Acme",
+      "helper_text": "",
+      "help": "The maker or label. The storefront elements show it by the product's name and in a product page's details, and pass it to search engines and to your analytics."
+    },
+    "gtin": {
+      "label": "GTIN",
+      "placeholder": "The barcode number",
+      "helper_text": "",
+      "help": "The number under the barcode: a UPC, EAN, ISBN or GTIN-14. A product page lists it in its details and gives it to search engines, which use it to match the product to shopping listings."
+    },
+    "mpn": {
+      "label": "MPN",
+      "placeholder": "The maker's part number",
+      "helper_text": "",
+      "help": "The maker's own part number, for a product without a GTIN. A product page lists it in its details and gives it to search engines, which use it with the brand to match the product."
     },
     "category": {
       "label": "Item category",
@@ -204,6 +227,15 @@
     "label": "Description",
     "placeholder": "What it is, what it’s made of, how to use it.",
     "helper_text": "Markdown: **bold**, *italic*, lists, links and headings. Shown on product pages."
+  },
+  "description-preview": {
+    "label": "Preview",
+    "helper_text": "The description as your product page shows it, in your store's look, with your unsaved changes. Auto makes tabs or an accordion of three or more headings. Description sections changes only this preview: your site uses what its product page snippet sets.",
+    "layout_label": "Description sections",
+    "layout_auto": "Auto",
+    "layout_none": "None",
+    "layout_tabs": "Tabs",
+    "layout_accordion": "Accordion"
   },
   "images": {
     "label": "Images",

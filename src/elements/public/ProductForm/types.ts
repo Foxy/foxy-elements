@@ -78,8 +78,8 @@ export interface ProductModifierRemoval {
 /**
  * Free-form `definition` JSON blob on a Product resource. Every field is
  * optional from the API's perspective — products are created lazily and
- * inherit from parents/templates. Field meanings come from
- * `views/resources/product.twig` in hypermedia-api.
+ * inherit from parents/templates. Field meanings are in the API's product
+ * resource documentation.
  */
 export interface ProductDefinition {
   name?: string;
@@ -112,7 +112,7 @@ export interface ProductDefinition {
   subscription_frequency?: string;
   subscription_start_date?: string;
   subscription_end_date?: string;
-  /** Phase 2: per-locale overrides for description, alt text, etc. */
+  /** Per-locale overrides for description, alt text, etc. */
   translations?: Record<string, Partial<ProductDefinition>>;
 }
 
@@ -143,7 +143,7 @@ export interface Product extends Graph {
     'fx:parent_product': Product;
     /** Present on a product with options. */
     'fx:generate_variants'?: any;
-    /** Present only when accessed via the admin Lambda. */
+    /** Present only when the token may upload images. */
     'fx:create_upload_url'?: any;
   };
 
@@ -164,11 +164,11 @@ export interface Product extends Graph {
     stock_level: number | null;
     /** Starting stock level for "duplicate and reset" recurring-event workflows. */
     stock_level_initial: number | null;
-    /** Number of active variants under this product (denormalized, read-only). */
+    /** Number of active variants under this product. Read-only. */
     variant_count: number;
-    /** ID into `product_collections` (this is the Foxy Products taxonomy, NOT item_categories). */
+    /** ID of the product collection the product is in; not an item category. */
     collection_id: number | null;
-    /** Soft-delete timestamp. `null` means active. */
+    /** When the product was deleted; `null` while it is active. */
     deleted_at: string | null;
     date_created: string | null;
     date_modified: string | null;

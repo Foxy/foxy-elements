@@ -96,10 +96,64 @@ export const sectionStyles = css`
 
   /* SKU gets a row of its own when narrow, and double width when not: price,
      list price and weight are always short. */
+  /* Narrow, the prices and weight go two to a row, so their labels fit. */
   .pd-basics {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--lumo-space-m) 0.75rem;
+  }
+
+  .pd-more-button {
+    align-self: end;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--lumo-size-m);
+    height: var(--lumo-size-m);
+    border-radius: var(--lumo-border-radius-m);
+    color: var(--lumo-secondary-text-color);
+    cursor: pointer;
+  }
+
+  .pd-more-button:hover,
+  .pd-more-button[aria-expanded='true'] {
+    background: var(--lumo-contrast-10pct);
+    color: var(--lumo-body-text-color);
+  }
+
+  .pd-more-button:focus-visible {
+    outline: 2px solid var(--lumo-primary-color-50pct);
+    outline-offset: 1px;
+  }
+
+  .pd-code {
+    padding: 0.0625rem 0.3125rem;
+    border-radius: var(--lumo-border-radius-s);
+    background: var(--lumo-contrast-10pct);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+  }
+
+  .pd-with-help {
+    position: relative;
+    min-width: 0;
+  }
+
+  /* Just after the field's label text, which the "?" measures. */
+  .pd-help {
+    position: absolute;
+    left: var(--pd-help-x, 0);
+    top: var(--pd-help-y, 0);
+    transform: translateY(-50%);
+  }
+
+  .pd-identifiers {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--lumo-space-m) 0.75rem;
+    --lumo-secondary-text-color: var(--lumo-body-text-color);
   }
 
   .pd-basics > * {
@@ -113,7 +167,7 @@ export const sectionStyles = css`
 
   @media (min-width: 40rem) {
     .pd-basics {
-      grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)) auto;
     }
 
     .pd-basics > .pd-sku {
@@ -126,9 +180,27 @@ export const sectionStyles = css`
     --lumo-secondary-text-color: var(--lumo-body-text-color);
   }
 
-  .pd-basics > .pd-name {
-    --lumo-font-size-m: var(--lumo-font-size-xl);
-    --lumo-text-field-size: var(--lumo-size-l);
+  /* The preview's toggle sits on the description's label row. Open, the
+     preview sits beside the description while both have room, and below it
+     after. */
+  .pd-description {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'text' 'body';
+    align-items: start;
+    gap: var(--lumo-space-s) var(--lumo-space-l);
+  }
+
+  .pd-description > foxy-internal-product-form-description-control {
+    grid-area: text;
+    min-width: 0;
+  }
+
+  @media (min-width: 60rem) {
+    .pd-description:has(> [open]) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas: 'text body';
+    }
   }
 
   .pd-org {
@@ -147,13 +219,22 @@ export const sectionStyles = css`
     }
   }
 
-  .pd-org > * {
+  /* The listing switch sits in a cell of its own, with its "?" beside it. */
+  .pd-org > .pd-org-cell {
+    display: grid;
+    padding: 0;
+    background: none;
+  }
+
+  .pd-org > *,
+  .pd-org-cell > foxy-internal-switch-control {
     padding: 0.5625rem 0.75rem;
     background: var(--lumo-contrast-5pct);
     cursor: pointer;
   }
 
-  .pd-org > :not([disabled]):not([readonly]):hover {
+  .pd-org > :not([disabled]):not([readonly]):not(.pd-org-cell):hover,
+  .pd-org-cell > :not([disabled]):not([readonly]):hover {
     background: var(--lumo-contrast-10pct);
   }
 
@@ -162,14 +243,16 @@ export const sectionStyles = css`
     cursor: default;
   }
 
-  .pd-org > *::part(label) {
+  .pd-org > *::part(label),
+  .pd-org-cell > *::part(label) {
     flex: 0 0 7.5rem;
     color: var(--lumo-secondary-text-color);
     font-size: var(--lumo-font-size-s);
   }
 
   @media (max-width: 40rem) {
-    .pd-org > *::part(label) {
+    .pd-org > *::part(label),
+    .pd-org-cell > *::part(label) {
       flex-basis: 6.25rem;
     }
   }

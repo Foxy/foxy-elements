@@ -1,9 +1,10 @@
-import type { CSSResultArray, PropertyDeclarations } from 'lit-element';
+import type { CSSResultArray, LitElement, PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { BooleanSelector, Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { ListedCollection } from '../ProductList/listing';
+import type { DescriptionPreview } from './internal/InternalProductFormDescriptionPreviewControl/InternalProductFormDescriptionPreviewControl';
 import type {
   Data,
   ProductDefinition,
@@ -29,6 +30,8 @@ import { css } from 'lit-element';
 import {
   DEFAULT_LOW_STOCK_THRESHOLD,
   collectionTree,
+  currencyFormat,
+  formatPrice,
   groupProducts,
   loadAll,
   loadAllProducts,
@@ -58,6 +61,24 @@ type SectionKey = 'general' | 'inventory' | 'options' | 'modifiers' | 'propertie
 
 const OPEN_BY_DEFAULT: SectionKey[] = ['general', 'options', 'modifiers'];
 
+/** Codes that identify the product in feeds and search, shown on asking. */
+const IDENTIFIERS = ['brand', 'gtin', 'mpn'] as const;
+
+const IDENTIFIERS_KEY = 'foxy-product-form-identifiers';
+
+/** Whether the merchant last showed or hid them, if they did. */
+function storedIdentifiersShown(): boolean | null {
+  try {
+    const stored = localStorage.getItem(IDENTIFIERS_KEY);
+    return stored === 'shown' ? true : stored === 'hidden' ? false : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The label each item category weight unit goes by. */
+const WEIGHT_UNITS: Record<string, string> = { LBS: 'lb', KGS: 'kg' };
+
 const isAmount = (text: string) => text.trim() === '' || /^\d+(\.\d+)?$/.test(text.trim());
 
 const isCount = (text: string) => text.trim() === '' || /^\d{1,9}$/.test(text.trim());
@@ -74,6 +95,12 @@ async function apiMessage(error: unknown): Promise<string> {
  * A product that inherits (a variant from its parent, any other product from a
  * template) shows the inherited values as placeholders for its empty fields.
  *
+ * An element in the `description-preview` slot is shown in a collapsible
+ * Preview beside the description. While it is open, the form fires
+ * `description-preview` events with the product as the storefront would show
+ * it, unsaved edits included, and the layout chosen for its sections, for
+ * that element to draw.
+ *
  * @element foxy-product-form
  * @since 1.62.0
  */
@@ -85,6 +112,7 @@ export class ProductForm extends Base<Data> {
       itemCategories: { attribute: 'item-categories' },
       defaultDomain: { attribute: 'default-domain' },
       storefrontElementsHref: { attribute: 'storefront-elements-href' },
+      currencyCode: { attribute: 'currency-code' },
       getProductPageHref: { attribute: false },
       getThumbnailUrl: { attribute: false },
       lowStockThreshold: { type: Number, attribute: 'low-stock-threshold' },
@@ -100,6 +128,7 @@ export class ProductForm extends Base<Data> {
       __variants: { attribute: false },
       __panel: { attribute: false },
       __open: { attribute: false },
+      __identifiersShown: { attribute: false },
     };
   }
 
@@ -187,6 +216,9 @@ export class ProductForm extends Base<Data> {
    */
   getThumbnailUrl: ((src: string) => string) | null = null;
 
+  /** ISO 4217 code of the store's currency, for its prices. Unset, they're shown as plain numbers. */
+  currencyCode: string | null = null;
+
   /** URL of the page that sets the store's look for the storefront elements. */
   storefrontElementsHref: string | null = null;
 
@@ -209,6 +241,8 @@ export class ProductForm extends Base<Data> {
   generatedCount: number | null = null;
 
   private __open: Partial<Record<SectionKey, boolean>> = {};
+
+  private __identifiersShown = storedIdentifiersShown();
 
   /** The `self` link of the variant in the side panel, and its edits when the panel opened. */
   private __panel: { href: string; before: VariantEdit | undefined } | null = null;
@@ -320,6 +354,9 @@ export class ProductForm extends Base<Data> {
 
   /** The store's item category names by code, for a category the product inherits. */
   private __categoryNames = new Map<string, string>();
+
+  /** The weight unit of each of the store's item categories, by code. */
+  private __categoryUnits = new Map<string, string>();
 
   private get __itemCategoriesHref(): string | undefined {
     if (this.itemCategories) return this.itemCategories;
@@ -475,35 +512,85 @@ export class ProductForm extends Base<Data> {
               <foxy-internal-text-control infer="sku" class="pd-sku ${invalid('sku:')}">
               </foxy-internal-text-control>
 
-              <foxy-internal-number-control
-                infer="price"
-                class=${invalid('price:')}
-                min="0"
-                property="definition.price"
-                placeholder=${ifDefined(inherited?.price?.toString() ?? undefined)}
-                .setValue=${(value: number) => this.__setDefinitionNumber('price', value)}
-              >
-              </foxy-internal-number-control>
+              <div class="pd-with-help">
+                <foxy-internal-number-control
+                  infer="price"
+                  class=${invalid('price:')}
+                  min="0"
+                  property="definition.price"
+                  placeholder=${ifDefined(inherited?.price?.toString() ?? undefined)}
+                  .label=${this.__currencyLabel('general.price.label_in')}
+                  .setValue=${(value: number) => this.__setDefinitionNumber('price', value)}
+                >
+                </foxy-internal-number-control>
+                ${this.parentProduct ? this.__renderHelp('price', 'general.price.help') : ''}
+              </div>
 
-              <foxy-internal-number-control
-                infer="list-price"
-                min="0"
-                property="definition.list_price"
-                placeholder=${ifDefined(inherited?.list_price?.toString() ?? undefined)}
-                .setValue=${(value: number) => this.__setDefinitionNumber('list_price', value)}
-              >
-              </foxy-internal-number-control>
+              <div class="pd-with-help">
+                <foxy-internal-number-control
+                  infer="list-price"
+                  min="0"
+                  property="definition.list_price"
+                  placeholder=${ifDefined(inherited?.list_price?.toString() ?? undefined)}
+                  .label=${this.__currencyLabel('general.list-price.label_in')}
+                  .setValue=${(value: number) => this.__setDefinitionNumber('list_price', value)}
+                >
+                </foxy-internal-number-control>
+                ${this.__renderHelp('list-price', 'general.list-price.help')}
+              </div>
 
               <foxy-internal-number-control
                 infer="weight"
                 min="0"
                 placeholder=${ifDefined(inherited?.weight?.toString() ?? undefined)}
+                .label=${this.__weightLabel}
                 .getValue=${() => this.form.definition?.weight}
                 .setValue=${(value: number) => this.__setDefinitionNumber('weight', value)}
               >
               </foxy-internal-number-control>
+
+              <button
+                type="button"
+                class="pd-more-button"
+                aria-expanded=${this.__identifiersOpen ? 'true' : 'false'}
+                aria-label=${this.t('general.identifiers_button')}
+                title=${this.t('general.identifiers_button')}
+                data-testid="identifiers-toggle"
+                @click=${() => this.__showIdentifiers(!this.__identifiersOpen)}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <circle cx="3.5" cy="8" r="1.3"></circle>
+                  <circle cx="8" cy="8" r="1.3"></circle>
+                  <circle cx="12.5" cy="8" r="1.3"></circle>
+                </svg>
+              </button>
+              ${this.__identifiersOpen
+                ? html`
+                    <div class="pd-identifiers" data-testid="identifiers">
+                      ${IDENTIFIERS.map(
+                        key => html`
+                          <div class="pd-with-help">
+                            <foxy-internal-text-control
+                              infer=${key}
+                              placeholder=${ifDefined(inherited?.[key] || undefined)}
+                              .getValue=${() => this.form.definition?.[key] ?? ''}
+                              .setValue=${(value: string) => this.__setDefinitionText(key, value)}
+                            >
+                            </foxy-internal-text-control>
+                            ${this.__renderHelp(key, `general.${key}.help`)}
+                          </div>
+                        `
+                      )}
+                    </div>
+                  `
+                : ''}
             </div>
-            <p class="text-xs text-secondary">${this.t('general.basics_note')}</p>
           </foxy-internal-summary-control>
 
           <foxy-internal-summary-control
@@ -569,8 +656,15 @@ export class ProductForm extends Base<Data> {
                 >
                 </foxy-internal-resource-picker-control>
 
-                <foxy-internal-switch-control infer="hidden" helper-text-as-tooltip>
-                </foxy-internal-switch-control>
+                ${this.hiddenSelector.matches('general:hidden', true)
+                  ? ''
+                  : html`
+                      <div class="pd-with-help pd-org-cell">
+                        <foxy-internal-switch-control infer="hidden" .helperText=${''}>
+                        </foxy-internal-switch-control>
+                        ${this.__renderHelp('hidden', 'general.hidden.helper_text')}
+                      </div>
+                    `}
               </div>
               <p class="text-xs text-secondary">${this.t('general.organization_note')}</p>
             </div>
@@ -603,12 +697,23 @@ export class ProductForm extends Base<Data> {
               `
             : ''}
 
-          <foxy-internal-product-form-description-control
-            infer="description"
-            property="definition.description"
-            placeholder=${ifDefined(inherited?.description ?? undefined)}
-          >
-          </foxy-internal-product-form-description-control>
+          <div class="pd-description">
+            <foxy-internal-product-form-description-control
+              infer="description"
+              property="definition.description"
+              placeholder=${ifDefined(inherited?.description ?? undefined)}
+            >
+            </foxy-internal-product-form-description-control>
+            ${this.querySelector(':scope > [slot="description-preview"]')
+              ? html`
+                  <foxy-internal-product-form-description-preview-control
+                    infer="description-preview"
+                    .product=${this.__previewProduct}
+                  >
+                  </foxy-internal-product-form-description-preview-control>
+                `
+              : ''}
+          </div>
 
           <foxy-internal-product-form-images-control infer="images">
           </foxy-internal-product-form-images-control>
@@ -839,6 +944,37 @@ export class ProductForm extends Base<Data> {
     super.updated(changes);
     this.__showOrLeave('variant-panel');
     this.__showOrLeave('delete-confirmation');
+    this.__keepFromAutofill();
+  }
+
+  /**
+   * Product fields aren't logins or addresses: password managers are asked
+   * to leave them alone, as browsers are.
+   */
+  private __keepFromAutofill() {
+    const controls = this.renderRoot.querySelectorAll<LitElement>(
+      'foxy-internal-text-control, foxy-internal-number-control, foxy-internal-product-form-description-control'
+    );
+    type Field = HTMLElement & { autocomplete?: string; inputElement?: HTMLInputElement };
+    for (const control of controls) {
+      control.updateComplete.then(() => {
+        const fields = control.renderRoot.querySelectorAll<Field>(
+          'vaadin-text-field, vaadin-number-field, vaadin-text-area'
+        );
+        for (const field of fields) {
+          const input = field.inputElement;
+          if (!input || input.dataset.formType === 'other') continue;
+          // The field copies its own autocomplete onto the input.
+          field.autocomplete = 'off';
+          Object.assign(input.dataset, {
+            '1pIgnore': '',
+            'lpignore': 'true',
+            'bwignore': '',
+            'formType': 'other',
+          });
+        }
+      });
+    }
   }
 
   /**
@@ -1017,7 +1153,55 @@ export class ProductForm extends Base<Data> {
     if (this.data) this.__variants = await this.__loadVariants(this.data);
   }
 
+  /** A "?" after a field's label, which says what `key` translates to. */
+  private __renderHelp(name: string, key: string): TemplateResult {
+    return html`
+      <foxy-internal-product-form-help
+        after-label
+        class="pd-help"
+        data-testid="help-${name}"
+        .text=${this.t(key)}
+      >
+      </foxy-internal-product-form-help>
+    `;
+  }
+
+  /**
+   * The weight field's label naming the unit of the product's item category,
+   * such as "Weight (lb)", which is the store's default category without one
+   * of its own; unknown, the plain label.
+   */
+  private get __weightLabel(): string | null {
+    const code = this.form.definition?.category_code || this.__inheritedCategory?.code || 'DEFAULT';
+    const unit = WEIGHT_UNITS[this.__categoryUnits.get(code) ?? ''];
+    return unit ? this.t('general.weight.label_in', { unit }) : null;
+  }
+
+  /** Shown as the merchant last left them; until then, when the product has any of them, its own or inherited. */
+  private get __identifiersOpen(): boolean {
+    if (this.__identifiersShown !== null) return this.__identifiersShown;
+    const inherited = this.__inherited;
+    return IDENTIFIERS.some(key => !!(this.form.definition?.[key] || inherited?.[key]));
+  }
+
+  private __showIdentifiers(shown: boolean) {
+    this.__identifiersShown = shown;
+    try {
+      localStorage.setItem(IDENTIFIERS_KEY, shown ? 'shown' : 'hidden');
+    } catch {
+      // Only the next visit loses it.
+    }
+  }
+
   // An emptied field is left out, so the product inherits it again.
+  private __setDefinitionText(key: (typeof IDENTIFIERS)[number], value: string) {
+    const definition = { ...(this.form.definition as ProductDefinition | undefined) };
+    const text = value.trim();
+    if (text) definition[key] = text;
+    else delete definition[key];
+    this.edit({ definition });
+  }
+
   private __setDefinitionNumber(
     key: 'price' | 'list_price' | 'weight' | 'low_stock_threshold',
     value: number
@@ -1028,7 +1212,7 @@ export class ProductForm extends Base<Data> {
     this.edit({ definition });
   }
 
-  private __renderSection(key: SectionKey, summary: string, body: TemplateResult) {
+  private __renderSection(key: SectionKey, summary: string | TemplateResult, body: TemplateResult) {
     const open = this.__open[key] ?? OPEN_BY_DEFAULT.includes(key);
     return html`
       <section class="pd-section" data-testid="section-${key}">
@@ -1070,17 +1254,26 @@ export class ProductForm extends Base<Data> {
     `;
   }
 
-  private get __generalSummary(): string {
-    const price = this.form.definition?.price ?? this.__inherited?.price;
-    return [
-      this.form.sku,
-      price === undefined || price === null || price === '' ? '' : String(price),
+  private get __generalSummary(): TemplateResult {
+    const price = Number(this.form.definition?.price ?? this.__inherited?.price ?? NaN);
+    const parts = [
+      this.form.sku ? html`<code class="pd-code">${this.form.sku}</code>` : '',
+      Number.isFinite(price) ? formatPrice(price, this.currencyCode, this.lang) : '',
       this.form.product_type === 'template'
         ? ''
         : this.t(this.form.hidden ? 'sections.general.hidden' : 'sections.general.listed'),
-    ]
-      .filter(Boolean)
-      .join(' · ');
+    ].filter(Boolean);
+    return html`${parts.map((part, index) => html`${index ? ' · ' : ''}${part}`)}`;
+  }
+
+  /** A price field's label naming the store's currency, such as "Price (USD $)"; unknown, the plain label. */
+  private __currencyLabel(key: string): string | null {
+    const code = this.currencyCode;
+    const format = code ? currencyFormat(code, this.lang, 'narrowSymbol') : null;
+    if (!code || !format) return null;
+    const symbol = format.formatToParts(0).find(part => part.type === 'currency')?.value ?? '';
+    const currency = symbol && symbol !== code ? `${code} ${symbol}` : code;
+    return this.t(key, { currency });
   }
 
   private get __inventorySummary(): string {
@@ -1560,6 +1753,19 @@ export class ProductForm extends Base<Data> {
     this.edit({ option_values: values });
   }
 
+  /** What the storefront would show: each field this product leaves empty is inherited. */
+  private get __previewProduct(): DescriptionPreview['product'] {
+    const own = Object.entries(this.form.definition ?? {}).filter(([, value]) =>
+      typeof value === 'string' ? value.trim() !== '' : value !== null && value !== undefined
+    );
+    return {
+      sku: this.form.sku ?? '',
+      product_type: this.form.product_type ?? 'standalone',
+      definition: { ...this.__inherited, ...Object.fromEntries(own) },
+      is_in_stock: true,
+    };
+  }
+
   /** Field placeholders show what an empty field inherits. */
   private get __inherited(): ProductDefinition | undefined {
     return this.parentProduct?.compiled_definition as ProductDefinition | undefined;
@@ -1617,6 +1823,9 @@ export class ProductForm extends Base<Data> {
     this.__collectionTrails = new Map(collectionTree(collections).map(c => [c.path, c.trail]));
     this.__categoryNames = new Map(
       (categories as Resource<Rels.ItemCategory>[]).map(c => [c.code, c.name])
+    );
+    this.__categoryUnits = new Map(
+      (categories as Resource<Rels.ItemCategory>[]).map(c => [c.code, c.default_weight_unit])
     );
     this.__variants = await this.__loadVariants(product);
 

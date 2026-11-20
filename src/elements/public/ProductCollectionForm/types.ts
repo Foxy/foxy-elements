@@ -32,7 +32,7 @@ export interface ProductCollection extends Graph {
     'fx:parent_collection': ProductCollection;
     /** Present only when the collection has an item category. */
     'fx:item_category': Rels.ItemCategory;
-    /** Present only when accessed via the admin Lambda. */
+    /** Present only when the token may upload images. */
     'fx:create_upload_url'?: any;
   };
   props: {
