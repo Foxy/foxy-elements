@@ -1,0 +1,78 @@
+import { Meta } from "@storybook/blocks";
+import * as ProductFormStories from "./element.stories";
+
+<Meta of={ProductFormStories} name="Docs" />
+
+# foxy-product-form
+
+Everything a shopper chooses for one catalog product before adding it, in a card: its name, brand, price and stock, a parent's options, the chosen variant's modifiers, and quantity.
+
+```html
+<script data-cfasync="false" src="https://cdn.foxycart.com/example.foxycart.com/loader.js" async defer></script>
+<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-products.js"></script>
+
+<foxy-product-form sku="TEE-ORG" show-quantity>
+  <a href="https://example.foxycart.com/cart?sku=TEE-ORG-S-BLK">Buy the small black tee</a>
+</foxy-product-form>
+```
+
+## How it adds
+
+Everything renders in light DOM. The visible controls sit in a form without an `action`. What the cart is sent is a second, hidden `<form action="https://<store>/cart" method="post">` of hidden inputs, a child of the element, which the add button submits with `requestSubmit()`. Foxy 2.0's `foxycart.js` listens for `submit` on `body` and takes over any form whose `action` contains the store's domain followed by `/cart`, so the add opens 2.0's sidecart. Without 2.0's JavaScript, the browser posts the form to the cart page.
+
+The form sends only what the cart accepts for a catalog product:
+
+| Product | Sent |
+| --- | --- |
+| Parent with options | `sku=<parent>` and one field per option, such as `color=Black&size=M`. The cart picks the variant. |
+| Parent whose variants have no option values | `sku=<variant>`, chosen from a list of the variants by name |
+| A product without variants, or a variant | `sku=<sku>` |
+| Any of them | Each of the chosen product's modifiers that has a value, by its name, and `quantity` when it's more than 1 |
+
+Whatever is inside the tag shows until the product has loaded, and stays if it can't.
+
+## Options
+
+One control per option, in declared order: buttons by default (a swatch for a value with a `color` or `image`, or when each value's variants have a photo of their own; a drop-down for an option of more than eight plain values), a list of rows with `option-style="rows"`, or a drop-down with `option-style="select"`. A parent whose variants don't say which option values they have is offered as a list of its variants: a drop-down, or rows with `option-style="rows"`. `foxy-product-page` offers the same. Nothing is chosen for the shopper: the price shows the range of the variants' prices and the button says what is missing ("Choose a size", then "Choose a colour"), until every option has a value. Then the price is the chosen variant's and the button reads "Add to cart · $24.95".
+
+Each option only offers the values that exist with the choices made for the options before it:
+
+- a value no variant has with those choices is left out; hidden variants count as not existing;
+- a value whose variants are all out of stock is shown, marked "(sold out)", and can't be chosen.
+
+A later choice that an earlier one rules out is cleared, and the shopper chooses it again. `value` preselects options the same way: a value that doesn't exist or is sold out is ignored. It presets modifiers too, as a starting value the shopper can change.
+
+## Modifiers
+
+The form offers the **chosen variant's** modifiers, because the cart checks an add against the variant's own list, which can add to or remove from its parent's. Until a variant is chosen, it shows what the parent declares. What the shopper already entered is kept for modifiers the new variant still has.
+
+- A text modifier is a text field with its `max_length`, a count of characters used, and "(optional)" or "(required)" beside its label, with its amount: "(optional, +$6.00)".
+- A choice modifier is a drop-down. An optional one starts on its first declared value; the element never adds a "None" of its own, so a merchant who wants one declares it as a value. A required one starts on "Choose…".
+- A required modifier left empty stops the add with "Fill this in to add it to the cart."; the cart checks again.
+
+## Quantity and stock
+
+With `show-quantity`, a stepper from the product's `quantity_min` (else 1) up to the lower of its `quantity_max` and its stock. It is left out when only one can be bought. Under the price: "Sold out", or "Only 3 left" at or below the low-stock threshold: the product's own low-stock threshold when it sets one (`low_stock_threshold` in its definition, which variants inherit), else the store's (5 unless the store saved another).
+
+## Attributes
+
+| Attribute | Property | |
+| --- | --- | --- |
+| `sku` | `sku` | Required. A product's, parent's or variant's SKU. |
+| `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
+| `value` | `value` | Preselected options and modifiers, as a query string: `color=Black&size=M&gift_wrap=Yes`. A modifier's value is kept only when it is one of a select's values (any case) or text that fits its length, as for `foxy-product-link`; the shopper can still change it. Changing the attribute starts the choices over. |
+| `option-style` | `optionStyle` | How a parent's options are offered: `buttons` (the default; a swatch for a value with a colour or photo), `rows` (a list, each value with its price once it has one) or `select` (drop-downs). |
+| `show-quantity` | `showQuantity` | Shows the quantity stepper. |
+| `label` | `label` | The add button's text; the price follows it when the button is wide enough for both on one line. Default: the store's saved button text, else "Add to cart". |
+| `heading-level` | `headingLevel` | The name's heading level. Default `2`. |
+| `currency`, `currency-cookie`, `lang` | `currency` | As for `foxy-product-link`. |
+| `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. Changing one, `label` or `option-style` updates the form where it stands and keeps the shopper's choices. |
+| `analytics` | — | Reports `view_item` and `add_to_cart` to Google Analytics; see `foxy-product-link`. |
+
+## Events
+
+`foxy-product:view-item` once when the product is first shown, and `foxy-product:add-to-cart` when the cart took an add, with the chosen variant, the quantity and the value. Both are described under `foxy-product-link`.
+
+## Styling
+
+The look's attributes and CSS variables are listed under `foxy-product-link`. Classes: `.foxy-product-form` (the card), `.foxy-product-summary`, `.foxy-product-brand`, `.foxy-product-name`, `.foxy-product-price`, `.foxy-product-note`, `.foxy-product-controls`, `.foxy-product-field`, `.foxy-product-field-label`, `.foxy-product-hint`, `.foxy-product-input`, `.foxy-product-option`, `.foxy-product-values`, `.foxy-product-pill`, `.foxy-product-swatch`, `.foxy-product-rows`, `.foxy-product-row`, `.foxy-product-stepper`, `.foxy-product-counter`, `.foxy-product-error`, `.foxy-product-add` (the button, also `.foxy-product-button`). The list price inside `.foxy-product-price` is `.foxy-product-list-price`; `--foxy-product-price-color`, `--foxy-product-price-size`, `--foxy-product-list-price-color` and `--foxy-product-list-price-size` restyle them.

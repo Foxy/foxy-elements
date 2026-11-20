@@ -1,0 +1,110 @@
+import { Meta } from "@storybook/blocks";
+import * as ProductPageStories from "./element.stories";
+
+<Meta of={ProductPageStories} name="Docs" />
+
+# foxy-product-page
+
+A whole product page from one tag: photos, brand, name, price, stock, options, modifiers, quantity, the add button, the description and a list of details.
+
+```html
+<script data-cfasync="false" src="https://cdn.foxycart.com/example.foxycart.com/loader.js" async defer></script>
+<script type="module" src="https://cdn-js.foxy.io/elements@2/foxy-products.js"></script>
+
+<foxy-product-page sku-param="sku">
+  <p>Loading…</p>
+</foxy-product-page>
+```
+
+With `sku-param="sku"`, one page at `/product?sku=TEE-ORG` serves every product, and a tile's `href="/product?sku={sku}"`, or the same pattern saved as the store's product page, links to it. Whatever is inside the tag shows until the product has loaded, and stays when the store has no such product.
+
+It renders in light DOM, so search engines read its text, with schema.org `Product` data in a `<script type="application/ld+json">`: an `Offer`, or an `AggregateOffer` over a parent's variants, when the catalog says which currency the price is in. It adds the way `foxy-product-form` does, through a hidden `<form action="https://<store>/cart">` that Foxy 2.0's `foxycart.js` takes over, and sends the same fields.
+
+## What it shows
+
+| Part | From | |
+| --- | --- | --- |
+| Photos | `images` | The first is the main one. More than one adds thumbnails, which are buttons. A chosen variant with photos of its own shows those. |
+| Collections | `collections` | The collections the product is in, from the top one down, as chips above the name. Links with `collection-href`. Left out when it is in none. |
+| Name, brand | `name`, `brand` | The name is the page's `<h1>`, large, in the `lang`'s translation when the catalog has one; the brand is under it, in the accent colour. |
+| Price | `price`, `list_price`, per-currency prices | For a parent, the range of its variants' prices until a variant is chosen; then that variant's, plus the chosen modifiers' amounts. A higher list price is struck through beside it. |
+| Stock | `is_in_stock`, `stock_level` | Once a variant is chosen: "In stock", "Only 3 left" at or below the low-stock threshold, or "Sold out". The threshold is the chosen variant's own when its definition sets `low_stock_threshold` (variants inherit their parent's), else the store's. |
+| Options | `options`, the variants | On a tinted panel (`.foxy-product-choices`), with the modifiers. Buttons, or swatches with their names under them when a value has a `color` or `image`; an option of more than eight plain values, such as shoe sizes, is a drop-down. A combination with no variant is left out; a sold-out one is shown, marked "(sold out)", and can't be chosen. Nothing is chosen for the shopper. |
+| Modifiers | the chosen variant's `modifiers` | As in `foxy-product-form`: the chosen variant's, an optional choice on its first value, no added "None". |
+| Quantity | `quantity_min`, `quantity_max`, stock | A stepper that stops at what's in stock. Left out when only one can be bought. |
+| Add button | | Says what's missing: "Choose a size", then "Choose a colour", then "Add to cart · $49.90" (the price times the quantity). "Sold out" when it is. |
+| Description | `description` | See below. |
+| Details | `brand`, the SKU, `gtin`, `mpn`, `properties` | The SKU is the chosen variant's once there is one. A property with several values lists them. |
+
+## The description
+
+A product's description is Markdown, written by the merchant, and it's untrusted on a storefront. The element never parses it as HTML: it removes raw HTML tags, builds each paragraph, heading, list, table, bold, italic and code span as an element with the text set as text, and keeps a link only when its address is `https`. Headings start at `<h2>`, under the product's name.
+
+### Sections
+
+`description-layout` turns the description's top-level headings (the highest level it uses, usually `##`) into sections:
+
+| `description-layout` | |
+| --- | --- |
+| `auto` (default) | With three or more headings, tabs while the element is 720px wide or more and an accordion below that; with fewer, as written |
+| `tabs` | One tab per heading |
+| `accordion` | One disclosure per heading, the first open |
+| `none` | The description as written, with the details beside it |
+
+```md
+Steel with a glossy enamel coat and a rolled rim.
+
+## Size
+Holds 12 oz. A lid is sold apart.
+
+## Care
+- Hand wash
+
+## Delivery and returns
+Ships in two days; returns within 30 days.
+```
+
+- Text before the first heading: when it is one short paragraph (280 characters or fewer) it is shown as the product's lead, under the price; anything longer becomes a first section called "Description".
+- The details list joins the sections as a last "Details" section when the description has three or more headings, or goes at the end of the merchant's own "Details" section when there is one; with fewer it stays beside them.
+- A description with fewer than two sections is shown as written whatever the value.
+- Tabs follow the WAI-ARIA tabs pattern: arrow keys move between tabs, Home and End go to the first and last, and only the chosen tab is in the tab order. Every panel stays in the page (`hidden="until-found"`), so search engines read all of it and the browser's find in page opens the tab its match is in.
+- An accordion is native `<details>` and `<summary>`, each title an `<h2>`; find in page opens a closed one too.
+
+`auto` is the default because it only makes sections of a description long enough to have three headings, and still shows short ones as written. Sections hide text behind a click; `none` keeps every description as written.
+
+## Attributes
+
+| Attribute | Property | |
+| --- | --- | --- |
+| `sku` | `sku` | A product's, parent's or variant's SKU. |
+| `sku-param` | `skuParam` | The name of a query parameter of the page's address that holds the SKU. `sku` wins when both are set. |
+| `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
+| `value` | `value` | Preselected options and modifiers, as a query string: `color=Black&size=M&gift_wrap=Yes`. As for `foxy-product-form`. |
+| `option-style` | `optionStyle` | As for `foxy-product-form`: `buttons` (the default), `rows` or `select`. |
+| `label` | `label` | The add button's text; the price follows it when the button is wide enough for both on one line. Default: the store's saved button text, else "Add to cart". |
+| `heading-level` | `headingLevel` | The name's heading level. Default `1`. |
+| `description-layout` | `descriptionLayout` | `auto` (default), `tabs`, `accordion` or `none`. See Sections above. |
+| `collection-href` | `collectionHref` | Makes the collection chips links: `{id}` is replaced with the collection's id, as in `/shop?collection={id}`. Unset, the chips are plain text. |
+| `currency`, `currency-cookie`, `lang` | `currency` | As for `foxy-product-link`. |
+| `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. Changing one, `label` or `option-style` updates the page where it stands and keeps the photos and the shopper's choices. |
+| `analytics` | — | Reports `view_item` and `add_to_cart` to Google Analytics; see `foxy-product-link`. |
+
+The `product` property takes a catalog product directly and shows it with no request, for a preview of a product that isn't saved yet. It sets `sku` to the product's.
+
+## Events
+
+`foxy-product:view-item` once when the product is first shown, and `foxy-product:add-to-cart` when the cart took an add, with the chosen variant, the quantity and the value. Both are described under `foxy-product-link`.
+
+## Styling
+
+The layout follows the element's own width, not the window's, so it fits whatever column it is put in:
+
+| The element is | |
+| --- | --- |
+| Under 720px wide | One column: photos, then name, price, options and the add button |
+| 720px to 959px | Two equal columns: photos on the left, the rest on the right |
+| 960px and wider | Photos in three fifths, the rest in two fifths |
+
+In two columns, the right one stays in view while taller photos scroll (`--foxy-product-sticky-top` sets how far from the top; default `16px`). The main photo is shown at its own shape, with nothing around it, as wide as the column unless that would make it taller than `--foxy-product-photo-max-height` (default `min(70vh, 640px)`), so the add button stays in the first screen; a taller photo is that tall, narrower, and centred. Its shape comes from the image's `width` and `height` until it loads. A photo of another shape, chosen from the thumbnails, is fitted inside the same frame, so the thumbnails don't move (`--foxy-product-photo-fit: cover` fills the frame instead). Thumbnails are square. A product with no photo gives the whole width to the right column's content. The description and the details sit below, side by side when there is room. The look's attributes and CSS variables are listed under `foxy-product-link`. Classes, besides `foxy-product-form`'s: `.foxy-product-chips`, `.foxy-product-chip`, `.foxy-product-lead`, `.foxy-product-choices`, `.foxy-product-sections` (with `data-layout="tabs"` or `"accordion"`), `.foxy-product-tablist`, `.foxy-product-tab`, `.foxy-product-panel`, `.foxy-product-section`, `.foxy-product-section-title`, `.foxy-product-page`, `.foxy-product-main`, `.foxy-product-gallery`, `.foxy-product-hero`, `.foxy-product-thumbs`, `.foxy-product-info`, `.foxy-product-description`, `.foxy-product-details`, `.foxy-product-detail-list` (each row a `<div>` holding a `<dt>` and a `<dd>`). The price is `.foxy-product-price` and a struck-through list price `.foxy-product-list-price`; their variables are listed under `foxy-product-link`.
+
+It doesn't set the page's `<title>` or meta description, and has no breadcrumbs: the catalog doesn't publish a collection's name or path.

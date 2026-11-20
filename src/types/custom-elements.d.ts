@@ -4,6 +4,11 @@ import type { CustomerPortalElement } from "@/elements/foxy-customer-portal/elem
 import type { PortalVariant } from "@/elements/foxy-customer-portal/types";
 import type { PaymentCardFieldElement } from "@/elements/foxy-payment-card-field/element";
 import type { PaymentMethodSelectorElement } from "@/elements/foxy-payment-method-selector/element";
+import type { ProductCollectionElement } from "@/elements/foxy-product-collection/element";
+import type { ProductFormElement } from "@/elements/foxy-product-form/element";
+import type { ProductLinkElement } from "@/elements/foxy-product-link/element";
+import type { ProductPageElement } from "@/elements/foxy-product-page/element";
+import type { ProductTileElement } from "@/elements/foxy-product-tile/element";
 import type {
   SideCartTriggerElement,
   SideCartTriggerLayout,
@@ -109,6 +114,108 @@ type SideCartTriggerElementProps = DetailedHTMLProps<
   layout?: SideCartTriggerLayout;
 };
 
+type ProductElementSharedProps = {
+  sku?: string;
+  store?: string;
+  currency?: string;
+  "currency-cookie"?: string;
+  theme?: "bold" | "plain" | "foxy" | "soft" | "bookshop" | "market" | "dark";
+  analytics?: boolean | "off";
+  font?: string;
+  "text-color"?: string;
+  "button-color"?: string;
+  "button-text-color"?: string;
+  "button-radius"?: number | string;
+  "accent-color"?: string;
+  "tile-width"?: number | string;
+  "tile-gap"?: number | string;
+  "image-ratio"?: string;
+};
+
+type ProductLinkElementProps = Omit<
+  DetailedHTMLProps<HTMLAttributes<ProductLinkElement>, ProductLinkElement>,
+  "value"
+> &
+  ProductElementSharedProps & {
+    value?: string;
+    quantity?: number | string;
+    label?: string;
+    checkout?: boolean;
+    showPrice?: boolean;
+    "show-price"?: boolean | "false";
+    appearance?: "button" | "text";
+  };
+
+type ProductFormElementProps = Omit<
+  DetailedHTMLProps<HTMLAttributes<ProductFormElement>, ProductFormElement>,
+  "value"
+> &
+  ProductElementSharedProps & {
+    value?: string;
+    label?: string;
+    headingLevel?: number;
+    "heading-level"?: number | string;
+    optionStyle?: "buttons" | "rows" | "select";
+    "option-style"?: "buttons" | "rows" | "select";
+    showQuantity?: boolean;
+    "show-quantity"?: boolean;
+  };
+
+type ProductPageElementProps = Omit<
+  DetailedHTMLProps<HTMLAttributes<ProductPageElement>, ProductPageElement>,
+  "value"
+> &
+  ProductElementSharedProps & {
+    value?: string;
+    label?: string;
+    headingLevel?: number;
+    "heading-level"?: number | string;
+    optionStyle?: "buttons" | "rows" | "select";
+    "option-style"?: "buttons" | "rows" | "select";
+    skuParam?: string;
+    "sku-param"?: string;
+    descriptionLayout?: "none" | "tabs" | "accordion" | "auto";
+    "description-layout"?: "none" | "tabs" | "accordion" | "auto";
+    collectionHref?: string;
+    "collection-href"?: string;
+  };
+
+type ProductTileElementProps = DetailedHTMLProps<
+  HTMLAttributes<ProductTileElement>,
+  ProductTileElement
+> &
+  ProductElementSharedProps & {
+    href?: string;
+    quickAdd?: "auto" | "never";
+    "quick-add"?: "auto" | "never";
+    headingLevel?: number;
+    "heading-level"?: number | string;
+  };
+
+type ProductCollectionElementProps = DetailedHTMLProps<
+  HTMLAttributes<ProductCollectionElement>,
+  ProductCollectionElement
+> &
+  Omit<ProductElementSharedProps, "sku"> & {
+    collection?: string;
+    tag?: string;
+    "in-stock"?: boolean | "true" | "false";
+    sort?: string;
+    limit?: number | string;
+    productHref?: string;
+    "product-href"?: string;
+    "quick-add"?: "auto" | "never";
+    "heading-level"?: number | string;
+    variantPrices?: boolean;
+    "variant-prices"?: boolean;
+    showCount?: boolean;
+    "show-count"?: boolean;
+    showSort?: boolean;
+    "show-sort"?: boolean;
+    listName?: string;
+    "list-name"?: string;
+  };
+
 type ExpressCheckoutElementProps = Omit<
   DetailedHTMLProps<
     HTMLAttributes<ExpressCheckoutElement>,
@@ -177,6 +284,11 @@ declare module "react" {
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "foxy-side-cart-trigger": SideCartTriggerElementProps;
+      "foxy-product-link": ProductLinkElementProps;
+      "foxy-product-form": ProductFormElementProps;
+      "foxy-product-page": ProductPageElementProps;
+      "foxy-product-tile": ProductTileElementProps;
+      "foxy-product-collection": ProductCollectionElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
       "google-pay-button": GooglePayButtonElementProps;
     }
@@ -191,6 +303,11 @@ declare module "react/jsx-runtime" {
       "foxy-payment-card-field": CardEmbedElementProps;
       "foxy-payment-method-selector": PaymentMethodSelectorElementProps;
       "foxy-side-cart-trigger": SideCartTriggerElementProps;
+      "foxy-product-link": ProductLinkElementProps;
+      "foxy-product-form": ProductFormElementProps;
+      "foxy-product-page": ProductPageElementProps;
+      "foxy-product-tile": ProductTileElementProps;
+      "foxy-product-collection": ProductCollectionElementProps;
       "apple-pay-button": ApplePayButtonElementProps;
       "google-pay-button": GooglePayButtonElementProps;
     }
