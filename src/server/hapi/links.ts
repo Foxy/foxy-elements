@@ -640,7 +640,9 @@ export const links: Links = {
     ...(parent_id != null
       ? { 'fx:parent_collection': { href: `./product_collections/${parent_id}` } }
       : {}),
-    ...(item_category_uri ? { 'fx:item_category': { href: item_category_uri } } : {}),
+    ...(typeof item_category_uri === 'string' && item_category_uri
+      ? { 'fx:item_category': { href: item_category_uri } }
+      : {}),
   }),
 
   product_tags: ({ store_id, product_id }) => ({
