@@ -17,7 +17,7 @@ function photo(width: number, height: number, alt: string): ProductImage {
 const teeDefinition = {
   name: "Organic Cotton Tee",
   brand: "Foxy Goods",
-  gtin: "00850006493014",
+  gtin: "00850006493012",
   price: "24.95",
   prices: { EUR: "22.95" },
   images: [

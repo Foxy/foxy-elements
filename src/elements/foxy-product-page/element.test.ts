@@ -55,7 +55,7 @@ describe("foxy-product-page", () => {
     expect(details(element)).toEqual([
       "Brand: Foxy Goods",
       "SKU: TEE-ORG",
-      "GTIN: 00850006493014",
+      "GTIN: 00850006493012",
       "Material: Organic cotton",
       "Made in: Portugal, Spain",
     ]);

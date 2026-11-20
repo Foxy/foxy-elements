@@ -302,7 +302,7 @@ ${control()} :is(a, button).foxy-product-button:is([aria-disabled="true"], :disa
   background: ${v("text-link-background")}; color: ${accent}; font-size: 15px; text-decoration: underline;
 }
 :is(foxy-product-link) a.foxy-product-text-link[aria-disabled="true"] { text-decoration: none; cursor: not-allowed; }
-:is(${ELEMENTS}) .foxy-product-button s { color: inherit; opacity: 0.75; }
+:is(${ELEMENTS}) .foxy-product-button s { color: inherit; }
 /* Without room for the label and the price on one line, the price wraps to a
    line of its own that has no height, and is cut off. The label wraps only
    when it doesn't fit by itself. The text is rebuilt when a field changes on

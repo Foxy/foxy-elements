@@ -541,6 +541,17 @@ describe("the themes it publishes", () => {
     // Inside the link both take the link's own colour, as its text does.
     expect(getComputedStyle(was).color).toBe(getComputedStyle(link(element)!).color);
   });
+
+  it("draws a button's list price in the button's text colour, so it stays readable", async () => {
+    stub = stubCatalog();
+    stub.look = { button_color: "#0057d9" };
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" show-price currency="USD"></foxy-product-link>`);
+    await settle();
+    const was = element.querySelector(".foxy-product-button-price .foxy-product-list-price")!;
+    expect(was.textContent).toBe("$18.90");
+    expect(getComputedStyle(was).color).toBe(getComputedStyle(link(element)!).color);
+    expect(getComputedStyle(was).opacity).toBe("1");
+  });
 });
 
 describe("foxy-product-link after a 2.0 add", () => {
