@@ -102,7 +102,7 @@ describe("foxy-product-tile", () => {
       "@type": "Product",
       name: "Organic Cotton Tee",
       sku: "TEE-ORG",
-      image: ["https://images.example.com/tee-black.jpg", "https://images.example.com/tee-black-back.jpg"],
+      image: teeParent.definition.images!.map((image) => image.src),
       brand: { "@type": "Brand", name: "Foxy Goods" },
       gtin: "00850006493014",
       url: "https://shop.example.com/p/TEE-ORG",

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { expect, waitFor } from "storybook/test";
-import { FIXTURE_STORE, stubCatalog } from "@/lib/products/fixtures";
+import { FIXTURE_STORE, fieldJacket, fixtureProducts, stubCatalog } from "@/lib/products/fixtures";
 import "./element";
 
 function render(attributes: Record<string, string> = {}): HTMLElement {
@@ -47,6 +47,14 @@ export const WithVariantPricesCountAndSort: Story = {
     await waitFor(() =>
       expect(canvasElement.querySelector(".foxy-product-price")?.textContent).toBe("$24.95 – $26.95"),
     );
+  },
+};
+
+export const SeveralTiles: Story = {
+  beforeEach: () => stubCatalog([fieldJacket, ...fixtureProducts]).restore,
+  render: () => render({ limit: "6", "show-count": "" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelectorAll("foxy-product-tile")).toHaveLength(6));
   },
 };
 

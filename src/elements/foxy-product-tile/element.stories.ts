@@ -20,7 +20,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "One product in a grid. The catalog answers from fixtures; their image URLs don't resolve, so the image area shows its placeholder background.",
+          "One product in a grid. The catalog answers from fixtures, with placeholder photos.",
       },
     },
   },

@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { expect, waitFor } from "storybook/test";
-import { FIXTURE_STORE, stubCatalog } from "@/lib/products/fixtures";
+import { FIXTURE_STORE, fieldJacket, fixtureProducts, stubCatalog } from "@/lib/products/fixtures";
 import "./element";
 
-function render(attributes: Record<string, string>): HTMLElement {
+function render(attributes: Record<string, string>, maxWidth = ""): HTMLElement {
   const element = document.createElement("foxy-product-page");
   element.setAttribute("store", FIXTURE_STORE);
   element.setAttribute("currency", "USD");
   for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, value);
+  element.style.maxWidth = maxWidth;
   const holder = document.createElement("div");
   holder.style.cssText = "padding: 32px 16px; background: #EEEEEE";
   holder.append(element);
@@ -15,6 +16,10 @@ function render(attributes: Record<string, string>): HTMLElement {
 }
 
 const button = (canvas: HTMLElement) => canvas.querySelector("button[type=submit]")?.textContent;
+const tabs = (canvas: HTMLElement) => [...canvas.querySelectorAll(".foxy-product-tab")].map((tab) => tab.textContent);
+const accordion = (canvas: HTMLElement) =>
+  [...canvas.querySelectorAll(".foxy-product-section-title")].map((title) => title.textContent);
+const jacketSections = ["Features", "Size & fit", "Care", "Shipping & returns", "Details"];
 
 const meta = {
   title: "foxy-product-page",
@@ -23,11 +28,11 @@ const meta = {
     docs: {
       description: {
         component:
-          "A whole product page. The catalog answers from fixtures; their image URLs don't resolve, so the photo areas show their placeholder background.",
+          "A whole product page. The catalog answers from fixtures, with placeholder photos. The field jacket has everything filled in: sections, a photo per colour, a sale price in three currencies, modifiers and low stock.",
       },
     },
   },
-  beforeEach: () => stubCatalog().restore,
+  beforeEach: () => stubCatalog([...fixtureProducts, fieldJacket]).restore,
 } satisfies Meta;
 
 export default meta;
@@ -67,4 +72,41 @@ export const SoldOut: Story = {
 export const Look: Story = {
   render: () =>
     render({ sku: "TEE-ORG", "accent-color": "#2B4C7E", "button-color": "#2B4C7E", "button-radius": "8", font: "serif" }),
+};
+
+export const DescriptionAsTabs: Story = {
+  render: () => render({ sku: "JKT-WAX", "description-layout": "tabs", "collection-href": "#/collections/{id}" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(tabs(canvasElement)).toEqual(jacketSections));
+  },
+};
+
+export const DescriptionAsAccordion: Story = {
+  render: () => render({ sku: "JKT-WAX", "description-layout": "accordion" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(accordion(canvasElement)).toEqual(jacketSections));
+  },
+};
+
+/** `auto` picks tabs when the page is wide and an accordion when it's narrow, as here. */
+export const DescriptionAutoWhenNarrow: Story = {
+  render: () => render({ sku: "JKT-WAX" }, "420px"),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(accordion(canvasElement)).toEqual(jacketSections));
+  },
+};
+
+export const VariantOnSaleRunningLow: Story = {
+  render: () => render({ sku: "JKT-WAX", value: "color=Olive&size=M" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(button(canvasElement)).toBe("Add to cart · $189.00"));
+    await expect(canvasElement.querySelector(".foxy-product-note")?.textContent).toBe("Only 3 left");
+  },
+};
+
+export const OtherCurrency: Story = {
+  render: () => render({ sku: "JKT-WAX", currency: "GBP", lang: "en-GB", value: "color=Navy&size=XL" }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(button(canvasElement)).toBe("Add to cart · £167.50"));
+  },
 };

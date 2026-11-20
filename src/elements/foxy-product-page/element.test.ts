@@ -68,7 +68,7 @@ describe("foxy-product-page", () => {
     const thumbs = [...element.querySelectorAll<HTMLButtonElement>(".foxy-product-thumbs button")];
     expect(thumbs.map((b) => b.getAttribute("aria-label"))).toEqual(["Show photo 1", "Show photo 2"]);
     await userEvent.click(thumbs[1]);
-    expect(element.querySelector<HTMLImageElement>(".foxy-product-hero img")?.src).toContain("tee-black-back.jpg");
+    expect(element.querySelector<HTMLImageElement>(".foxy-product-hero img")?.src).toBe(teeParent.definition.images![1].src);
     const current = element.querySelectorAll(".foxy-product-thumbs button")[1];
     expect(current.getAttribute("aria-current")).toBe("true");
     expect(document.activeElement).toBe(current);
@@ -78,7 +78,7 @@ describe("foxy-product-page", () => {
     const element = await mount(`sku="TEE-ORG"`);
     const thumbs = [...element.querySelectorAll<HTMLButtonElement>(".foxy-product-thumbs button")];
     thumbs[1].dispatchEvent(new PointerEvent("pointerenter"));
-    expect(element.querySelector<HTMLImageElement>(".foxy-product-hero img")?.src).toContain("tee-black-back.jpg");
+    expect(element.querySelector<HTMLImageElement>(".foxy-product-hero img")?.src).toBe(teeParent.definition.images![1].src);
     // The thumbnails weren't rebuilt, or the hover would end.
     expect(element.querySelectorAll(".foxy-product-thumbs button")[1]).toBe(thumbs[1]);
     thumbs[0].focus();

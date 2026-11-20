@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { expect, waitFor } from "storybook/test";
-import { FIXTURE_STORE, stubCatalog } from "@/lib/products/fixtures";
+import { FIXTURE_STORE, fieldJacket, fixtureProducts, stubCatalog } from "@/lib/products/fixtures";
 import "./element";
 
 function render(attributes: Record<string, string | true>): HTMLElement {
@@ -29,7 +29,7 @@ const meta = {
       },
     },
   },
-  beforeEach: () => stubCatalog().restore,
+  beforeEach: () => stubCatalog([...fixtureProducts, fieldJacket]).restore,
 } satisfies Meta;
 
 export default meta;
@@ -59,6 +59,15 @@ export const VariantWithItsOwnModifiers: Story = {
   render: () => render({ sku: "TEE-ORG", value: "color=Natural&size=L" }),
   play: async ({ canvasElement }) => {
     await waitFor(() => expect(sent(canvasElement)).toEqual(["sku=TEE-ORG", "color=Natural", "size=L"]));
+  },
+};
+
+export const OnSaleWithModifiers: Story = {
+  render: () => render({ sku: "JKT-WAX", value: "color=Tobacco&size=M", "show-quantity": true }),
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(sent(canvasElement)).toEqual(["sku=JKT-WAX", "color=Tobacco", "size=M", "gift_box=No"]),
+    );
   },
 };
 
