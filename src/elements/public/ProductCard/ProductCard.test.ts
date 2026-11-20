@@ -122,6 +122,23 @@ describe('ProductCard', () => {
       expect(await getByTestId(element, 'price')).to.exist;
     });
 
+    it("formats the price with its currency's own decimals, as currency-display says", async () => {
+      const element = await renderWith({
+        id: 0,
+        compiled_definition: undefined,
+        definition: { price: '1200' },
+      } as any);
+      element.currencyCode = 'JPY';
+      await element.requestUpdate();
+      expect((await getByTestId(element, 'price'))?.textContent?.trim()).to.equal('¥1,200');
+
+      element.currencyCode = 'KWD';
+      element.currencyDisplay = 'code';
+      element.data = { ...element.data!, definition: { price: '1.235' } } as Data;
+      await element.requestUpdate();
+      expect((await getByTestId(element, 'price'))?.textContent?.trim()).to.equal('KWD\u00a01.235');
+    });
+
     it('omits the price element when definition.price is undefined', async () => {
       const element = await renderWith({ id: 0, definition: { price: undefined } as any });
       expect(await getByTestId(element, 'price')).to.not.exist;

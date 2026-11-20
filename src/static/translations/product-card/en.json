@@ -4,7 +4,6 @@
     "loading_empty": "No data",
     "loading_error": "Unknown error"
   },
-  "price": "{{amount, price}}",
   "type_standalone": "Standalone",
   "type_parent": "Parent",
   "type_variant": "Variant",

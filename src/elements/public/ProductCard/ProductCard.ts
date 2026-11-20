@@ -6,7 +6,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { STOCK_COLORS, productStockState } from '../ProductList/listing';
+import { STOCK_COLORS, formatPrice, productStockState } from '../ProductList/listing';
 import { html } from 'lit-html';
 
 const NS = 'product-card';
@@ -73,7 +73,7 @@ export class ProductCard extends Base<Data> {
         <div class="flex-1 min-w-0">
           <div class="flex items-center" style="gap: 0.5rem">
             <div class="flex-1 min-w-0 truncate text-m font-medium" data-testid="name">${name}</div>
-            ${def.price !== undefined ? this.__renderPrice(def.price) : ''}
+            ${this.__renderPrice(Number(def.price ?? NaN))}
           </div>
 
           <div
@@ -132,16 +132,11 @@ export class ProductCard extends Base<Data> {
     `;
   }
 
-  private __renderPrice(price: number | string): TemplateResult {
-    const amount = this.currencyCode ? `${price} ${this.currencyCode}` : `${price}`;
+  private __renderPrice(price: number): TemplateResult | string {
+    if (!Number.isFinite(price)) return '';
     return html`
       <span class="text-m text-tertiary whitespace-nowrap" data-testid="price">
-        <foxy-i18n
-          infer=""
-          key="price"
-          .options=${{ amount, currencyDisplay: this.currencyDisplay }}
-        >
-        </foxy-i18n>
+        ${formatPrice(price, this.currencyCode, this.lang, this.currencyDisplay)}
       </span>
     `;
   }

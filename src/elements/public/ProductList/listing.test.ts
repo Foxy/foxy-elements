@@ -66,6 +66,8 @@ describe('ProductList', () => {
       const mug = groupProducts(catalog())[1];
       expect(formatPriceRange(priceRange(mug), 'USD', 'en')).to.equal('$16.40');
       expect(formatPriceRange(priceRange(mug), null, 'en')).to.equal('16.40');
+      expect(formatPriceRange([1200, 1450], 'JPY', 'en')).to.equal('¥1,200 – ¥1,450');
+      expect(formatPriceRange([1.235, 1.235], 'KWD', 'en')).to.equal('KWD\u00a01.235');
       const template = groupProducts(catalog())[4];
       expect(priceRange(template)).to.equal(null);
     });

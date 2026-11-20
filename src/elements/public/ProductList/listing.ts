@@ -226,12 +226,36 @@ export function matchesQuery(group: ProductGroup, query: string): boolean {
   );
 }
 
-export function formatPrice(amount: number, currency: string | null, lang: string): string {
-  const options = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+/**
+ * Formats amounts in `currency` with that currency's own decimals ("¥1,200",
+ * "KWD 1.235"). `null` when the code or `lang` isn't one Intl knows.
+ */
+export function currencyFormat(
+  currency: string,
+  lang: string,
+  currencyDisplay: 'symbol' | 'narrowSymbol' | 'code' | 'name' = 'symbol'
+): Intl.NumberFormat | null {
   try {
-    return currency
-      ? amount.toLocaleString(lang || undefined, { ...options, style: 'currency', currency })
-      : amount.toLocaleString(lang || undefined, options);
+    return new Intl.NumberFormat(lang || undefined, { style: 'currency', currency, currencyDisplay });
+  } catch {
+    return null;
+  }
+}
+
+/** An amount in `currency`; without a known currency, a number with two decimals. */
+export function formatPrice(
+  amount: number,
+  currency: string | null,
+  lang: string,
+  currencyDisplay?: 'symbol' | 'narrowSymbol' | 'code' | 'name'
+): string {
+  const format = currency ? currencyFormat(currency, lang, currencyDisplay) : null;
+  if (format) return format.format(amount);
+  try {
+    return amount.toLocaleString(lang || undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   } catch {
     return amount.toFixed(2);
   }
