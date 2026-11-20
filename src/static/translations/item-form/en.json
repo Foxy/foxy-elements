@@ -163,6 +163,9 @@
     }
   },
   "actions": {
+    "product": {
+      "label": "View product"
+    },
     "download": {
       "label": "Download file"
     },

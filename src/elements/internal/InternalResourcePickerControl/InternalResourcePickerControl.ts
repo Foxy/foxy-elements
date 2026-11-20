@@ -28,6 +28,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
       virtualHost: {},
       getItemUrl: { attribute: false },
       formProps: { type: Object },
+      searchFields: { type: Array, attribute: 'search-fields' },
       filters: { type: Array },
       extendFilter: { type: Function, attribute: false },
       layout: {},
@@ -47,6 +48,9 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   getItemUrl: ((href: string, data: unknown | null) => string) | null = null;
 
   formProps: Record<string, unknown> = {};
+
+  /** The fields a search box in the dialog looks in as the user types. No box without them. */
+  searchFields: string[] = [];
 
   filters: Option[] = [];
 
@@ -81,6 +85,7 @@ export class InternalResourcePickerControl extends InternalEditableControl {
   renderControl(): TemplateResult {
     const dialogProps = {
       ...this.formProps,
+      ...(this.searchFields.length ? { '.searchFields': this.searchFields } : {}),
       '.selectionProps': {
         '.extendFilter': this.extendFilter,
         '.filters': this.filters,
@@ -147,9 +152,10 @@ export class InternalResourcePickerControl extends InternalEditableControl {
     return html`
       <div class="leading-xs">
         <div class="flex items-center gap-xs">
-          <div class="text-m text-body whitespace-nowrap flex-1">${this.label}</div>
+          <div class="text-m text-body whitespace-nowrap flex-1" part="label">${this.label}</div>
 
           <button
+            part="value"
             aria-label=${this.t('select')}
             class=${classMap({
               'text-right min-w-0 transition-colors transition-opacity': true,

@@ -1134,4 +1134,69 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  products: (query, dataset) => ({
+    id: increment('products', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    sku: '',
+    product_type: 'standalone',
+    inherit_from_id: query.get('inherit_from_id')
+      ? parseInt(query.get('inherit_from_id') as string)
+      : null,
+    definition: {},
+    option_values: null,
+    hidden: false,
+    stock_level: null,
+    stock_level_initial: null,
+    variant_count: 0,
+    collection_id: null,
+    deleted_at: null,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  product_collections: (query, dataset) => ({
+    id: increment('product_collections', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    parent_id: query.get('parent_id') ? parseInt(query.get('parent_id') as string) : null,
+    name: '',
+    slug: '',
+    path: '',
+    image: null,
+    sort_order: 0,
+    item_category_uri: null,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  product_tags: (query, dataset) => ({
+    id: increment('product_tags', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    product_id: parseInt(query.get('product_id') ?? '0'),
+    tag: '',
+    date_created: new Date().toISOString(),
+  }),
+
+  product_stock_rules: (query, dataset) => ({
+    id: increment('product_stock_rules', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    source_product_id: parseInt(query.get('source_product_id') ?? '0'),
+    target_product_id: parseInt(query.get('target_product_id') ?? '0'),
+    multiplier: 1,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  product_logs: (query, dataset) => ({
+    id: increment('product_logs', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    product_id: parseInt(query.get('product_id') ?? '0'),
+    transaction_id: null,
+    type: 'created',
+    source: 'mit_admin',
+    changes: null,
+    error_message: null,
+    details: null,
+    date_created: new Date().toISOString(),
+  }),
 };

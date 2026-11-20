@@ -7,6 +7,7 @@ import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { createRouter } from '../../../server/index';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ItemForm } from './ItemForm';
+import { Dialog } from '../../private/Dialog/Dialog';
 import { html } from 'lit-html';
 import { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import { getTestData } from '../../../testgen/getTestData';
@@ -232,6 +233,78 @@ describe('ItemForm', () => {
     const renderHeaderMethod = stub(form, 'renderHeader');
     form.render();
     expect(renderHeaderMethod).to.have.been.called;
+  });
+
+  it('links an item added from a Foxy product to that product, given its page', async () => {
+    const router = createRouter();
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/1"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    const link = () => element.renderRoot.querySelector('a[data-testid="product-link"]');
+    element.getProductPageHref = href => `/products/${href.split('/').pop()}`;
+    await element.requestUpdate();
+    expect(link()).to.not.exist;
+
+    const data = JSON.parse(JSON.stringify(element.data));
+    data._links['fx:product'] = { href: 'https://demo.api/hapi/products/5630' };
+    element.data = data;
+    await element.requestUpdate();
+    expect(link()).to.have.attribute('href', '/products/5630');
+
+    element.getProductPageHref = null;
+    await element.requestUpdate();
+    expect(link()).to.not.exist;
+  });
+
+  it('closes the dialog it is in when the product link is followed, but not when it opens elsewhere', async () => {
+    const router = createRouter();
+    const element = await fixture<ItemForm>(
+      html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/1"
+          .getProductPageHref=${(href: string) => `/products/${href.split('/').pop()}`}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+          @click=${(evt: Event) => evt.preventDefault()}
+        >
+        </foxy-item-form>
+      `
+    );
+
+    await waitUntil(() => element.in({ idle: 'snapshot' }));
+    const data = JSON.parse(JSON.stringify(element.data));
+    data._links['fx:product'] = { href: 'https://demo.api/hapi/products/5630' };
+    element.data = data;
+    await element.requestUpdate();
+
+    const dialog = { hide: stub() };
+    Dialog.openDialogs.unshift(dialog as unknown as Dialog);
+
+    try {
+      const link = element.renderRoot.querySelector('a[data-testid="product-link"]')!;
+      const click = (init: MouseEventInit) =>
+        link.dispatchEvent(
+          new MouseEvent('click', { bubbles: true, cancelable: true, composed: true, ...init })
+        );
+
+      click({ metaKey: true });
+      click({ ctrlKey: true });
+      click({ shiftKey: true });
+      click({ button: 1 });
+      expect(dialog.hide).to.not.have.been.called;
+
+      click({});
+      expect(dialog.hide).to.have.been.calledOnce;
+    } finally {
+      Dialog.openDialogs.shift();
+    }
   });
 
   it('does not render header actions when item has no downloadable purchase', async () => {

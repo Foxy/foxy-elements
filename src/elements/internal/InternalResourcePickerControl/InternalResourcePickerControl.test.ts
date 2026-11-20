@@ -597,6 +597,67 @@ describe('InternalResourcePickerControl', () => {
     });
   });
 
+  it('passes the fields to search to the dialog form, which shows a search box for them', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-resource-picker-control .searchFields=${['name', 'path']}>
+      </foxy-internal-resource-picker-control>
+    `);
+    const dialog = control.renderRoot.querySelector('foxy-form-dialog') as FormDialog;
+    expect(dialog.props['.searchFields']).to.deep.equal(['name', 'path']);
+  });
+
+  it('narrows the dialog list to what is typed, in any of the fields to search', async () => {
+    const form = await fixture<Form>(html`
+      <foxy-internal-resource-picker-control-form
+        .searchFields=${['name', 'path']}
+        .selectionProps=${{
+          '.extendFilter': (params: URLSearchParams) => params.set('order', 'path asc'),
+        }}
+      >
+      </foxy-internal-resource-picker-control-form>
+    `);
+    const list = form.renderRoot.querySelector(
+      'foxy-internal-async-list-control'
+    ) as HTMLElement & {
+      extendFilter: (params: URLSearchParams) => void;
+    };
+    const query = () => {
+      const params = new URLSearchParams();
+      list.extendFilter(params);
+      return params.toString();
+    };
+    const search = form.renderRoot.querySelector<HTMLInputElement>('[data-testid="search"]')!;
+
+    expect(search).to.have.attribute('aria-label', 'search');
+    expect(query()).to.equal('order=path+asc');
+
+    // Typing waits for a pause; Enter doesn't.
+    search.value = 'sin*gle|';
+    search.dispatchEvent(new Event('input'));
+    await form.requestUpdate();
+    expect(query()).to.equal('order=path+asc');
+
+    await waitUntil(() => query() !== 'order=path+asc');
+    expect(new URLSearchParams(query()).get('name')).to.equal('*single*|path=*single*');
+
+    search.value = 'decaf';
+    search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    await form.requestUpdate();
+    expect(new URLSearchParams(query()).get('name')).to.equal('*decaf*|path=*decaf*');
+
+    search.value = '';
+    search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    await form.requestUpdate();
+    expect(query()).to.equal('order=path+asc');
+  });
+
+  it('shows no search box in the dialog without fields to search', async () => {
+    const form = await fixture<Form>(html`
+      <foxy-internal-resource-picker-control-form></foxy-internal-resource-picker-control-form>
+    `);
+    expect(form.renderRoot.querySelector('[data-testid="search"]')).to.not.exist;
+  });
+
   it('clicks button when clicking outside BUTTON in summary-item layout', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-resource-picker-control

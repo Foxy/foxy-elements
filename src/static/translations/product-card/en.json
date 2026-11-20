@@ -1,0 +1,20 @@
+{
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  },
+  "type_standalone": "Standalone",
+  "type_parent": "Parent",
+  "type_variant": "Variant",
+  "type_template": "Template",
+  "uses_template": "Uses a template",
+  "starting_stock": "Starting stock: {{count}}",
+  "hidden": "Hidden",
+  "stock_in_stock": "In stock",
+  "stock_low_stock": "Low stock",
+  "stock_out_of_stock": "Out of stock",
+  "stock_untracked": "Untracked",
+  "variant_count": "{{count}} variant",
+  "variant_count_plural": "{{count}} variants"
+}

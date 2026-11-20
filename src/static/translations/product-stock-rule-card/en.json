@@ -1,0 +1,9 @@
+{
+  "multiplier": "× {{count}}",
+  "multiplier_zero": "Doesn't count against stock",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}

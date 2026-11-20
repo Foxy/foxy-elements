@@ -31,11 +31,11 @@ describe('utils/invitation-scope', () => {
       expect(parseScope('store_full_access').preset).to.equal('store');
     });
 
-    it('recognises exactly all 20 reads as the read preset', () => {
+    it('recognises exactly all 21 reads as the read preset', () => {
       expect(parseScope(allReads).preset).to.equal('read');
     });
 
-    it('does not treat all 20 reads plus anything else as the read preset', () => {
+    it('does not treat all 21 reads plus anything else as the read preset', () => {
       expect(parseScope(`${allReads} transactions_resend`).preset).to.equal('custom');
       expect(parseScope(`${allReads} customers_write`).preset).to.equal('custom');
     });

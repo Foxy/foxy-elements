@@ -193,6 +193,8 @@ export const links: Links = {
     'fx:hosted_payment_gateways': { href: `./hosted_payment_gateways?store_id=${id}` },
     'fx:customer_portal_settings': { href: `./customer_portal_settings/${cps_id}` },
     'fx:process_subscription_webhook': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:products': { href: `./products?store_id=${id}` },
+    'fx:product_collections': { href: `./product_collections?store_id=${id}` },
   }),
 
   items: ({
@@ -613,5 +615,49 @@ export const links: Links = {
     'fx:downloadable': { href: `./downloadables/${downloadable_id}` },
     'fx:reset_usage': { href: 'https://demo.api/virtual/empty?status=200' },
     'fx:download_url': { href: 'about:blank' },
+  }),
+
+  products: ({ id, store_id, inherit_from_id, collection_id, definition }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:product_variants': { href: `./products?inherit_from_id=${id}&product_type=variant` },
+    'fx:product_stock_rules': { href: `./product_stock_rules?source_product_id=${id}` },
+    'fx:product_tags': { href: `./product_tags?product_id=${id}` },
+    'fx:product_logs': { href: `./product_logs?product_id=${id}` },
+    ...(collection_id != null
+      ? { 'fx:product_collection': { href: `./product_collections/${collection_id}` } }
+      : {}),
+    ...(inherit_from_id != null
+      ? { 'fx:parent_product': { href: `./products/${inherit_from_id}` } }
+      : {}),
+    ...((definition as { options?: unknown[] } | undefined)?.options?.length
+      ? { 'fx:generate_variants': { href: `./products/${id}/generate_variants` } }
+      : {}),
+  }),
+
+  product_collections: ({ id, store_id, parent_id, item_category_uri }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:products': { href: `./products?store_id=${store_id}&collection_id=${id}` },
+    ...(parent_id != null
+      ? { 'fx:parent_collection': { href: `./product_collections/${parent_id}` } }
+      : {}),
+    ...(typeof item_category_uri === 'string' && item_category_uri
+      ? { 'fx:item_category': { href: item_category_uri } }
+      : {}),
+  }),
+
+  product_tags: ({ store_id, product_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:product': { href: `./products/${product_id}` },
+  }),
+
+  product_stock_rules: ({ store_id, source_product_id, target_product_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:source_product': { href: `./products/${source_product_id}` },
+    'fx:target_product': { href: `./products/${target_product_id}` },
+  }),
+
+  product_logs: ({ store_id, product_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:product': { href: `./products/${product_id}` },
   }),
 };

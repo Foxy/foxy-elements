@@ -249,6 +249,7 @@ describe('UserInvitationCard', () => {
             integrations: 'integrations',
             item_categories: 'item categories',
             payment_settings: 'payment settings',
+            products: 'products',
             reporting: 'reports',
             shipping_integrations: 'shipping integrations',
             shipping_settings: 'shipping settings',

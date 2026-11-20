@@ -1,0 +1,190 @@
+import type {
+  CollectionGraphLinks,
+  CollectionGraphProps,
+} from '@foxy.io/sdk/dist/types/core/defaults';
+
+import type { Graph, Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+
+// =============================================================================
+// definition.* shape
+// =============================================================================
+
+export interface ProductDefinitionImage {
+  src: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+}
+
+/** An option's value. Only `value` is required; `label` and `sku_code` fall back to it. */
+export interface ProductOptionValue {
+  /** What a form sends and the order records. */
+  value: string;
+  /** What the shopper sees. */
+  label?: string;
+  /** The value's part of a generated SKU. */
+  sku_code?: string;
+  /** Swatch color, `#rgb` or `#rrggbb`. */
+  color?: string;
+  /** Swatch image, shown in place of the color when both are set. */
+  image?: { src: string; alt?: string };
+  /** Added to the price of a variant that doesn't set its own, in the store's currency. */
+  price_mod?: number | string;
+  /** Amounts for other currencies, keyed by ISO 4217 code. */
+  price_mods?: Record<string, string>;
+  weight_mod?: number;
+}
+
+/** A choice that makes variants: each variant names one value for every option of its parent. */
+export interface ProductOption {
+  name: string;
+  label?: string;
+  values: ProductOptionValue[];
+}
+
+export interface ProductModifierValue {
+  value: string;
+  label?: string;
+  price_mod?: number | string;
+  price_mods?: Record<string, string>;
+  weight_mod?: number;
+  /** An item category code that replaces the item's category when this value is chosen. */
+  category_code?: string;
+}
+
+/** A shopper's choice recorded on the cart item, without changing which product it is. */
+export interface ProductModifier {
+  name: string;
+  label?: string;
+  type: 'select' | 'text';
+  required?: boolean;
+  /** `text` only. */
+  max_length?: number;
+  /** `text` only: applies when the shopper enters a value. */
+  price_mod?: number | string;
+  price_mods?: Record<string, string>;
+  weight_mod?: number;
+  /** `select` only. */
+  values?: ProductModifierValue[];
+}
+
+/** Removes the inherited modifier of that name. */
+export interface ProductModifierRemoval {
+  name: string;
+  remove: true;
+}
+
+/**
+ * Free-form `definition` JSON blob on a Product resource. Every field is
+ * optional from the API's perspective — products are created lazily and
+ * inherit from parents/templates. Field meanings are in the API's product
+ * resource documentation.
+ */
+export interface ProductDefinition {
+  name?: string;
+  /** Price in the store's currency. The API stores what it's sent: a string or a number. */
+  price?: number | string;
+  /** Strikethrough/compare-at price for "$25 ~~$30~~" presentation. */
+  list_price?: number | string;
+  /** Per-currency price overrides keyed by ISO 4217 code. */
+  prices?: Record<string, string>;
+  /** Per-currency list prices keyed by ISO 4217 code. */
+  list_prices?: Record<string, string>;
+  description?: string;
+  images?: ProductDefinitionImage[];
+  brand?: string;
+  gtin?: string;
+  mpn?: string;
+  /** Facts shown on the product page and used by catalog filters. Never added to the cart. */
+  properties?: Record<string, string | string[]>;
+  /** Declared on a parent or standalone only. */
+  options?: ProductOption[];
+  /** Merged by name with the inherited modifiers rather than replacing them. */
+  modifiers?: (ProductModifier | ProductModifierRemoval)[];
+  meta_title?: string;
+  meta_description?: string;
+  weight?: number;
+  /** Stock at or below this is low for this product, in place of the store's number. */
+  low_stock_threshold?: number | null;
+  /** Foxy billing/shipping category code (separate from Foxy Products taxonomy). */
+  category_code?: string;
+  subscription_frequency?: string;
+  subscription_start_date?: string;
+  subscription_end_date?: string;
+  /** Per-locale overrides for description, alt text, etc. */
+  translations?: Record<string, Partial<ProductDefinition>>;
+}
+
+// =============================================================================
+// Product graph
+// =============================================================================
+
+export type ProductType = 'standalone' | 'parent' | 'variant' | 'template';
+
+export interface Products extends Graph {
+  curie: 'fx:products';
+  links: CollectionGraphLinks<Products>;
+  props: CollectionGraphProps;
+  child: Product;
+}
+
+export interface Product extends Graph {
+  curie: 'fx:product';
+
+  links: {
+    'self': Product;
+    'fx:store': Rels.Store;
+    'fx:product_variants': Products;
+    'fx:product_stock_rules': ProductStockRules;
+    'fx:product_tags': ProductTags;
+    'fx:product_logs': ProductLogs;
+    'fx:product_collection': import('../ProductCollectionForm/types').ProductCollection;
+    'fx:parent_product': Product;
+    /** Present on a product with options. */
+    'fx:generate_variants'?: any;
+    /** Present only when the token may upload images. */
+    'fx:create_upload_url'?: any;
+  };
+
+  props: {
+    id: number;
+    sku: string;
+    product_type: ProductType;
+    /** ID of the parent product when this is a variant, or the inherited template. */
+    inherit_from_id: number | null;
+    definition: ProductDefinition;
+    /** A variant's value for each of its parent's options; `null` for any other product. */
+    option_values?: Record<string, string> | null;
+    /** Left out of the public catalog's lists, but still sold and still found by SKU. */
+    hidden?: boolean;
+    /** `definition` with inheritance applied, maintained by the API. */
+    compiled_definition: ProductDefinition;
+    /** `null` means the product is not stock-tracked (always available). */
+    stock_level: number | null;
+    /** Starting stock level for "duplicate and reset" recurring-event workflows. */
+    stock_level_initial: number | null;
+    /** Number of active variants under this product. Read-only. */
+    variant_count: number;
+    /** ID of the product collection the product is in; not an item category. */
+    collection_id: number | null;
+    /** When the product was deleted; `null` while it is active. */
+    deleted_at: string | null;
+    date_created: string | null;
+    date_modified: string | null;
+  };
+}
+
+// =============================================================================
+// Imports forward-declared above
+// =============================================================================
+//
+// We import ProductCollection only as a type reference inside the Product `_links`
+// to avoid pulling the runtime definition. Same for ProductLogs and ProductTags
+// — they live in their own siblings' types.ts.
+
+import type { ProductStockRules } from '../ProductStockRuleForm/types';
+import type { ProductTags } from '../ProductTagForm/types';
+import type { ProductLogs } from '../ProductLogCard/types';
+
+export type Data = Resource<Product>;

@@ -1,0 +1,140 @@
+{
+  "header": {
+    "title_existing": "Collection",
+    "title_new": "New collection",
+    "subtitle": "",
+    "copy-id": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy ID",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    },
+    "copy-json": {
+      "failed_to_copy": "Failed to copy",
+      "click_to_copy": "Copy source as JSON",
+      "copying": "Copying...",
+      "done": "Copied to clipboard"
+    }
+  },
+  "general": {
+    "label": "",
+    "helper_text": "",
+    "name": {
+      "label": "Name",
+      "placeholder": "e.g. Apparel",
+      "helper_text": "",
+      "v8n_required": "Required.",
+      "v8n_too_long": "Must be 255 characters or fewer."
+    },
+    "slug": {
+      "label": "Slug",
+      "placeholder": "e.g. apparel",
+      "helper_text": "Lowercase, alphanumeric with hyphens (kebab-case).",
+      "v8n_required": "Required.",
+      "v8n_too_long": "Must be 255 characters or fewer.",
+      "v8n_invalid": "Use lowercase letters, numbers, and hyphens only."
+    },
+    "parent": {
+      "label": "Parent collection",
+      "placeholder": "Choose a parent (optional)",
+      "helper_text": "Leave blank for a root collection.",
+      "value": "{{ resource.name }}",
+      "value_busy": "Loading…",
+      "value_fail": "Unknown collection",
+      "select": "Select",
+      "clear": "Clear",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select a parent collection",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No collections found",
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
+              }
+            }
+          }
+        }
+      }
+    },
+    "item-category": {
+      "label": "Item category",
+      "placeholder": "Store default",
+      "helper_text": "Products in this collection use this category unless they set their own or inherit one from a template.",
+      "value": "{{ resource.name }}",
+      "value_busy": "Loading…",
+      "value_fail": "Unknown category",
+      "select": "Select",
+      "clear": "Clear",
+      "dialog": {
+        "cancel": "Cancel",
+        "close": "Close",
+        "header": "Select an item category",
+        "search": "Find a category by name or code",
+        "selection": {
+          "label": "",
+          "helper_text": "",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "page_number": "Page number:",
+            "select": "Select",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No item categories found",
+                "loading_error": "Unknown error",
+                "loading_access_denied": "Access denied"
+              }
+            }
+          }
+        }
+      }
+    },
+    "sort-order": {
+      "label": "Sort order",
+      "placeholder": "0",
+      "helper_text": "Lower numbers appear first."
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "create": {
+    "caption": "Create"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Delete this collection? Collections with children or assigned products cannot be deleted."
+  },
+  "submit": {
+    "caption": "Save changes"
+  },
+  "undo": {
+    "caption": "Undo"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Unknown error"
+  }
+}

@@ -32,6 +32,10 @@ export const groups = [
     files: './src/elements/internal/InternalCheckboxGroupControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-color-picker',
+    files: './src/elements/internal/InternalColorPicker/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-confirm-dialog',
     files: './src/elements/internal/InternalConfirmDialog/**/*.test.ts',
   },
@@ -510,6 +514,50 @@ export const groups = [
   {
     name: 'foxy-passkey-form',
     files: './src/elements/public/PasskeyForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-card',
+    files: './src/elements/public/ProductCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-collection-card',
+    files: './src/elements/public/ProductCollectionCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-collection-form',
+    files: './src/elements/public/ProductCollectionForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-form',
+    files: './src/elements/public/ProductForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-inventory',
+    files: './src/elements/public/ProductInventory/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-list',
+    files: './src/elements/public/ProductList/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-log-card',
+    files: './src/elements/public/ProductLogCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-stock-rule-card',
+    files: './src/elements/public/ProductStockRuleCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-stock-rule-form',
+    files: './src/elements/public/ProductStockRuleForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-tag-card',
+    files: './src/elements/public/ProductTagCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-product-tag-form',
+    files: './src/elements/public/ProductTagForm/**/*.test.ts',
   },
   {
     name: 'foxy-payment-card',

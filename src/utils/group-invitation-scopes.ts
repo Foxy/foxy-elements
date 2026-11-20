@@ -7,7 +7,7 @@
  * namespace (`user-invitation-card`, `user-invitation-form`). Rendering an unlabelled raw
  * token among humanized names looks broken, so omission is the deliberate failure mode.
  *
- * Two of the API's 22 collections are excluded on purpose -- do not "fix" the omission:
+ * Two of the API's 23 collections are excluded on purpose -- do not "fix" the omission:
  *
  * - `clients`: a separate top-level resource that the Foxy admin does not manage.
  *   Sign-in never issues `clients_read`/`clients_write`, so granting them would have
@@ -26,6 +26,7 @@ export const COLLECTIONS = [
   'integrations',
   'item_categories',
   'payment_settings',
+  'products',
   'reporting',
   'shipping_integrations',
   'shipping_settings',
