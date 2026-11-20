@@ -430,3 +430,101 @@ describe("foxy-product-form", () => {
     expect(element.querySelector(".foxy-product-pill")).toBeNull();
   });
 });
+
+describe("foxy-product-form's options", () => {
+  it("gives each radio its value, or the variant's SKU", async () => {
+    const element = await mount(`sku="TEE-ORG" option-style="buttons"`);
+    const values = (set: number) =>
+      [...element.querySelectorAll("fieldset")[set].querySelectorAll<HTMLInputElement>("input[type=radio]")].map((radio) => radio.value);
+    expect(values(0)).toEqual(["Black", "Natural", "Moss"]);
+    expect(values(1)).toEqual(["S", "M", "L", "2XL"]);
+
+    const socks = await mount(`sku="SOCK-WOOL" option-style="rows"`);
+    expect([...socks.querySelectorAll<HTMLInputElement>("input[type=radio]")].map((radio) => radio.value)).toEqual([
+      "SOCK-WOOL-S",
+      "SOCK-WOOL-M",
+      "SOCK-WOOL-L",
+    ]);
+  });
+});
+
+describe("foxy-product-form under a site's theme", () => {
+  // What a site template commonly sets on every button and radio label, as
+  // one did on a demo shop: it comes after the elements' stylesheet here, so
+  // only the weight of their rules keeps it out.
+  const THEME = `
+    button { display: inline-block; max-width: 20rem; height: 3.75em; line-height: 3.75em; padding: 0 2.5em; border-radius: 3.75em;
+      font-size: 0.75rem; letter-spacing: 0.125em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      background-color: transparent; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2); color: #000 !important; }
+    button:hover { color: #47d3e5 !important; }
+    label { display: block; margin: 0 0 1rem; color: #000; font-size: 0.9rem; }
+    input[type="radio"] { display: block; float: left; margin-right: -2rem; opacity: 0; width: 1rem; z-index: -1; }
+    input[type="radio"] + label { display: inline-block; position: relative; padding-left: 2.4rem; padding-right: 0.75rem; font-size: 1rem; font-weight: 300; }
+    input[type="radio"] + label::before { content: ""; position: absolute; left: 0; top: 0; width: 1.65rem; height: 1.65rem; border: 1px solid; border-radius: 100%; }
+    input[type="radio"]:checked + label::before { content: "\\2713"; background-color: #000; }
+  `;
+
+  async function mountThemed(attributes: string): Promise<HTMLElement> {
+    const element = await mount(attributes);
+    document.head.insertAdjacentHTML("beforeend", `<style data-test>${THEME}</style>`);
+    return element;
+  }
+
+  afterEach(() => document.head.querySelector("style[data-test]")?.remove());
+
+  it("keeps its option rows as rows, with its own radio", async () => {
+    const element = await mountThemed(`sku="TEE-ORG" option-style="rows"`);
+    // Choosing rebuilds the controls, so each is looked up after the click.
+    await userEvent.click(element.querySelector<HTMLLabelElement>(".foxy-product-row")!);
+    const row = element.querySelector<HTMLLabelElement>(".foxy-product-radio:checked + .foxy-product-row")!;
+    const style = getComputedStyle(row);
+    expect(style.display).toBe("flex");
+    expect(style.paddingLeft).toBe("14px");
+    expect(style.fontSize).toBe("15px");
+    expect(style.position).toBe("static");
+    const dot = getComputedStyle(row, "::before");
+    expect(dot.content).toBe('""');
+    expect(dot.position).toBe("static");
+    expect(dot.width).toBe("18px");
+    expect(dot.borderTopWidth).toBe("6px");
+    expect(dot.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+  });
+
+  it("draws no theme radio on its buttons and swatches", async () => {
+    const element = await mountThemed(`sku="TEE-ORG" option-style="buttons"`);
+    await userEvent.click(element.querySelector<HTMLLabelElement>(".foxy-product-swatch")!);
+    const swatch = element.querySelector<HTMLLabelElement>(".foxy-product-radio:checked + .foxy-product-swatch")!;
+    const pill = element.querySelector<HTMLLabelElement>(".foxy-product-pill")!;
+    expect(getComputedStyle(swatch).display).toBe("flex");
+    expect(getComputedStyle(swatch, "::before").content).toBe("none");
+    // inline-flex, made flex by the flex row it sits in.
+    expect(getComputedStyle(pill).display).toBe("flex");
+    expect(getComputedStyle(pill).paddingLeft).toBe("14px");
+    expect(getComputedStyle(pill, "::before").content).toBe("none");
+    expect(getComputedStyle(element.querySelector(".foxy-product-field-label")!).marginBottom).toBe("0px");
+  });
+
+  it("keeps its buttons' colours, case and size, even against !important", async () => {
+    const element = await mountThemed(`sku="MUG-ENM-WHT" show-quantity`);
+    const add = getComputedStyle(addButton(element));
+    expect(add.color).toBe("rgb(255, 255, 255)");
+    expect(add.backgroundColor).toBe("rgb(17, 24, 39)");
+    expect(add.textTransform).toBe("none");
+    expect(add.whiteSpace).toBe("normal");
+    expect(add.maxWidth).toBe("none");
+    expect(add.boxShadow).toBe("none");
+    expect(parseFloat(add.height)).toBeGreaterThanOrEqual(48);
+
+    const fewer = getComputedStyle(element.querySelector(".foxy-product-stepper button")!);
+    expect(fewer.color).toBe("rgb(75, 85, 99)");
+    expect(fewer.height).toBe("44px");
+    expect(fewer.lineHeight).toBe("18px");
+    expect(fewer.borderRadius).toBe("0px");
+  });
+
+  it("can still be restyled through its variables", async () => {
+    const element = await mountThemed(`sku="MUG-ENM-WHT"`);
+    element.style.setProperty("--foxy-product-button-text-color", "rgb(250, 240, 200)");
+    expect(getComputedStyle(addButton(element)).color).toBe("rgb(250, 240, 200)");
+  });
+});

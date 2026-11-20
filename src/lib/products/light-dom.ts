@@ -204,6 +204,9 @@ const success = v("success-color");
 // A card: the form, a tile, and each panel of the page.
 const card = `border: ${v("card-border")}; border-radius: ${v("card-radius")}; box-shadow: ${v("card-shadow")}; background: ${v("card-bar")} top / 100% 4px no-repeat, ${surface};`;
 const cardPadding = (size: string): string => `var(--foxy-product-card-padding, ${size})`;
+// A faint edge in the text's colour, which contrasts with the card's in every
+// theme, so a colour close to the card's still shows.
+const swatchEdge = "color-mix(in srgb, currentColor 35%, transparent)";
 
 /** The tallest a page's main photo gets: most of the window, so the add button stays in the first screen. */
 export const PHOTO_MAX_HEIGHT = "var(--foxy-product-photo-max-height, min(70vh, 640px))";
@@ -218,6 +221,16 @@ const ELEMENTS =
 // without out-weighing it.
 const themed = (name: string): string =>
   `:is(${ELEMENTS}):where([theme="${name}"], [data-foxy-store-theme="${name}"]:not([theme]))`;
+
+// A site's theme styles every `button` and `input[type=radio] + label`, with
+// rules a class alone doesn't outweigh, and some with `!important` colours.
+// The rules for the controls (buttons, the option labels and the radios
+// behind them) weigh as one ID, through a `:not()` every element passes, and
+// set what such rules commonly change. Their colours and backgrounds are
+// `!important` and follow the variables, so a page changes those only through
+// the variables or with `!important` of its own; anything else, with a rule
+// that has an ID of its own.
+const control = (tags = ELEMENTS): string => `:is(${tags}):not(#foxy-product-none)`;
 
 const THEMES = Object.entries(themes)
   .filter(([name]) => name !== "bold")
@@ -241,7 +254,22 @@ ${themed("dark")} { color-scheme: dark; }
 :is(${ELEMENTS}):where([font="inherit"], [data-foxy-store-font="inherit"]:not([font])) { font-family: inherit; }
 :is(${ELEMENTS}) { font-family: ${font}; color: ${body}; line-height: 1.4; }
 :is(${ELEMENTS}) :where(h1, h2, h3, h4, h5, h6, p, dl, dd, fieldset, legend) { margin: 0; padding: 0; }
+${control()} :where(.foxy-product-field-label, .foxy-product-sort) { float: none; margin: 0; padding: 0; }
+${control()} :where(.foxy-product-field-label) { color: inherit; }
 :is(${ELEMENTS}) :where(button, input, select) { font-family: inherit; }
+/* What themes set on every button, put back; each control's own rule follows. */
+${control()} :where(.foxy-product-button, .foxy-product-tab, .foxy-product-stepper button, .foxy-product-thumbs button) {
+  box-sizing: border-box; width: auto; min-width: 0; max-width: none; height: auto; margin: 0; float: none;
+  border-radius: 0; box-shadow: none; text-shadow: none; font: inherit; line-height: normal; letter-spacing: normal;
+  text-transform: none; text-overflow: clip; white-space: normal; overflow: visible;
+}
+/* And what they set on a label after a radio, including a radio drawn in ::before. */
+${control()} :where(.foxy-product-radio + label) {
+  position: static; float: none; width: auto; max-width: none; height: auto; margin: 0; padding: 0;
+  border: 0; border-radius: 0; box-shadow: none; background: none; color: inherit;
+  font: inherit; line-height: normal; letter-spacing: normal; text-transform: none; text-decoration: none; text-shadow: none;
+}
+${control()} :where(.foxy-product-radio + label)::before, ${control()} :where(.foxy-product-radio + label)::after { content: none; }
 :is(${ELEMENTS}) [hidden]:not([hidden="until-found"]) { display: none !important; }
 :is(${ELEMENTS}) .foxy-product-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 :is(foxy-product-link) { display: inline-block; }
@@ -252,21 +280,21 @@ ${themed("dark")} { color-scheme: dark; }
   background: ${v("backdrop-color")};
 }
 
-:is(${ELEMENTS}) :is(a, button).foxy-product-button {
+${control()} :is(a, button).foxy-product-button {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.35em; box-sizing: border-box;
   min-height: 48px; padding: 0 24px; border: ${v("button-border")}; border-radius: ${buttonRadius};
-  background: ${button}; color: ${onButton}; font-family: ${v("button-font")}; font-size: 15px;
+  background: ${button} !important; color: ${onButton} !important; font-family: ${v("button-font")}; font-size: 15px;
   font-weight: ${v("button-weight")}; line-height: 1.2; letter-spacing: ${v("button-tracking")};
   text-transform: ${v("button-transform")}; text-align: center; text-decoration: none; cursor: pointer;
   transition: opacity 0.15s;
 }
-:is(${ELEMENTS}) :is(a, button).foxy-product-button:is([href], :enabled):hover { opacity: 0.88; }
-:is(${ELEMENTS}) :is(a, button).foxy-product-button:focus-visible { outline: 2px solid ${accent}; outline-offset: 2px; }
-:is(${ELEMENTS}) :is(a, button).foxy-product-button.foxy-product-button-secondary {
-  border: 1px solid ${border}; background: ${surface}; color: ${nameColor};
+${control()} :is(a, button).foxy-product-button:is([href], :enabled):hover { opacity: 0.88; }
+${control()} :is(a, button).foxy-product-button:focus-visible { outline: 2px solid ${accent}; outline-offset: 2px; }
+${control()} :is(a, button).foxy-product-button.foxy-product-button-secondary {
+  border: 1px solid ${border}; background: ${surface} !important; color: ${nameColor} !important;
 }
-:is(${ELEMENTS}) :is(a, button).foxy-product-button:is([aria-disabled="true"], :disabled) {
-  background: var(--foxy-product-disabled-color, ${button}); color: var(--foxy-product-disabled-text-color, ${onButton});
+${control()} :is(a, button).foxy-product-button:is([aria-disabled="true"], :disabled) {
+  background: var(--foxy-product-disabled-color, ${button}) !important; color: var(--foxy-product-disabled-text-color, ${onButton}) !important;
   opacity: var(--foxy-product-disabled-opacity, 0.45); cursor: not-allowed;
 }
 :is(foxy-product-link) a.foxy-product-text-link {
@@ -311,7 +339,7 @@ ${themed("dark")} { color-scheme: dark; }
 :is(foxy-product-tile) .foxy-product-brand { margin-top: -4px; font-size: 13px; }
 :is(foxy-product-tile) .foxy-product-tile-swatches { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
 :is(foxy-product-tile) .foxy-product-tile-swatch {
-  display: block; width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 0 1px ${surface};
+  display: block; width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px ${swatchEdge}, 0 0 0 1px ${surface};
 }
 :is(foxy-product-tile) .foxy-product-tile-more { color: ${muted}; font-size: 12px; line-height: 14px; }
 :is(foxy-product-tile) .foxy-product-name { font-size: 16px; line-height: 1.35; }
@@ -320,7 +348,7 @@ ${themed("dark")} { color-scheme: dark; }
 :is(foxy-product-tile) .foxy-product-tile-price { font-size: var(--foxy-product-price-size, 16px); }
 :is(foxy-product-tile) .foxy-product-note { font-size: 12px; }
 :is(foxy-product-tile) .foxy-product-tile-action { display: flex; margin-top: auto; padding-top: 10px; }
-:is(foxy-product-tile) .foxy-product-tile-action a.foxy-product-button { flex: 1; min-height: 44px; padding: 0 12px; font-size: 14px; }
+${control("foxy-product-tile")} .foxy-product-tile-action a.foxy-product-button { flex: 1; min-height: 44px; padding: 0 12px; font-size: 14px; }
 
 :is(foxy-product-collection) { --foxy-product-tile-aspect: 1 / 1; }
 :is(foxy-product-collection) .foxy-product-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
@@ -335,7 +363,7 @@ ${themed("dark")} { color-scheme: dark; }
 :is(foxy-product-collection) .foxy-product-status { color: ${prose}; font-size: 14px; }
 :is(foxy-product-collection) .foxy-product-more { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 24px; }
 :is(foxy-product-collection) .foxy-product-more:empty { display: none; }
-:is(foxy-product-collection) .foxy-product-more button.foxy-product-button { min-height: 44px; padding: 0 28px; font-size: 14px; }
+${control("foxy-product-collection")} .foxy-product-more button.foxy-product-button { min-height: 44px; padding: 0 28px; font-size: 14px; }
 :is(foxy-product-collection) .foxy-product-showing { color: ${muted}; font-size: 12px; }
 
 :is(foxy-product-form) .foxy-product-form {
@@ -362,7 +390,7 @@ ${themed("dark")} { color-scheme: dark; }
   appearance: none; padding-inline-end: 36px; text-overflow: ellipsis; cursor: pointer;
   background-image: ${v("chevron")}; background-repeat: no-repeat; background-position: right 14px center;
 }
-:is(${ELEMENTS}) .foxy-product-add { width: 100%; }
+${control()} .foxy-product-add { width: 100%; }
 :is(${ELEMENTS}) .foxy-product-input[aria-invalid="true"] { border-color: ${notice}; }
 :is(${ELEMENTS}) .foxy-product-input:focus-visible { outline: 2px solid ${accent}; outline-offset: 1px; }
 :is(${ELEMENTS}) .foxy-product-counter { color: ${muted}; font-size: 12px; text-align: right; }
@@ -371,39 +399,47 @@ ${themed("dark")} { color-scheme: dark; }
 :is(${ELEMENTS}) .foxy-product-option legend { margin-bottom: 10px; font-size: 14px; font-weight: 600; }
 :is(${ELEMENTS}) .foxy-product-values { display: flex; flex-wrap: wrap; gap: 8px; }
 :is(${ELEMENTS}) .foxy-product-values[data-swatches] { gap: 12px; }
-:is(${ELEMENTS}) .foxy-product-radio { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); opacity: 0; }
-:is(${ELEMENTS}) .foxy-product-pill {
+${control()} .foxy-product-radio {
+  position: absolute; float: none; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); opacity: 0;
+}
+${control()} .foxy-product-pill {
   display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
   min-width: 52px; height: 44px; padding: 0 14px; border: 1px solid ${border}; border-radius: ${buttonRadius};
   background: ${surface}; color: ${nameColor}; font-size: 15px; cursor: pointer;
 }
-:is(${ELEMENTS}) .foxy-product-radio:checked + .foxy-product-pill { border-color: ${accent}; background: var(--foxy-product-selected-color, ${accent}); box-shadow: inset 0 0 0 1px ${accent}; color: ${onAccent}; }
-:is(${ELEMENTS}) .foxy-product-radio:disabled + .foxy-product-pill { border-style: dashed; border-color: ${fieldBorder}; background: ${header}; color: ${muted}; cursor: not-allowed; }
-:is(${ELEMENTS}) .foxy-product-radio:focus-visible + :is(.foxy-product-pill, .foxy-product-swatch, .foxy-product-row) { outline: 2px solid ${accent}; outline-offset: 2px; }
-:is(${ELEMENTS}) .foxy-product-swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; color: ${prose}; font-size: 12px; cursor: pointer; }
+${control()} .foxy-product-radio:checked + .foxy-product-pill { border-color: ${accent}; background: var(--foxy-product-selected-color, ${accent}); box-shadow: inset 0 0 0 1px ${accent}; color: ${onAccent}; }
+${control()} .foxy-product-radio:disabled + .foxy-product-pill { border-style: dashed; border-color: ${fieldBorder}; background: ${header}; color: ${muted}; cursor: not-allowed; }
+${control()} .foxy-product-radio:focus-visible + :is(.foxy-product-pill, .foxy-product-swatch, .foxy-product-row) { outline: 2px solid ${accent}; outline-offset: 2px; }
+${control()} .foxy-product-swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; color: ${prose}; font-size: 12px; cursor: pointer; }
 :is(${ELEMENTS}) .foxy-product-swatch-ring { display: block; box-sizing: border-box; width: 48px; height: 48px; padding: 4px; border: 2px solid ${border}; border-radius: 50%; background: ${surface}; }
-:is(${ELEMENTS}) .foxy-product-swatch-dot { display: block; width: 100%; height: 100%; overflow: hidden; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15); }
+:is(${ELEMENTS}) .foxy-product-swatch-dot { display: block; width: 100%; height: 100%; overflow: hidden; border-radius: 50%; box-shadow: inset 0 0 0 1px ${swatchEdge}; }
 :is(${ELEMENTS}) .foxy-product-swatch-dot img { display: block; width: 100%; height: 100%; object-fit: cover; }
 :is(${ELEMENTS}) .foxy-product-radio:checked + .foxy-product-swatch .foxy-product-swatch-ring { border-color: ${accent}; }
-:is(${ELEMENTS}) .foxy-product-radio:disabled + .foxy-product-swatch { cursor: not-allowed; }
+${control()} .foxy-product-radio:disabled + .foxy-product-swatch { cursor: not-allowed; }
 :is(${ELEMENTS}) .foxy-product-radio:disabled + .foxy-product-swatch .foxy-product-swatch-ring { opacity: 0.4; }
 :is(${ELEMENTS}) .foxy-product-stepper { display: flex; align-items: stretch; align-self: flex-start; overflow: hidden; border: 1px solid ${border}; border-radius: ${fieldRadius}; }
-:is(${ELEMENTS}) .foxy-product-stepper button { width: 44px; height: 44px; padding: 0; border: 0; border-radius: 0; background: ${panel}; color: ${onDisabled}; font-size: 18px; cursor: pointer; }
-:is(${ELEMENTS}) .foxy-product-stepper button:disabled { opacity: 0.45; cursor: not-allowed; }
+${control()} .foxy-product-stepper button {
+  width: 44px; height: 44px; padding: 0; border: 0; border-radius: 0; background: ${panel} !important; color: ${onDisabled} !important;
+  font-size: 18px; line-height: 1; cursor: pointer;
+}
+${control()} .foxy-product-stepper button:disabled { opacity: 0.45; cursor: not-allowed; }
 :is(${ELEMENTS}) .foxy-product-stepper input { box-sizing: border-box; width: 52px; padding: 0; border: 0; border-radius: 0; background: ${surface}; color: ${body}; font-size: 15px; text-align: center; }
 
 :is(${ELEMENTS}) .foxy-product-rows { display: flex; flex-direction: column; overflow: hidden; border: 1px solid ${border}; border-radius: ${fieldRadius}; }
-:is(${ELEMENTS}) .foxy-product-row {
+${control()} .foxy-product-row {
   display: flex; align-items: center; gap: 12px; box-sizing: border-box; min-height: 52px; padding: 8px 14px;
   background: ${surface}; color: ${nameColor}; font-size: 15px; cursor: pointer;
 }
-:is(${ELEMENTS}) .foxy-product-row + .foxy-product-radio + .foxy-product-row { border-top: 1px solid ${divider}; }
-:is(${ELEMENTS}) .foxy-product-row::before { content: ""; flex: none; box-sizing: border-box; width: 18px; height: 18px; border: 2px solid ${border}; border-radius: 50%; }
-:is(${ELEMENTS}) .foxy-product-radio:checked + .foxy-product-row { background: ${panel}; font-weight: 600; }
-:is(${ELEMENTS}) .foxy-product-radio:checked + .foxy-product-row::before { border: 6px solid ${accent}; }
-:is(${ELEMENTS}) .foxy-product-radio:focus-visible + .foxy-product-row { outline-offset: -2px; }
-:is(${ELEMENTS}) .foxy-product-radio:disabled + .foxy-product-row { color: ${muted}; cursor: not-allowed; }
-:is(${ELEMENTS}) .foxy-product-row-media { flex: none; width: 40px; height: 40px; overflow: hidden; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15); }
+${control()} .foxy-product-row + .foxy-product-radio + .foxy-product-row { border-top: 1px solid ${divider}; }
+${control()} .foxy-product-row::before {
+  content: ""; position: static; flex: none; box-sizing: border-box; width: 18px; height: 18px;
+  border: 2px solid ${border}; border-radius: 50%; background: none; box-shadow: none;
+}
+${control()} .foxy-product-radio:checked + .foxy-product-row { background: ${panel}; font-weight: 600; }
+${control()} .foxy-product-radio:checked + .foxy-product-row::before { border: 6px solid ${accent}; }
+${control()} .foxy-product-radio:focus-visible + .foxy-product-row { outline-offset: -2px; }
+${control()} .foxy-product-radio:disabled + .foxy-product-row { color: ${muted}; cursor: not-allowed; }
+:is(${ELEMENTS}) .foxy-product-row-media { flex: none; width: 40px; height: 40px; overflow: hidden; border-radius: 6px; box-shadow: inset 0 0 0 1px ${swatchEdge}; }
 :is(${ELEMENTS}) .foxy-product-row-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
 :is(${ELEMENTS}) .foxy-product-row-label { flex: 1; min-width: 0; }
 :is(${ELEMENTS}) .foxy-product-row-price { flex: none; color: ${nameColor}; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -432,9 +468,9 @@ ${themed("dark")} { color-scheme: dark; }
   display: block; width: 100%; height: 100%; max-height: ${PHOTO_MAX_HEIGHT}; object-fit: var(--foxy-product-photo-fit, contain);
 }
 :is(foxy-product-page) .foxy-product-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 10px; }
-:is(foxy-product-page) .foxy-product-thumbs button { aspect-ratio: 1 / 1; padding: 0; overflow: hidden; border: 2px solid ${divider}; border-radius: ${radius}; background: ${panel}; cursor: pointer; }
-:is(foxy-product-page) .foxy-product-thumbs button[aria-current="true"] { border-color: ${accent}; }
-:is(foxy-product-page) .foxy-product-thumbs button:focus-visible { outline: 2px solid ${accent}; outline-offset: 2px; }
+${control("foxy-product-page")} .foxy-product-thumbs button { aspect-ratio: 1 / 1; padding: 0; overflow: hidden; border: 2px solid ${divider}; border-radius: ${radius}; background: ${panel} !important; cursor: pointer; }
+${control("foxy-product-page")} .foxy-product-thumbs button[aria-current="true"] { border-color: ${accent}; }
+${control("foxy-product-page")} .foxy-product-thumbs button:focus-visible { outline: 2px solid ${accent}; outline-offset: 2px; }
 :is(foxy-product-page) .foxy-product-thumbs img { display: block; width: 100%; height: 100%; object-fit: cover; }
 :is(foxy-product-page) .foxy-product-info { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 :is(foxy-product-page) .foxy-product-summary { gap: 6px; }
@@ -453,7 +489,7 @@ ${themed("dark")} { color-scheme: dark; }
 :is(foxy-product-page) .foxy-product-summary .foxy-product-price { font-size: var(--foxy-product-price-size, 26px); }
 :is(foxy-product-page) .foxy-product-note { font-size: 14px; }
 :is(foxy-product-page) .foxy-product-controls { gap: 20px; }
-:is(foxy-product-page) button.foxy-product-button { min-height: 52px; font-size: 16px; letter-spacing: 0.02em; }
+${control("foxy-product-page")} button.foxy-product-button { min-height: 52px; font-size: 16px; letter-spacing: 0.02em; }
 :is(foxy-product-page) .foxy-product-below { display: flex; flex-wrap: wrap; gap: 24px; }
 :is(foxy-product-page) .foxy-product-description {
   display: flex; flex: 2 1 520px; flex-direction: column; gap: 14px; box-sizing: border-box; min-width: 0; padding: ${cardPadding("32px")};
@@ -491,13 +527,13 @@ ${themed("dark")} { color-scheme: dark; }
 :is(foxy-product-page) .foxy-product-panel tbody tr { border-top: 1px solid ${divider}; }
 :is(foxy-product-page) .foxy-product-panel a { color: inherit; }
 :is(foxy-product-page) .foxy-product-tablist { display: flex; gap: 4px; margin-bottom: 24px; overflow-x: auto; border-bottom: 1px solid ${divider}; }
-:is(foxy-product-page) .foxy-product-tab {
-  flex: none; margin-bottom: -1px; padding: 16px 14px 14px; border: 0; border-bottom: 2px solid transparent; background: none;
-  color: ${muted}; font-size: 15px; font-weight: 500; cursor: pointer;
+${control("foxy-product-page")} .foxy-product-tab {
+  flex: none; margin-bottom: -1px; padding: 16px 14px 14px; border: 0; border-bottom: 2px solid transparent; background: none !important;
+  color: ${muted} !important; font-size: 15px; font-weight: 500; cursor: pointer;
 }
-:is(foxy-product-page) .foxy-product-tab[aria-selected="true"] { border-bottom-color: ${accent}; color: ${nameColor}; }
-:is(foxy-product-page) .foxy-product-tab:hover { color: ${nameColor}; }
-:is(foxy-product-page) .foxy-product-tab:focus-visible { outline: 2px solid ${accent}; outline-offset: -2px; }
+${control("foxy-product-page")} .foxy-product-tab[aria-selected="true"] { border-bottom-color: ${accent}; color: ${nameColor} !important; }
+${control("foxy-product-page")} .foxy-product-tab:hover { color: ${nameColor} !important; }
+${control("foxy-product-page")} .foxy-product-tab:focus-visible { outline: 2px solid ${accent}; outline-offset: -2px; }
 :is(foxy-product-page) .foxy-product-panel:focus-visible { outline: 2px solid ${accent}; outline-offset: 4px; }
 :is(foxy-product-page) .foxy-product-sections[data-layout="accordion"] { padding-top: 0; padding-bottom: 0; }
 :is(foxy-product-page) .foxy-product-section + .foxy-product-section { border-top: 1px solid ${divider}; }

@@ -119,6 +119,31 @@ describe("foxy-product-link", () => {
     expect(link(element)?.textContent).toBe("Buy now");
   });
 
+  it("shows what its quantity costs, as the cart will charge it", async () => {
+    stub = stubCatalog();
+    // 3 × $16.40 is $49.20; 3 × $18.90, the list price, is $56.70.
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" quantity="3" currency="USD"></foxy-product-link>`);
+    await settle();
+    expect(link(element)?.textContent).toBe("Add to cart · $49.20 $56.70");
+
+    element.setAttribute("sku", "MUG-ENM-ENGRAVE");
+    element.setAttribute("value", "engraving=Jo");
+    element.setAttribute("quantity", "2");
+    await settle();
+    expect(link(element)?.href).toContain("quantity=2");
+    expect(link(element)?.textContent).toBe("Add to cart · $55.00 $60.00");
+  });
+
+  it("rounds what its quantity costs to the currency's own decimals", async () => {
+    const dinars = { ...plainMug.definition, price: "1.235", list_price: undefined, prices: undefined };
+    stub = stubCatalog([{ ...plainMug, currency_code: "KWD", definition: dinars }]);
+    const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" quantity="3" lang="en-US"></foxy-product-link>`);
+    await settle();
+    // 3 × 1.235 is 3.705; rounded to cents first, it would read 3.710.
+    const total = new Intl.NumberFormat("en-US", { style: "currency", currency: "KWD" }).format(3.705);
+    expect(link(element)?.textContent).toBe(`Add to cart · ${total}`);
+  });
+
   it("shows the price, struck-through list price and currency amount", async () => {
     stub = stubCatalog();
     const element = mount(`<foxy-product-link store="${FIXTURE_STORE}" sku="MUG-ENM-WHT" show-price currency="EUR" lang="en-US"></foxy-product-link>`);

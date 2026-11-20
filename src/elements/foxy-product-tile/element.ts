@@ -2,7 +2,6 @@ import { analyticsDetail, analyticsItem, tileLists } from "@/lib/products/analyt
 import { ProductElement, SHARED_ATTRIBUTES } from "@/lib/products/element-base";
 import {
   addToCartHref,
-  chooseLabel,
   jsonLdScript,
   productImage,
   renderPrice,
@@ -16,10 +15,10 @@ import { productJsonLd } from "@/lib/products/structured-data";
 import type { CatalogProduct } from "@/lib/products/types";
 
 /**
- * One product in a grid: image, name, brand, colours, price, and either a one-click
- * add or a link to the merchant's own product page. A product with options
- * or a required modifier always links to its page, where they can be
- * chosen. Everything renders in light DOM, so 2.0 sees the add link and
+ * One product in a grid: image, name, brand, colours, price, and a one-click
+ * add for a product that can be added without choosing anything. The photo
+ * and name link to the merchant's own product page, where a product with
+ * options or a required modifier is chosen. Everything renders in light DOM, so 2.0 sees the add link and
  * search engines see the text, along with schema.org `Product` data.
  */
 export class ProductTileElement extends ProductElement {
@@ -39,7 +38,7 @@ export class ProductTileElement extends ProductElement {
     this.setAttribute("href", value);
   }
 
-  /** `never` always links to `href`; anything else adds in one click when it can. */
+  /** `never` leaves the add button out; anything else shows it when one click can add the product. */
   get quickAdd(): "auto" | "never" {
     return this.getAttribute("quick-add") === "never" ? "never" : "auto";
   }
@@ -212,42 +211,29 @@ export class ProductTileElement extends ProductElement {
     return list;
   }
 
+  /**
+   * The add button, only for a product one click can add: anything else is
+   * chosen or read about on its page, which the tile's photo and name link to.
+   */
   #action(
     product: CatalogProduct,
     store: string,
     pageHref: string | null,
     locale: string,
   ): HTMLAnchorElement | null {
+    if (!product.is_in_stock) return null;
+    const oneClick = isOneClick(product);
+    if (!oneClick && !pageHref) {
+      this.warn(`[Foxy] ${product.sku} needs choices; give foxy-product-tile an href to its page.`);
+    }
+    if (!oneClick || this.quickAdd === "never") return null;
+
     const button = document.createElement("a");
     button.className = "foxy-product-button";
-
-    if (!product.is_in_stock) {
-      // No href, so nothing can add it; the name still links to its page.
-      button.setAttribute("role", "link");
-      button.setAttribute("aria-disabled", "true");
-      button.textContent = format(locale, messages.soldOut);
-      return button;
-    }
-
-    const oneClick = isOneClick(product);
-    if (oneClick && this.quickAdd === "auto") {
-      button.href = addToCartHref(store, product.sku);
-      button.rel = "nofollow";
-      button.addEventListener("click", () => this.addStarted(this.#detail(product, true)));
-      button.textContent = this.look.buttonText || format(locale, messages.addToCart);
-      return button;
-    }
-
-    if (!pageHref) {
-      if (!oneClick) {
-        this.warn(`[Foxy] ${product.sku} needs choices; give foxy-product-tile an href to its page.`);
-      }
-      return null;
-    }
-
-    button.classList.add("foxy-product-button-secondary");
-    button.href = pageHref;
-    button.textContent = oneClick ? format(locale, messages.viewProduct) : chooseLabel(product, locale);
+    button.href = addToCartHref(store, product.sku);
+    button.rel = "nofollow";
+    button.addEventListener("click", () => this.addStarted(this.#detail(product, true)));
+    button.textContent = this.look.buttonText || format(locale, messages.addToCart);
     return button;
   }
 }

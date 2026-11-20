@@ -46,8 +46,9 @@ export const ParentLinksToItsPage: Story = {
   render: () => render({ sku: "TEE-ORG" }),
   play: async ({ canvasElement }) => {
     await waitFor(() =>
-      expect(canvasElement.querySelector("a.foxy-product-button")?.textContent).toBe("Choose colour and size"),
+      expect(canvasElement.querySelector(".foxy-product-name a")?.getAttribute("href")).toBe("#/shop/TEE-ORG"),
     );
+    expect(canvasElement.querySelector(".foxy-product-button")).toBeNull();
   },
 };
 

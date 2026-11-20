@@ -11,7 +11,11 @@ export function renderMarkdown(source: string): DocumentFragment {
   const fragment = document.createDocumentFragment();
   const lines = source
     .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<\/?[a-zA-Z][^>]*>/g, "")
+    // Only what reads as a tag: bare, or with an attribute that has a value.
+    // Text such as "sizes <M or >L" stays.
+    .replace(/<\/?[a-zA-Z][\w-]*(\s[^<>]*?)?\s*\/?>/g, (tag, attributes = "") =>
+      !attributes.trim() || attributes.includes("=") ? "" : tag,
+    )
     .split(/\r?\n/);
 
   let index = 0;

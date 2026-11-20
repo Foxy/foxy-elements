@@ -5,6 +5,7 @@ import { addToCartHref, buttonText, chooseLabel, priceNodes, renderPrice } from 
 import { productPageHref } from "@/lib/products/look";
 import { format, messages } from "@/lib/products/messages";
 import { isOneClick, parseChoices } from "@/lib/products/options";
+import { productPrice } from "@/lib/products/price";
 
 /**
  * A link that adds one product to the cart:
@@ -144,7 +145,15 @@ export class ProductLinkElement extends ProductElement {
       let price: HTMLElement | undefined;
       if (this.showPrice && product) {
         price = renderPrice(product, requested, locale);
-        if (live) price.replaceChildren(...priceNodes(live.price, live.listPrice, live.currency, locale));
+        const unit = live ?? productPrice(product, requested);
+        // The link adds them all at once, so it shows what they all cost,
+        // rounded to the currency's own decimals only when it is shown.
+        const times = (amount: number) => amount * this.quantity;
+        if (unit.price !== null) {
+          price.replaceChildren(
+            ...priceNodes(times(unit.price), unit.listPrice === null ? null : times(unit.listPrice), unit.currency, locale),
+          );
+        }
       }
       link.append(buttonText(label, price));
       if (product) {

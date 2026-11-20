@@ -35,10 +35,6 @@ export const messages = defineMessages({
     id: "product_choose_options",
     defaultMessage: "Choose options",
   },
-  viewProduct: {
-    id: "product_view",
-    defaultMessage: "View product",
-  },
   variant: {
     id: "product_variant",
     defaultMessage: "Choose one",

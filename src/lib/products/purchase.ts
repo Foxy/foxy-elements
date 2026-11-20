@@ -248,14 +248,15 @@ export class Purchase {
     legend: HTMLElement,
     groupClass: string,
     items: T[],
-    item: (value: T) => { checked: boolean; disabled: boolean; choose: () => void; label: HTMLLabelElement },
+    item: (value: T) => { value: string; checked: boolean; disabled: boolean; choose: () => void; label: HTMLLabelElement },
   ): HTMLFieldSetElement {
     const set = el("fieldset", "foxy-product-option");
     const group = el("div", groupClass);
     items.forEach((value, index) => {
-      const { checked, disabled, choose, label } = item(value);
+      const { value: own, checked, disabled, choose, label } = item(value);
       const radio = el("input", "foxy-product-radio");
       radio.type = "radio";
+      radio.value = own;
       // No field of this name reaches the cart: these controls sit in a
       // form without an action, and the cart form is built apart.
       radio.name = `${this.#id}-${name}`;
@@ -296,6 +297,7 @@ export class Purchase {
     const prices = values.map(({ value }) => this.#valuePrice(option, value));
     const showPrices = prices.every((price) => price !== null);
     return this.#radios(option.name, el("legend", undefined, option.label), "foxy-product-rows", values, (value) => ({
+      value: value.value,
       checked: value.value === this.state.choices[option.name],
       disabled: value.soldOut,
       choose: () => this.#choose(option.name, value.value),
@@ -312,6 +314,7 @@ export class Purchase {
       const name = variant.definition.name ?? variant.display_name ?? variant.sku;
       const { price, currency } = productPrice(variant, this.#settings.currency);
       return {
+        value: variant.sku,
         checked: variant.sku === this.state.variantSku,
         disabled: !variant.is_in_stock,
         choose: () => {
@@ -357,6 +360,7 @@ export class Purchase {
         label.textContent = text;
       }
       return {
+        value: value.value,
         checked: value === chosen,
         disabled: value.soldOut,
         choose: () => this.#choose(option.name, value.value),

@@ -17,7 +17,7 @@ import {
   offeredModifiers,
   quantityBounds,
 } from "./choices";
-import { stockNote } from "./light-dom";
+import { renderPrice, stockNote } from "./light-dom";
 import { fetchLook, parseLook, productPageHref } from "./look";
 import { renderMarkdown } from "./markdown";
 import {
@@ -37,6 +37,7 @@ import {
   productPrice,
   resolveCurrency,
 } from "./price";
+import type { CatalogProduct } from "./types";
 
 let stub: CatalogStub | undefined;
 
@@ -132,6 +133,20 @@ describe("prices", () => {
     expect(priceRange(teeParent, null)).toEqual({ min: 24.95, max: 26.95, currency: "USD" });
     expect(priceRange(teeParent, "EUR")).toEqual({ min: 22.95, max: 24.8, currency: "EUR" });
     expect(priceRange(plainMug, null)).toEqual({ min: 16.4, max: 16.4, currency: "USD" });
+  });
+
+  it("leaves free variants out of a range while any variant has a price", () => {
+    const [adult, child, infant] = teeParent._embedded!.variants!;
+    const priced = (variant: CatalogProduct, price: string) => ({ ...variant, definition: { ...variant.definition, price, prices: {} } });
+    const tickets = (...prices: string[]) => ({
+      ...teeParent,
+      _embedded: { variants: [adult, child, infant].map((variant, at) => priced(variant, prices[at])) },
+    });
+    expect(priceRange(tickets("68.00", "34.00", "0.00"), null)).toEqual({ min: 34, max: 68, currency: "USD" });
+    expect(priceRange(tickets("35.00", "0.00", "0"), null)).toEqual({ min: 35, max: 35, currency: "USD" });
+    expect(priceRange(tickets("0.00", "0.00", "0"), null)).toEqual({ min: 0, max: 0, currency: "USD" });
+    const summary = renderPrice(tickets("68.00", "34.00", "0.00"), null, "en-US");
+    expect(summary.textContent).toBe("$34.00 – $68.00");
   });
 
   it("says a price is in the currency the catalog gave it, whatever was asked for", () => {
@@ -417,5 +432,10 @@ describe("renderMarkdown", () => {
       '<p>Hi a <a href="https://x.example/p" rel="noopener nofollow">b</a> c</p>',
     );
     expect(html("1 < 2 and <script>alert(1)</script>")).toBe("<p>1 &lt; 2 and alert(1)</p>");
+    expect(html("Line<br/>break<br />here <img src=x onerror=alert(1)>")).toBe("<p>Linebreakhere</p>");
+  });
+
+  it("keeps text that only looks like the start of a tag", () => {
+    expect(html("Fits sizes <M or >L, and <XL on request.")).toBe("<p>Fits sizes &lt;M or &gt;L, and &lt;XL on request.</p>");
   });
 });

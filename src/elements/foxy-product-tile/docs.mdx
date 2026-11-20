@@ -5,7 +5,7 @@ import * as ProductTileStories from "./element.stories";
 
 # foxy-product-tile
 
-One product in a grid: its first image, name, brand, the colours it comes in, price, stock, and either a one-click add or a link to the merchant's own page for the product. `foxy-product-collection` lays these out; a tile also works on its own.
+One product in a grid: its first image, name, brand, the colours it comes in, price, stock, and a one-click add when the product needs no choices. Its photo and name link to the merchant's own page for the product. `foxy-product-collection` lays these out; a tile also works on its own.
 
 ```html
 <foxy-product-tile sku="MUG-ENM-WHT" href="/product?sku={sku}"></foxy-product-tile>
@@ -15,19 +15,20 @@ Everything renders in light DOM: the add link, so 2.0's `foxycart.js` takes it o
 
 ## What it offers
 
-| Product | Action |
+| Product | Button |
 | --- | --- |
 | Without choices, or a variant, in stock | "Add to cart" (or the store's saved button text), adding in one click |
-| With options | "Choose size and colour" (its options' names; "Choose options" for three), linking to `href`. It never adds: the 2.0 cart can't ask for the options. |
-| With a required modifier | "Choose options", linking to `href` |
-| Sold out | "Sold out", which isn't a link, and "Sold out" under the price. The name still links to `href`. |
-| `quick-add="never"` | "View product", linking to `href` |
+| With options, or a required modifier | None: the photo and name link to `href`, where they are chosen. It never adds: the 2.0 cart can't ask for them. |
+| Sold out | None, and "Sold out" under the price |
+| `quick-add="never"` | None |
+
+A tile shows a button only when the button adds to the cart; the tile itself is the link to the product.
 
 Under the price it says "Only 3 left" when stock is at or below the low-stock threshold: the product's own low-stock threshold when it sets one (`low_stock_threshold` in its definition, which variants inherit), else the store's (5 unless the store saved another).
 
 **Colours.** For a product with options, the tile shows up to five dots for the first option whose values have a `color`, and "+2" for the rest, so a shopper sees what it comes in. They aren't buttons; a screen reader reads the option's label and each value's name. A product with fewer than two coloured values shows none.
 
-A parent with its variants shows the range of their prices. A tile given a `sku` loads them; a tile handed a `product` without them, as a collection does unless it has `variant-prices`, shows the parent's own price.
+A parent with its variants shows the range of their prices, leaving out free variants when any variant has a price ("$34.00 – $68.00", not "$0.00 – $68.00"). A tile given a `sku` loads them; a tile handed a `product` without them, as a collection does unless it has `variant-prices`, shows the parent's own price.
 
 ## Attributes
 
@@ -36,7 +37,7 @@ A parent with its variants shows the range of their prices. A tile given a `sku`
 | `sku` | `sku` | The product's SKU. Not needed when `product` is set. |
 | `store` | `store` | The store's domain. Defaults to the one 2.0's `loader.js` was loaded for. |
 | `href` | `href` | The merchant's page for the product. `{sku}` is replaced with its SKU. Unset, the product page saved in the store's settings is used, which takes the same placeholder. With neither, a tile can only add. |
-| `quick-add` | `quickAdd` | `never` always links to `href`. Default `auto`. |
+| `quick-add` | `quickAdd` | `never` leaves the add button out, so the tile only links to `href`. Default `auto`. |
 | `heading-level` | `headingLevel` | The name's heading level. Default `3`. |
 | `currency`, `currency-cookie`, `lang` | | As for `foxy-product-link`. The name shows in the `lang`'s translation when the catalog has one. |
 | `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. |
@@ -50,4 +51,4 @@ The `product` property takes a catalog product directly; the collection uses it 
 
 ## Styling
 
-The look's attributes and CSS variables are listed under `foxy-product-link`; `--foxy-product-tile-aspect` sets the image's shape. Classes: `.foxy-product-tile-swatches`, `.foxy-product-tile-swatch`, `.foxy-product-tile-more`, `.foxy-product-tile`, `.foxy-product-tile-media`, `.foxy-product-tile-body`, `.foxy-product-brand`, `.foxy-product-name`, `.foxy-product-tile-price`, `.foxy-product-price`, `.foxy-product-note`, `.foxy-product-tile-action`, `.foxy-product-button` (with `.foxy-product-button-secondary` when it links to the page). The list price inside `.foxy-product-price` is `.foxy-product-list-price`; `--foxy-product-price-color`, `--foxy-product-price-size`, `--foxy-product-list-price-color` and `--foxy-product-list-price-size` restyle them.
+The look's attributes and CSS variables are listed under `foxy-product-link`; `--foxy-product-tile-aspect` sets the image's shape. Classes: `.foxy-product-tile-swatches`, `.foxy-product-tile-swatch`, `.foxy-product-tile-more`, `.foxy-product-tile`, `.foxy-product-tile-media`, `.foxy-product-tile-body`, `.foxy-product-brand`, `.foxy-product-name`, `.foxy-product-tile-price`, `.foxy-product-price`, `.foxy-product-note`, `.foxy-product-tile-action`, `.foxy-product-button`. The list price inside `.foxy-product-price` is `.foxy-product-list-price`; `--foxy-product-price-color`, `--foxy-product-price-size`, `--foxy-product-list-price-color` and `--foxy-product-list-price-size` restyle them.

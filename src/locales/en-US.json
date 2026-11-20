@@ -303,7 +303,6 @@
   "product_value_price": "{label} · {price}",
   "product_value_sold_out": "{label} (sold out)",
   "product_variant": "Choose one",
-  "product_view": "View product",
   "side_cart_trigger_label": "Cart",
   "side_cart_trigger_label_unavailable": "Cart, item count unavailable",
   "side_cart_trigger_label_with_count": "Cart, {count, plural, one {# item} other {# items}}"

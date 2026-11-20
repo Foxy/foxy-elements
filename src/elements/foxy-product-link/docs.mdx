@@ -28,7 +28,7 @@ Whatever you put inside the tag shows until the link renders, and again when the
 | --- | --- | --- |
 | `sku` | `sku` | Required. The SKU of a product without choices, or of a variant. Hidden products work too. |
 | `store` | `store` | The store's domain, such as `example.foxycart.com`. Defaults to the domain 2.0's `loader.js` was loaded for. |
-| `quantity` | `quantity` | Units to add. Default `1`. |
+| `quantity` | `quantity` | Units to add. Default `1`. The price shown is what they all cost ("Add to cart · $32.80" for two at $16.40). |
 | `value` | `value` | Values for the product's modifiers, as a query string: `value="tailpiece=Stop tailpiece"`. They are added to the cart link, and their amounts to the price shown, so a product with a required modifier adds in one click. A select's value must be one of its values (any case); a text value must fit its length; anything else, and any name that isn't one of the product's modifiers, is left out. |
 | `label` | `label` | The link's text. Default: the store's saved button text, else "Add to cart". |
 | `show-price` | `showPrice` | Whether the price follows the text ("Add to cart · $16.40"), with the list price struck through when it's higher. Unset, the price shows unless you wrote your own `label`. `show-price` turns it on with a `label`; `show-price="false"` turns it off. A button too narrow for its text and the price on one line leaves the price out; it stays in the link's text for screen readers. |
@@ -62,7 +62,7 @@ Every price is shown in the currency the catalog says that price is in:
 - otherwise the product's `price` is shown in the currency the catalog names with it (`currency_code`), whatever the page wanted;
 - when the catalog names no currency, the price shows as a plain amount, with no symbol, and the schema.org data has no offer.
 
-A parent's range never mixes currencies: if some of its variants have no price in the wanted currency, the range is over their prices in the catalog's currency.
+A parent's range never mixes currencies: if some of its variants have no price in the wanted currency, the range is over their prices in the catalog's currency. It leaves out free variants while any variant has a price, so tickets at $68.00, $34.00 and free read "$34.00 – $68.00"; each free variant still shows its own $0.00 where it is chosen.
 
 ## The look
 
@@ -175,6 +175,8 @@ foxy-product-form {
 
 **Your own CSS.** Everything renders in light DOM, so the page's CSS reaches it, and every part has a `foxy-product-…` class. The elements' own rules start with the element's name so that a theme's `button`, `label` or `a` styles don't undo them; start yours the same way, as in `foxy-product-tile .foxy-product-price { font-weight: 600 }`. In the store's saved CSS that is enough, because it is added to the page after the elements' own stylesheet. In a stylesheet of the page's own, a rule that sets something the elements also set needs one more selector in front, such as `body foxy-product-tile .foxy-product-price`. The store's saved CSS is added to the page as it is; it isn't scoped to the elements.
 
+**Buttons and options.** A site's theme usually styles every `button` and every `input[type=radio] + label`, so the elements' buttons, option buttons, swatches, rows, quantity stepper, tabs and photo thumbnails are guarded: their rules weigh as much as an ID, they set what such theme rules commonly change (size, line height, case, letter spacing, corners, shadow, a radio drawn in `::before`), and their colours and backgrounds are `!important`, so those change only through the variables above (or with `!important` of your own). For anything else, a rule of your own for one of these parts needs an ID in front, such as `#shop foxy-product-form .foxy-product-pill` in the store's saved CSS, and in a page's own stylesheet one more selector as well, such as `body #shop foxy-product-form .foxy-product-pill`. This applies to every theme, `plain` included.
+
 ## Changing the look on a page that is already showing
 
 Every attribute can change on an element that is on the page, and it updates where it stands:
@@ -198,10 +200,13 @@ window.dispatchEvent(
 
 `settings` has the fields of that endpoint's answer (`theme`, `text_color`, `button_color`, `button_text_color`, `button_radius`, `button_text`, `font`, `custom_css`, `low_stock_threshold`, `product_url`, `analytics`) and is checked the same way. It replaces the store's settings whole: a field left out is not set. Every element of that store on the page takes the new settings at once, without a request and without loading its product again, and so does any element added later. Sent before the first element is on the page, it spares the request for the settings altogether. This is what a live preview of the settings needs.
 
-The elements listen for this event only, never for messages from other windows. A preview in an iframe passes its parent's messages on itself, with one line in the iframe's page:
+The elements listen for this event only, never for messages from other windows. A preview in an iframe passes its parent's messages on itself, with a few lines in the iframe's page. Check the origin as well as the source: any site can put your page in a frame, and its messages come from `parent` too.
 
 ```js
-addEventListener("message", (e) => e.source === parent && dispatchEvent(new CustomEvent("foxy-product-settings", { detail: e.data })));
+const EDITOR = "https://editor.example.com"; // the origin of the page that holds the iframe
+addEventListener("message", (e) => {
+  if (e.source === parent && e.origin === EDITOR) dispatchEvent(new CustomEvent("foxy-product-settings", { detail: e.data }));
+});
 ```
 
 ## Analytics

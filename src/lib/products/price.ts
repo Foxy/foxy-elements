@@ -116,16 +116,19 @@ export interface PriceRange {
 /**
  * The lowest and highest price among a parent's embedded variants, or the
  * product's own price when it has none embedded (a listed parent, or a
- * standalone product).
+ * standalone product). Free variants count only when every variant is
+ * free: "$0.00 – $68.00" would say nothing about what the others cost.
  */
 export function priceRange(
   product: CatalogProduct,
   requested: string | null,
 ): PriceRange | null {
   const variants = product._embedded?.variants ?? [];
-  const prices = (variants.length ? variants : [product])
+  const priced = (variants.length ? variants : [product])
     .map((item) => productPrice(item, requested))
     .filter((item): item is ProductPrice & { price: number } => item.price !== null);
+  const paid = priced.filter(({ price }) => price > 0);
+  const prices = paid.length ? paid : priced;
 
   if (!prices.length) return null;
   const { currency } = prices[0];

@@ -57,18 +57,18 @@ describe("foxy-product-tile", () => {
     expect(element.querySelector(".foxy-product-note")).toBeNull();
   });
 
-  it("links a parent to its page, with its price range", async () => {
+  it("links a parent to its page, with its price range and no button", async () => {
     const element = await mount(`sku="TEE-ORG" href="/shop/{sku}"`);
     expect(element.querySelector(".foxy-product-price")?.textContent).toBe("$24.95 – $26.95");
-    expect(action(element)?.getAttribute("href")).toBe("/shop/TEE-ORG");
-    expect(action(element)?.textContent).toBe("Choose colour and size");
-    expect(element.querySelector(`a[href*="/cart"]`)).toBeNull();
+    expect(element.querySelector("h3 a")?.getAttribute("href")).toBe("/shop/TEE-ORG");
+    expect(element.querySelector(".foxy-product-tile-media")?.getAttribute("href")).toBe("/shop/TEE-ORG");
+    expect(element.querySelector(".foxy-product-tile-action, .foxy-product-button")).toBeNull();
   });
 
-  it("links a product with a required modifier to its page instead of adding", async () => {
+  it("links a product with a required modifier to its page, with no button", async () => {
     const element = await mount(`sku="MUG-ENM-ENGRAVE" href="/shop/{sku}"`);
-    expect(action(element)?.getAttribute("href")).toBe("/shop/MUG-ENM-ENGRAVE");
-    expect(action(element)?.textContent).toBe("Choose an engraving");
+    expect(element.querySelector("h3 a")?.getAttribute("href")).toBe("/shop/MUG-ENM-ENGRAVE");
+    expect(element.querySelector(".foxy-product-button")).toBeNull();
   });
 
   it("shows a parent given without its variants at its own price, with no request", async () => {
@@ -79,22 +79,20 @@ describe("foxy-product-tile", () => {
     await settle();
     expect(stub.requests).toEqual([]);
     expect(element.querySelector(".foxy-product-price")?.textContent).toBe("$24.95");
-    expect(action(element)?.getAttribute("href")).toBe("/shop/TEE-ORG");
+    expect(element.querySelector("h3 a")?.getAttribute("href")).toBe("/shop/TEE-ORG");
   });
 
-  it("says a sold-out product is sold out, with nothing to add and its name still linked", async () => {
+  it("says a sold-out product is sold out, with no button and its name still linked", async () => {
     const element = await mount(`sku="COF-HUILA-340" href="/shop/{sku}"`);
     expect(element.querySelector(".foxy-product-note")?.textContent).toBe("Sold out");
-    expect(action(element)?.textContent).toBe("Sold out");
-    expect(action(element)?.hasAttribute("href")).toBe(false);
-    expect(action(element)?.getAttribute("aria-disabled")).toBe("true");
+    expect(element.querySelector(".foxy-product-button")).toBeNull();
     expect(element.querySelector("h3 a")?.getAttribute("href")).toBe("/shop/COF-HUILA-340");
   });
 
-  it("links instead of adding when quick-add is never", async () => {
+  it("only links, with no button, when quick-add is never", async () => {
     const element = await mount(`sku="MUG-ENM-WHT" href="/shop/{sku}" quick-add="never"`);
-    expect(action(element)?.getAttribute("href")).toBe("/shop/MUG-ENM-WHT");
-    expect(action(element)?.textContent).toBe("View product");
+    expect(element.querySelector("h3 a")?.getAttribute("href")).toBe("/shop/MUG-ENM-WHT");
+    expect(element.querySelector(".foxy-product-button")).toBeNull();
   });
 
   it("emits schema.org Product data", async () => {
@@ -130,11 +128,11 @@ describe("foxy-product-tile", () => {
     stub = stubCatalog();
     stub.look = { product_url: "https://shop.example.com/p/{sku}" };
     const element = await mount(`sku="TEE-ORG"`);
-    await vi.waitFor(() => expect(action(element)?.getAttribute("href")).toBe("https://shop.example.com/p/TEE-ORG"));
-    expect(element.querySelector(".foxy-product-name a")?.getAttribute("href")).toBe("https://shop.example.com/p/TEE-ORG");
+    const name = () => element.querySelector(".foxy-product-name a")?.getAttribute("href");
+    await vi.waitFor(() => expect(name()).toBe("https://shop.example.com/p/TEE-ORG"));
 
     element.setAttribute("href", "/shop/{sku}");
-    expect(action(element)?.getAttribute("href")).toBe("/shop/TEE-ORG");
+    expect(name()).toBe("/shop/TEE-ORG");
   });
 
   it("tells the page when a shopper goes from it to the product, and Google when asked", async () => {
