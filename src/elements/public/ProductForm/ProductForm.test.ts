@@ -1043,7 +1043,7 @@ describe('ProductForm', () => {
     });
 
     it('shows them when the product has one, its own or inherited, until the merchant hides them', async () => {
-      const own = await mount({ gtin: '00850006493014' });
+      const own = await mount({ gtin: '00850006493012' });
       expect(own.toggle()!.getAttribute('aria-expanded')).to.equal('true');
       expect(own.fields()).to.have.length(3);
 
@@ -1059,9 +1059,9 @@ describe('ProductForm', () => {
       expect(inherited.fields()).to.deep.equal([]);
       expect(localStorage.getItem(KEY)).to.equal('hidden');
 
-      const later = await mount({ gtin: '00850006493014' });
+      const later = await mount({ gtin: '00850006493012' });
       expect(later.fields()).to.deep.equal([]);
-      expect(later.element.form.definition).to.include({ gtin: '00850006493014' });
+      expect(later.element.form.definition).to.include({ gtin: '00850006493012' });
     });
 
     it('keeps product fields from password managers', async () => {
@@ -1103,9 +1103,9 @@ describe('ProductForm', () => {
       await brand.updateComplete;
       expect(brand.placeholder).to.equal('Foxy Roasting Co.');
 
-      gtin.setValue(' 00850006493014 ');
+      gtin.setValue(' 00850006493012 ');
       mpn.setValue('KOCH-340-W');
-      expect(element.form.definition).to.include({ gtin: '00850006493014', mpn: 'KOCH-340-W' });
+      expect(element.form.definition).to.include({ gtin: '00850006493012', mpn: 'KOCH-340-W' });
       mpn.setValue(' ');
       expect(element.form.definition).to.not.have.property('mpn');
       expect(element.form.definition).to.not.have.property('brand');
