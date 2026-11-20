@@ -89,6 +89,8 @@ Ships in two days; returns within 30 days.
 | `theme`, `font`, `text-color`, `button-color`, `button-text-color`, `button-radius`, `accent-color` | — | The look; see `foxy-product-link`. Changing one, `label` or `option-style` updates the page where it stands and keeps the photos and the shopper's choices. |
 | `analytics` | — | Reports `view_item` and `add_to_cart` to Google Analytics; see `foxy-product-link`. |
 
+The `product` property takes a catalog product directly and shows it with no request, for a preview of a product that isn't saved yet. It sets `sku` to the product's.
+
 ## Events
 
 `foxy-product:view-item` once when the product is first shown, and `foxy-product:add-to-cart` when the cart took an add, with the chosen variant, the quantity and the value. Both are described under `foxy-product-link`.

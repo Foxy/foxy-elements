@@ -179,6 +179,9 @@ export abstract class ProductElement extends HTMLElement {
 
   /** Sets the product without a request, for an element handed one. */
   protected setProduct(product: CatalogProduct | null | undefined): void {
+    // Before the element starts, what it would render next is still the
+    // merchant's content, not a product to come back to.
+    if (!this.#started) this.#fallback ??= [...this.childNodes];
     this.#product = product && withCurrency(product, null);
     if (product) this.#loadedKey = `${this.storeDomain}\n${product.sku}`;
     this.#followLook();

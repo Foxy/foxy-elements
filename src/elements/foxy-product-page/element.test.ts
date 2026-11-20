@@ -363,6 +363,34 @@ describe("foxy-product-page", () => {
     expect(getComputedStyle(rows[1]).backgroundColor).toBe("rgba(0, 0, 0, 0)");
   });
 
+  it("shows a product it is handed with no request for it, and again when handed an edited one", async () => {
+    stub = stubCatalog();
+    document.body.innerHTML = `<foxy-product-page store="${FIXTURE_STORE}" lang="en-US" currency="USD"></foxy-product-page>`;
+    const element = document.body.querySelector("foxy-product-page")!;
+    element.product = { ...plainMug, definition: { ...plainMug.definition, description: "Steel with a glossy enamel coat." } };
+    await vi.waitFor(() => expect(element.querySelector(".foxy-product-controls")).not.toBeNull());
+    expect(element.sku).toBe("MUG-ENM-WHT");
+    expect(text(element, ".foxy-product-description")).toBe("Steel with a glossy enamel coat.");
+
+    element.product = { ...plainMug, definition: { ...plainMug.definition, description: "Glazed by hand in small batches." } };
+    expect(text(element, ".foxy-product-description")).toBe("Glazed by hand in small batches.");
+    expect(stub.requests.filter((request) => request.includes("MUG-ENM-WHT"))).toEqual([]);
+  });
+
+  it("brings back the merchant's content, not a product it was handed before it started", async () => {
+    stub = stubCatalog();
+    const element = document.createElement("foxy-product-page");
+    element.setAttribute("store", FIXTURE_STORE);
+    element.setAttribute("lang", "en-US");
+    element.innerHTML = "<p>Coming soon</p>";
+    element.product = plainMug;
+    document.body.append(element);
+    await vi.waitFor(() => expect(element.querySelector(".foxy-product-controls")).not.toBeNull());
+
+    element.product = null;
+    expect(element.textContent).toBe("Coming soon");
+  });
+
   it("gives what is bought the whole width when the product has no photo", async () => {
     stub = stubCatalog([{ ...plainMug, definition: { ...plainMug.definition, images: [] } }]);
     document.body.innerHTML = `<div style="width: 1180px"><foxy-product-page store="${FIXTURE_STORE}" sku="MUG-ENM-WHT"></foxy-product-page></div>`;

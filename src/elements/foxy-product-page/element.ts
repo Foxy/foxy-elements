@@ -74,6 +74,20 @@ export class ProductPageElement extends PurchaseElement {
     this.setAttribute("sku-param", value);
   }
 
+  /**
+   * The catalog's product. Setting it shows that product with no request,
+   * as a preview of one not yet saved does; it also sets `sku`.
+   */
+  get product(): CatalogProduct | null | undefined {
+    return super.product;
+  }
+
+  set product(value: CatalogProduct | null | undefined) {
+    this.setProduct(value);
+    if (value && this.getAttribute("sku") !== value.sku) this.setAttribute("sku", value.sku);
+    this.render();
+  }
+
   protected get wantedSku(): string {
     const fromPage = this.skuParam && new URLSearchParams(location.search).get(this.skuParam);
     return this.sku.trim() || fromPage?.trim() || "";
